@@ -1,6 +1,9 @@
 # CSBEF
 Code Scientific - Back-End Framework
 
+# Current Version
+Version: 1.2.0
+
 # Nuget
 https://www.nuget.org/packages/CSBEF.Core/
 
