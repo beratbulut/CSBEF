@@ -2,7 +2,7 @@
 Code Scientific - Back-End Framework
 
 # Current Version
-Version: 1.2.0
+Version: 1.2.0 ([latest release](https://github.com/mkurak/CSBEF/releases/tag/1.2.0))
 
 # Nuget
 https://www.nuget.org/packages/CSBEF.Core/
@@ -13,5 +13,5 @@ I am preparing a comprehensive documentation of the project. But since I develop
 # What is needed?
 Is an urgent need for the translation. Turkish will prepare documentation must be translated into English. Another friend of mine is preparing her German. If Turkish - English translation and will do If you can spare time, the project will have a major contribution.
 
-# Support
+# Donate
 Patreon: https://www.patreon.com/user?u=16856720
