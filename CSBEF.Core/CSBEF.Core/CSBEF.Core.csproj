@@ -14,6 +14,8 @@
     <RepositoryUrl>https://github.com/mkurak/CSBEF</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <PackageTags>Modular API Builder</PackageTags>
+    <Version>1.2.0</Version>
+    <PackageReleaseNotes>ActionContextAccessor added to the service collection</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
