@@ -17,6 +17,7 @@ https://www.nuget.org/packages/CSBEF.Core/
 
 # Sample API Application
 CSBEF is a sample API application where all official modules are implemented. This application gives an idea of how the structure works and how the integration should be.
+<br>
 [CSBEF.SampleAPI](https://github.com/mkurak/CSBEF.SimpleAPI)
 
 # Very Soon
