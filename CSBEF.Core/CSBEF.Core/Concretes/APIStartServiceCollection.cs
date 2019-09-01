@@ -39,8 +39,15 @@ namespace CSBEF.Core.Concretes
 
         #endregion Private Properties
 
-        public IServiceProvider Init(IConfiguration configuration, IHostingEnvironment hostingEnvironment, IServiceCollection services)
+        public IServiceProvider Init(IConfiguration configuration, IHostingEnvironment hostingEnvironment, IServiceCollection services, ApiStartOptionsModel options = null)
         {
+            #region Options Check
+
+            if (options == null)
+                options = new ApiStartOptionsModel();
+
+            #endregion
+
             #region Transfer Dependencies
 
             _configuration = configuration;
@@ -64,26 +71,26 @@ namespace CSBEF.Core.Concretes
 
             #region DbContext
 
-            _services.AddDbContext<ModularDbContext>(options =>
+            _services.AddDbContext<ModularDbContext>(opt =>
             {
                 switch (configuration["AppSettings:DBSettings:Provider"])
                 {
                     case "mssql":
-                        options.UseSqlServer(configuration["AppSettings:DBSettings:ConnectionString"]);
+                        opt.UseSqlServer(configuration["AppSettings:DBSettings:ConnectionString"]);
                         break;
 
                     case "mysql":
-                        options.UseMySQL(configuration["AppSettings:DBSettings:ConnectionString"]);
+                        opt.UseMySQL(configuration["AppSettings:DBSettings:ConnectionString"]);
                         break;
 
                     case "postgresql":
-                        options.UseNpgsql(configuration["AppSettings:DBSettings:ConnectionString"]);
+                        opt.UseNpgsql(configuration["AppSettings:DBSettings:ConnectionString"]);
                         break;
                 }
 
-                options.EnableDetailedErrors(true);
-                options.EnableSensitiveDataLogging(true);
-            }, ServiceLifetime.Scoped);
+                opt.EnableDetailedErrors(options.DbContext_EnableDetailedErrors);
+                opt.EnableSensitiveDataLogging(options.DbContext_EnableSensitiveDataLogging);
+            }, options.DbContext_LifeTimeType);
 
             #endregion DbContext
 
@@ -96,14 +103,14 @@ namespace CSBEF.Core.Concretes
                 x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
             }).AddJwtBearer(x =>
             {
-                x.RequireHttpsMetadata = false;
-                x.SaveToken = true;
+                x.RequireHttpsMetadata = options.Jwt_JwtBearer_RequireHttpsMetadata;
+                x.SaveToken = options.Jwt_JwtBearer_SaveToken;
                 x.TokenValidationParameters = new TokenValidationParameters
                 {
-                    ValidateIssuerSigningKey = true,
+                    ValidateIssuerSigningKey = options.Jwt_JwtBearer_TokenValidationParameters_ValidateIssuerSigningKey,
                     IssuerSigningKey = new SymmetricSecurityKey(JWTSecretKey),
-                    ValidateIssuer = false,
-                    ValidateAudience = false
+                    ValidateIssuer = options.Jwt_JwtBearer_TokenValidationParameters_ValidateIssuer,
+                    ValidateAudience = options.Jwt_JwtBearer_TokenValidationParameters_ValidateAudience
                 };
                 x.Events = new JwtBearerEvents()
                 {
@@ -153,18 +160,18 @@ namespace CSBEF.Core.Concretes
             #region Install MVC Settings
 
             var mvcBuilder = _services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
-            //.AddJsonOptions(x => x.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore)
-            //.AddJsonOptions(x => x.SerializerSettings.PreserveReferencesHandling = Newtonsoft.Json.PreserveReferencesHandling.Objects)
-            //.AddJsonOptions(options => options.SerializerSettings.ContractResolver = new DefaultContractResolver());
+            if (options.JsonOptions_Using)
+            {
+                mvcBuilder.AddJsonOptions(x => x.SerializerSettings.ReferenceLoopHandling = options.JsonOptions_ReferenceLoopHandling);
+                mvcBuilder.AddJsonOptions(x => x.SerializerSettings.PreserveReferencesHandling = options.JsonOptions_PreserveReferencesHandling);
+                mvcBuilder.AddJsonOptions(x => x.SerializerSettings.ContractResolver = options.JsonOptions_ContractResolver);
+            }
 
             #endregion Install MVC Settings
 
             #region Run Process: ModuleInitializer, ModuleEventsAddInitializer, AutoMapperInitializer
 
-            var autoMapperConfig = new AutoMapper.Configuration.MapperConfigurationExpression
-            {
-                ValidateInlineMaps = false
-            };
+            var autoMapperConfig = options.AutoMapperConfig;
 
             foreach (var module in modules)
             {
@@ -191,9 +198,9 @@ namespace CSBEF.Core.Concretes
 
             #region SignalR
 
-            _services.AddSignalR(options =>
+            _services.AddSignalR(opt =>
             {
-                options.EnableDetailedErrors = true;
+                opt.EnableDetailedErrors = options.SignalR_EnableDetailedErrors;
             });
 
             #endregion SignalR
@@ -205,7 +212,18 @@ namespace CSBEF.Core.Concretes
                 var moduleEventsAddInitializerType = module.Assembly.GetTypes().Where(x => typeof(IModuleEventsAddInitializer).IsAssignableFrom(x)).FirstOrDefault();
                 if (moduleEventsAddInitializerType != null && moduleEventsAddInitializerType != typeof(IModuleEventsAddInitializer))
                 {
-                    services.AddScoped(typeof(IModuleEventsAddInitializer), moduleEventsAddInitializerType);
+                    switch (options.ModuleInterfaces_IModuleEventsAddInitializer_LifeTime)
+                    {
+                        case ServiceLifetime.Scoped:
+                            services.AddScoped(typeof(IModuleEventsAddInitializer), moduleEventsAddInitializerType);
+                            break;
+                        case ServiceLifetime.Singleton:
+                            services.AddSingleton(typeof(IModuleEventsAddInitializer), moduleEventsAddInitializerType);
+                            break;
+                        case ServiceLifetime.Transient:
+                            services.AddTransient(typeof(IModuleEventsAddInitializer), moduleEventsAddInitializerType);
+                            break;
+                    }
                 }
             }
 
@@ -214,7 +232,18 @@ namespace CSBEF.Core.Concretes
                 var moduleEventsJoinInitializerType = module.Assembly.GetTypes().Where(x => typeof(IModuleEventsJoinInitializer).IsAssignableFrom(x)).FirstOrDefault();
                 if (moduleEventsJoinInitializerType != null && moduleEventsJoinInitializerType != typeof(IModuleEventsJoinInitializer))
                 {
-                    services.AddScoped(typeof(IModuleEventsJoinInitializer), moduleEventsJoinInitializerType);
+                    switch (options.ModuleInterfaces_IModuleEventsJoinInitializer_LifeTime)
+                    {
+                        case ServiceLifetime.Scoped:
+                            services.AddScoped(typeof(IModuleEventsJoinInitializer), moduleEventsJoinInitializerType);
+                            break;
+                        case ServiceLifetime.Singleton:
+                            services.AddSingleton(typeof(IModuleEventsJoinInitializer), moduleEventsJoinInitializerType);
+                            break;
+                        case ServiceLifetime.Transient:
+                            services.AddTransient(typeof(IModuleEventsJoinInitializer), moduleEventsJoinInitializerType);
+                            break;
+                    }
                 }
             }
 
@@ -222,25 +251,86 @@ namespace CSBEF.Core.Concretes
 
             #region Main Events Initializer
 
-            _services.AddScoped<IModuleEventsAddInitializer, MainEventsAddInitializer>();
+            switch (options.ModuleInterfaces_Main_IModuleEventsAddInitializer_LifeTime)
+            {
+                case ServiceLifetime.Scoped:
+                    _services.AddScoped<IModuleEventsAddInitializer, MainEventsAddInitializer>();
+                    break;
+                case ServiceLifetime.Singleton:
+                    _services.AddSingleton<IModuleEventsAddInitializer, MainEventsAddInitializer>();
+                    break;
+                case ServiceLifetime.Transient:
+                    _services.AddTransient<IModuleEventsAddInitializer, MainEventsAddInitializer>();
+                    break;
+            }
 
             #endregion Main Events Initializer
 
             #region EventService
 
-            services.AddScoped<IEventService, EventService>();
+            switch (options.ModuleInterfaces_IEventService_LifeTime)
+            {
+                case ServiceLifetime.Scoped:
+                    services.AddScoped<IEventService, EventService>();
+                    break;
+                case ServiceLifetime.Singleton:
+                    services.AddSingleton<IEventService, EventService>();
+                    break;
+                case ServiceLifetime.Transient:
+                    services.AddTransient<IEventService, EventService>();
+                    break;
+            }
 
             #endregion EventService
 
             #region HubNotificationService
 
-            services.AddScoped<IHubNotificationService, HubNotificationService>();
+            switch (options.ModuleInterfaces_IHubNotificationService_LifeTime)
+            {
+                case ServiceLifetime.Scoped:
+                    services.AddScoped<IHubNotificationService, HubNotificationService>();
+                    break;
+                case ServiceLifetime.Singleton:
+                    services.AddSingleton<IHubNotificationService, HubNotificationService>();
+                    break;
+                case ServiceLifetime.Transient:
+                    services.AddTransient<IHubNotificationService, HubNotificationService>();
+                    break;
+            }
 
             #endregion HubNotificationService
 
+            #region HubSyncDataService
+
+            switch (options.ModuleInterfaces_IHubSyncDataService_LifeTime)
+            {
+                case ServiceLifetime.Scoped:
+                    services.AddScoped<IHubSyncDataService, HubSyncDataService>();
+                    break;
+                case ServiceLifetime.Singleton:
+                    services.AddSingleton<IHubSyncDataService, HubSyncDataService>();
+                    break;
+                case ServiceLifetime.Transient:
+                    services.AddTransient<IHubSyncDataService, HubSyncDataService>();
+                    break;
+            }
+
+            #endregion HubSyncDataService
+
             #region Transaction Helper
 
-            services.AddScoped<ITransactionHelper, TransactionHelper>();
+            switch (options.ModuleInterfaces_ITransactionHelper_LifeTime)
+            {
+                case ServiceLifetime.Scoped:
+                    services.AddScoped<ITransactionHelper, TransactionHelper>();
+                    break;
+                case ServiceLifetime.Singleton:
+                    services.AddSingleton<ITransactionHelper, TransactionHelper>();
+                    break;
+                case ServiceLifetime.Transient:
+                    services.AddTransient<ITransactionHelper, TransactionHelper>();
+                    break;
+            }
 
             #endregion
 

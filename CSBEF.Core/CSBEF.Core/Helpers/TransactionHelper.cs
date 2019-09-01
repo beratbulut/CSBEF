@@ -18,7 +18,7 @@ namespace CSBEF.Core.Helpers
 
         public async Task CreateTransaction()
         {
-            if(_context.Database.CurrentTransaction != null)
+            if (_context.Database.CurrentTransaction != null)
             {
                 await Task.Run(() =>
                 {
