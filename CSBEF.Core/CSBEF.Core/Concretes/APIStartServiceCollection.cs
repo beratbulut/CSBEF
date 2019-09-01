@@ -46,7 +46,7 @@ namespace CSBEF.Core.Concretes
             if (options == null)
                 options = new ApiStartOptionsModel();
 
-            #endregion
+            #endregion Options Check
 
             #region Transfer Dependencies
 
@@ -217,9 +217,11 @@ namespace CSBEF.Core.Concretes
                         case ServiceLifetime.Scoped:
                             services.AddScoped(typeof(IModuleEventsAddInitializer), moduleEventsAddInitializerType);
                             break;
+
                         case ServiceLifetime.Singleton:
                             services.AddSingleton(typeof(IModuleEventsAddInitializer), moduleEventsAddInitializerType);
                             break;
+
                         case ServiceLifetime.Transient:
                             services.AddTransient(typeof(IModuleEventsAddInitializer), moduleEventsAddInitializerType);
                             break;
@@ -237,9 +239,11 @@ namespace CSBEF.Core.Concretes
                         case ServiceLifetime.Scoped:
                             services.AddScoped(typeof(IModuleEventsJoinInitializer), moduleEventsJoinInitializerType);
                             break;
+
                         case ServiceLifetime.Singleton:
                             services.AddSingleton(typeof(IModuleEventsJoinInitializer), moduleEventsJoinInitializerType);
                             break;
+
                         case ServiceLifetime.Transient:
                             services.AddTransient(typeof(IModuleEventsJoinInitializer), moduleEventsJoinInitializerType);
                             break;
@@ -256,9 +260,11 @@ namespace CSBEF.Core.Concretes
                 case ServiceLifetime.Scoped:
                     _services.AddScoped<IModuleEventsAddInitializer, MainEventsAddInitializer>();
                     break;
+
                 case ServiceLifetime.Singleton:
                     _services.AddSingleton<IModuleEventsAddInitializer, MainEventsAddInitializer>();
                     break;
+
                 case ServiceLifetime.Transient:
                     _services.AddTransient<IModuleEventsAddInitializer, MainEventsAddInitializer>();
                     break;
@@ -273,9 +279,11 @@ namespace CSBEF.Core.Concretes
                 case ServiceLifetime.Scoped:
                     services.AddScoped<IEventService, EventService>();
                     break;
+
                 case ServiceLifetime.Singleton:
                     services.AddSingleton<IEventService, EventService>();
                     break;
+
                 case ServiceLifetime.Transient:
                     services.AddTransient<IEventService, EventService>();
                     break;
@@ -290,9 +298,11 @@ namespace CSBEF.Core.Concretes
                 case ServiceLifetime.Scoped:
                     services.AddScoped<IHubNotificationService, HubNotificationService>();
                     break;
+
                 case ServiceLifetime.Singleton:
                     services.AddSingleton<IHubNotificationService, HubNotificationService>();
                     break;
+
                 case ServiceLifetime.Transient:
                     services.AddTransient<IHubNotificationService, HubNotificationService>();
                     break;
@@ -307,9 +317,11 @@ namespace CSBEF.Core.Concretes
                 case ServiceLifetime.Scoped:
                     services.AddScoped<IHubSyncDataService, HubSyncDataService>();
                     break;
+
                 case ServiceLifetime.Singleton:
                     services.AddSingleton<IHubSyncDataService, HubSyncDataService>();
                     break;
+
                 case ServiceLifetime.Transient:
                     services.AddTransient<IHubSyncDataService, HubSyncDataService>();
                     break;
@@ -324,15 +336,17 @@ namespace CSBEF.Core.Concretes
                 case ServiceLifetime.Scoped:
                     services.AddScoped<ITransactionHelper, TransactionHelper>();
                     break;
+
                 case ServiceLifetime.Singleton:
                     services.AddSingleton<ITransactionHelper, TransactionHelper>();
                     break;
+
                 case ServiceLifetime.Transient:
                     services.AddTransient<ITransactionHelper, TransactionHelper>();
                     break;
             }
 
-            #endregion
+            #endregion Transaction Helper
 
             #region Build Service Provider
 

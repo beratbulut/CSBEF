@@ -19,10 +19,12 @@ namespace CSBEF.Core.Models
         public ReferenceLoopHandling JsonOptions_ReferenceLoopHandling { get; set; } = ReferenceLoopHandling.Ignore;
         public PreserveReferencesHandling JsonOptions_PreserveReferencesHandling { get; set; } = PreserveReferencesHandling.Objects;
         public DefaultContractResolver JsonOptions_ContractResolver { get; set; } = new DefaultContractResolver();
+
         public MapperConfigurationExpression AutoMapperConfig { get; set; } = new MapperConfigurationExpression
         {
             ValidateInlineMaps = false
         };
+
         public bool SignalR_EnableDetailedErrors { get; set; } = false;
         public ServiceLifetime ModuleInterfaces_IModuleEventsAddInitializer_LifeTime { get; set; } = ServiceLifetime.Scoped;
         public ServiceLifetime ModuleInterfaces_IModuleEventsJoinInitializer_LifeTime { get; set; } = ServiceLifetime.Scoped;
