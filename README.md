@@ -2,7 +2,7 @@
 Code Scientific - Back-End Framework
 
 # Current Version
-Version: 1.2.0 ([latest release](https://github.com/mkurak/CSBEF/releases/tag/1.2.0))
+Version: 1.3.2 ([latest release](https://github.com/mkurak/CSBEF/releases/tag/1.3.2))
 
 # Status
 Completed, there is no planned development.
