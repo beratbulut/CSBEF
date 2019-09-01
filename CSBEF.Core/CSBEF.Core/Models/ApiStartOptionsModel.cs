@@ -20,10 +20,7 @@ namespace CSBEF.Core.Models
         public PreserveReferencesHandling JsonOptions_PreserveReferencesHandling { get; set; } = PreserveReferencesHandling.Objects;
         public DefaultContractResolver JsonOptions_ContractResolver { get; set; } = new DefaultContractResolver();
 
-        public MapperConfigurationExpression AutoMapperConfig { get; set; } = new MapperConfigurationExpression
-        {
-            ValidateInlineMaps = false
-        };
+        public MapperConfigurationExpression AutoMapperConfig { get; set; } = new MapperConfigurationExpression();
 
         public bool SignalR_EnableDetailedErrors { get; set; } = false;
         public ServiceLifetime ModuleInterfaces_IModuleEventsAddInitializer_LifeTime { get; set; } = ServiceLifetime.Scoped;
