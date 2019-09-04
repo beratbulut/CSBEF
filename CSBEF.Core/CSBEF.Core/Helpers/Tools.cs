@@ -590,7 +590,7 @@ namespace CSBEF.Core.Helpers
             {
                 if (property.Name.ToLower() != "hash")
                 {
-                    //AppendDebugLogText(property.PropertyType.Name);
+                    AppendDebugLogText(property.PropertyType.Name);
 
                     if (property.PropertyType.Name == "IFormFile")
                         continue;
@@ -622,13 +622,13 @@ namespace CSBEF.Core.Helpers
                 }
             }
 
-            //AppendDebugLogText("valueChain: " + valueChain);
+            AppendDebugLogText("valueChain: " + valueChain);
 
             var systemHash = valueChain.ToSha1(secureKey);
 
-            //AppendDebugLogText("secureKey: " + secureKey);
-            //AppendDebugLogText("systemHash: " + systemHash);
-            //AppendDebugLogText("incomingHashString: " + incomingHashString);
+            AppendDebugLogText("secureKey: " + secureKey);
+            AppendDebugLogText("systemHash: " + systemHash);
+            AppendDebugLogText("incomingHashString: " + incomingHashString);
 
             return systemHash.ToLower() == incomingHashString.ToLower();
         }
@@ -644,7 +644,8 @@ namespace CSBEF.Core.Helpers
         {
             try
             {
-                File.AppendAllText("DebugLog.txt", text + Environment.NewLine);
+                if(File.Exists("DebugLog.txt"))
+                    File.AppendAllText("DebugLog.txt", text + Environment.NewLine);
             }
             catch (Exception)
             {
