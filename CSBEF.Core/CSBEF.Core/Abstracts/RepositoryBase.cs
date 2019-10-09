@@ -110,17 +110,6 @@ namespace CSBEF.Core.Abstracts
             return await _context.SaveChangesAsync();
         }
 
-        public virtual IQueryable<TEntity> FindBy(Expression<Func<TEntity, bool>> predicate)
-        {
-            IQueryable<TEntity> query = GetAll().Where(predicate);
-            return query;
-        }
-
-        public virtual async Task<ICollection<TEntity>> FindByAsyn(Expression<Func<TEntity, bool>> predicate)
-        {
-            return await GetAll().Where(predicate).ToListAsync();
-        }
-
         public virtual IQueryable<TEntity> GetAllIncluding(params Expression<Func<TEntity, object>>[] includeProperties)
         {
             IQueryable<TEntity> queryable = GetAll();

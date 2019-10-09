@@ -28,7 +28,7 @@ namespace CSBEF.Core.Concretes
         #region Dependencies
 
         private IConfiguration _configuration;
-        private IHostingEnvironment _hostingEnvironment;
+        private IWebHostEnvironment _hostingEnvironment;
         private IServiceCollection _services;
 
         #endregion Dependencies
@@ -39,7 +39,7 @@ namespace CSBEF.Core.Concretes
 
         #endregion Private Properties
 
-        public IServiceProvider Init(IConfiguration configuration, IHostingEnvironment hostingEnvironment, IServiceCollection services, ApiStartOptionsModel options = null)
+        public IServiceProvider Init(IConfiguration configuration, IWebHostEnvironment hostingEnvironment, IServiceCollection services, ApiStartOptionsModel options = null)
         {
             #region Options Check
 
@@ -159,12 +159,12 @@ namespace CSBEF.Core.Concretes
 
             #region Install MVC Settings
 
-            var mvcBuilder = _services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+            var mvcBuilder = _services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
             if (options.JsonOptions_Using)
             {
-                mvcBuilder.AddJsonOptions(x => x.SerializerSettings.ReferenceLoopHandling = options.JsonOptions_ReferenceLoopHandling);
-                mvcBuilder.AddJsonOptions(x => x.SerializerSettings.PreserveReferencesHandling = options.JsonOptions_PreserveReferencesHandling);
-                mvcBuilder.AddJsonOptions(x => x.SerializerSettings.ContractResolver = options.JsonOptions_ContractResolver);
+                mvcBuilder.AddNewtonsoftJson(x => x.SerializerSettings.ReferenceLoopHandling = options.JsonOptions_ReferenceLoopHandling);
+                mvcBuilder.AddNewtonsoftJson(x => x.SerializerSettings.PreserveReferencesHandling = options.JsonOptions_PreserveReferencesHandling);
+                mvcBuilder.AddNewtonsoftJson(x => x.SerializerSettings.ContractResolver = options.JsonOptions_ContractResolver);
             }
 
             #endregion Install MVC Settings

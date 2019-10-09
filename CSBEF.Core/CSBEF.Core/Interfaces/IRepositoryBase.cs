@@ -39,10 +39,6 @@ namespace CSBEF.Core.Interfaces
 
         Task<int> SaveAsync();
 
-        IQueryable<TEntity> FindBy(Expression<Func<TEntity, bool>> predicate);
-
-        Task<ICollection<TEntity>> FindByAsyn(Expression<Func<TEntity, bool>> predicate);
-
         IQueryable<TEntity> GetAllIncluding(params Expression<Func<TEntity, object>>[] includeProperties);
     }
 }
