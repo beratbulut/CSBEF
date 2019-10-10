@@ -13,8 +13,8 @@
     <RepositoryUrl>https://github.com/mkurak/CSBEF</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <PackageTags>Modular API Builder</PackageTags>
-    <Version>2.0.1</Version>
-    <PackageReleaseNotes>- .NET Core 3 updated</PackageReleaseNotes>
+    <Version>2.0.2</Version>
+    <PackageReleaseNotes>- EventModel edited.</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>

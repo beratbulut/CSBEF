@@ -18,7 +18,7 @@ namespace CSBEF.Core.Models
         {
             if (Event != null)
             {
-                return await Event.Invoke(data, EventInfo);
+                return (ReturnModel<TResult>)await Event.Invoke(data, EventInfo);
             }
             else
             {
