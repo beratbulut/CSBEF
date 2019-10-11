@@ -1,5 +1,4 @@
 ﻿using CSBEF.Core.Interfaces;
-using System.Threading.Tasks;
 
 namespace CSBEF.Core.Models
 {
@@ -14,11 +13,11 @@ namespace CSBEF.Core.Models
             EventInfo = new EventInfo();
         }
 
-        public async Task<ReturnModel<TResult>> EventHandler<TResult, TParam>(TParam data)
+        public ReturnModel<TResult> EventHandler<TResult, TParam>(TParam data)
         {
             if (Event != null)
             {
-                return (ReturnModel<TResult>)await Event.Invoke(data, EventInfo).ConfigureAwait(false);
+                return (ReturnModel<TResult>)Event.Invoke(data, EventInfo);
             }
             else
             {

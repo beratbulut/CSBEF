@@ -4,7 +4,6 @@ using CSBEF.Core.Helpers;
 using CSBEF.Core.Interfaces;
 using CSBEF.Core.Models;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System;
@@ -13,15 +12,14 @@ using System.Linq;
 using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Threading.Tasks;
 
 namespace CSBEF.Core.Abstracts
 {
-    public abstract class ServiceBase : IServiceBase
+    public class ServiceBase : IServiceBase
     {
     }
 
-    public abstract class ServiceBase<TPoco, TDTO> : IServiceBase<TPoco, TDTO>
+    public class ServiceBase<TPoco, TDTO> : IServiceBase<TPoco, TDTO>
         where TPoco : class, IEntityModelBase, new()
         where TDTO : class, IDTOModelBase, new()
     {
@@ -70,7 +68,7 @@ namespace CSBEF.Core.Abstracts
 
         #region Public Actions
 
-        public virtual async Task<IReturnModel<TDTO>> FirstAsync(GenericFilterModel<TDTO> filter)
+        public virtual IReturnModel<TDTO> First(GenericFilterModel<TDTO> filter)
         {
             if (filter == null)
                 throw new ArgumentNullException(nameof(filter));
@@ -95,7 +93,7 @@ namespace CSBEF.Core.Abstracts
 
                 #region Before Event Handler
 
-                beforeEventHandler = await _eventService.GetEvent(ModuleName, $"{ServiceName}.FirstAsync.Before").EventHandler<bool, GenericFilterModel<TDTO>>(filter).ConfigureAwait(false);
+                beforeEventHandler = _eventService.GetEvent(ModuleName, $"{ServiceName}.First.Before").EventHandler<bool, GenericFilterModel<TDTO>>(filter);
                 if (beforeEventHandler != null)
                 {
                     if (beforeEventHandler.Error.Status)
@@ -134,7 +132,7 @@ namespace CSBEF.Core.Abstracts
                         }
                     }
 
-                    getData = await query.FirstAsync().ConfigureAwait(false);
+                    getData = query.First();
                     convertModel = _mapper.Map<TDTO>(getData);
                     rtn.Result = convertModel;
                 }
@@ -151,10 +149,10 @@ namespace CSBEF.Core.Abstracts
                         ActionParameter = filter,
                         ModuleName = ModuleName,
                         ServiceName = ServiceName,
-                        ActionName = "FirstAsync"
+                        ActionName = "First"
                     };
-                    afterEventHandler = await _eventService.GetEvent(ModuleName, $"{ServiceName}.FirstAsync.After")
-                        .EventHandler<TDTO, IAfterEventParameterModel<IReturnModel<TDTO>, GenericFilterModel<TDTO>>>(afterEventParameterModel).ConfigureAwait(false);
+                    afterEventHandler = _eventService.GetEvent(ModuleName, $"{ServiceName}.First.After")
+                        .EventHandler<TDTO, IAfterEventParameterModel<IReturnModel<TDTO>, GenericFilterModel<TDTO>>>(afterEventParameterModel);
                     if (afterEventHandler != null)
                     {
                         if (afterEventHandler.Error.Status)
@@ -193,7 +191,7 @@ namespace CSBEF.Core.Abstracts
             return rtn;
         }
 
-        public virtual async Task<IReturnModel<TDTO>> FirstAsync(ActionFilterModel filter)
+        public virtual IReturnModel<TDTO> First(ActionFilterModel filter)
         {
             if (filter == null)
                 throw new ArgumentNullException(nameof(filter));
@@ -216,7 +214,7 @@ namespace CSBEF.Core.Abstracts
 
                 #region Before Event Handler
 
-                beforeEventHandler = await _eventService.GetEvent(ModuleName, $"{ServiceName}.FirstAsync.Before").EventHandler<bool, ActionFilterModel>(filter).ConfigureAwait(false);
+                beforeEventHandler = _eventService.GetEvent(ModuleName, $"{ServiceName}.First.Before").EventHandler<bool, ActionFilterModel>(filter);
                 if (beforeEventHandler != null)
                 {
                     if (beforeEventHandler.Error.Status)
@@ -244,7 +242,7 @@ namespace CSBEF.Core.Abstracts
                         query = query.OrderBy(filter.Order);
                     }
 
-                    getData = await query.FirstAsync().ConfigureAwait(false);
+                    getData = query.First();
                     convertModel = _mapper.Map<TDTO>(getData);
                     rtn.Result = convertModel;
                 }
@@ -261,10 +259,10 @@ namespace CSBEF.Core.Abstracts
                         ActionParameter = filter,
                         ModuleName = ModuleName,
                         ServiceName = ServiceName,
-                        ActionName = "FirstAsync"
+                        ActionName = "First"
                     };
-                    afterEventHandler = await _eventService.GetEvent(ModuleName, $"{ServiceName}.FirstAsync.After")
-                        .EventHandler<TDTO, IAfterEventParameterModel<IReturnModel<TDTO>, ActionFilterModel>>(afterEventParameterModel).ConfigureAwait(false);
+                    afterEventHandler = _eventService.GetEvent(ModuleName, $"{ServiceName}.First.After")
+                        .EventHandler<TDTO, IAfterEventParameterModel<IReturnModel<TDTO>, ActionFilterModel>>(afterEventParameterModel);
                     if (afterEventHandler != null)
                     {
                         if (afterEventHandler.Error.Status)
@@ -301,7 +299,7 @@ namespace CSBEF.Core.Abstracts
             return rtn;
         }
 
-        public virtual async Task<IReturnModel<TDTO>> FirstOrDefaultAsync(GenericFilterModel<TDTO> filter)
+        public virtual IReturnModel<TDTO> FirstOrDefault(GenericFilterModel<TDTO> filter)
         {
             if (filter == null)
                 throw new ArgumentNullException(nameof(filter));
@@ -326,7 +324,7 @@ namespace CSBEF.Core.Abstracts
 
                 #region Before Event Handler
 
-                beforeEventHandler = await _eventService.GetEvent(ModuleName, $"{ServiceName}.FirstOrDefaultAsync.Before").EventHandler<bool, GenericFilterModel<TDTO>>(filter).ConfigureAwait(false);
+                beforeEventHandler = _eventService.GetEvent(ModuleName, $"{ServiceName}.FirstOrDefault.Before").EventHandler<bool, GenericFilterModel<TDTO>>(filter);
                 if (beforeEventHandler != null)
                 {
                     if (beforeEventHandler.Error.Status)
@@ -365,7 +363,7 @@ namespace CSBEF.Core.Abstracts
                         }
                     }
 
-                    getData = await query.FirstOrDefaultAsync().ConfigureAwait(false);
+                    getData = query.FirstOrDefault();
                     if (getData != null)
                         convertModel = _mapper.Map<TDTO>(getData);
                     rtn.Result = convertModel;
@@ -383,10 +381,10 @@ namespace CSBEF.Core.Abstracts
                         ActionParameter = filter,
                         ModuleName = ModuleName,
                         ServiceName = ServiceName,
-                        ActionName = "FirstOrDefaultAsync"
+                        ActionName = "FirstOrDefault"
                     };
-                    afterEventHandler = await _eventService.GetEvent(ModuleName, $"{ServiceName}.FirstOrDefaultAsync.After")
-                        .EventHandler<TDTO, IAfterEventParameterModel<IReturnModel<TDTO>, GenericFilterModel<TDTO>>>(afterEventParameterModel).ConfigureAwait(false);
+                    afterEventHandler = _eventService.GetEvent(ModuleName, $"{ServiceName}.FirstOrDefault.After")
+                        .EventHandler<TDTO, IAfterEventParameterModel<IReturnModel<TDTO>, GenericFilterModel<TDTO>>>(afterEventParameterModel);
                     if (afterEventHandler != null)
                     {
                         if (afterEventHandler.Error.Status)
@@ -425,7 +423,7 @@ namespace CSBEF.Core.Abstracts
             return rtn;
         }
 
-        public virtual async Task<IReturnModel<TDTO>> FirstOrDefaultAsync(ActionFilterModel filter)
+        public virtual IReturnModel<TDTO> FirstOrDefault(ActionFilterModel filter)
         {
             if (filter == null)
                 throw new ArgumentNullException(nameof(filter));
@@ -448,7 +446,7 @@ namespace CSBEF.Core.Abstracts
 
                 #region Before Event Handler
 
-                beforeEventHandler = await _eventService.GetEvent(ModuleName, $"{ServiceName}.FirstOrDefaultAsync.Before").EventHandler<bool, ActionFilterModel>(filter).ConfigureAwait(false);
+                beforeEventHandler = _eventService.GetEvent(ModuleName, $"{ServiceName}.FirstOrDefault.Before").EventHandler<bool, ActionFilterModel>(filter);
                 if (beforeEventHandler != null)
                 {
                     if (beforeEventHandler.Error.Status)
@@ -476,7 +474,7 @@ namespace CSBEF.Core.Abstracts
                         query = query.OrderBy(filter.Order);
                     }
 
-                    getData = await query.FirstOrDefaultAsync().ConfigureAwait(false);
+                    getData = query.FirstOrDefault();
                     convertModel = _mapper.Map<TDTO>(getData);
                     rtn.Result = convertModel;
                 }
@@ -493,10 +491,10 @@ namespace CSBEF.Core.Abstracts
                         ActionParameter = filter,
                         ModuleName = ModuleName,
                         ServiceName = ServiceName,
-                        ActionName = "FirstOrDefaultAsync"
+                        ActionName = "FirstOrDefault"
                     };
-                    afterEventHandler = await _eventService.GetEvent(ModuleName, $"{ServiceName}.FirstOrDefaultAsync.After")
-                        .EventHandler<TDTO, IAfterEventParameterModel<IReturnModel<TDTO>, ActionFilterModel>>(afterEventParameterModel).ConfigureAwait(false);
+                    afterEventHandler = _eventService.GetEvent(ModuleName, $"{ServiceName}.FirstOrDefault.After")
+                        .EventHandler<TDTO, IAfterEventParameterModel<IReturnModel<TDTO>, ActionFilterModel>>(afterEventParameterModel);
                     if (afterEventHandler != null)
                     {
                         if (afterEventHandler.Error.Status)
@@ -533,7 +531,7 @@ namespace CSBEF.Core.Abstracts
             return rtn;
         }
 
-        public virtual async Task<IReturnModel<bool>> AnyAsync(GenericFilterModel<TDTO> filter)
+        public virtual IReturnModel<bool> Any(GenericFilterModel<TDTO> filter)
         {
             if (filter == null)
                 throw new ArgumentNullException(nameof(filter));
@@ -556,7 +554,7 @@ namespace CSBEF.Core.Abstracts
 
                 #region Before Event Handler
 
-                beforeEventHandler = await _eventService.GetEvent(ModuleName, $"{ServiceName}.AnyAsync.Before").EventHandler<bool, GenericFilterModel<TDTO>>(filter).ConfigureAwait(false);
+                beforeEventHandler = _eventService.GetEvent(ModuleName, $"{ServiceName}.Any.Before").EventHandler<bool, GenericFilterModel<TDTO>>(filter);
                 if (beforeEventHandler != null)
                 {
                     if (beforeEventHandler.Error.Status)
@@ -595,7 +593,7 @@ namespace CSBEF.Core.Abstracts
                         }
                     }
 
-                    rtn.Result = await query.AnyAsync().ConfigureAwait(false);
+                    rtn.Result = query.Any();
                 }
 
                 #endregion Action Body
@@ -610,10 +608,10 @@ namespace CSBEF.Core.Abstracts
                         ActionParameter = filter,
                         ModuleName = ModuleName,
                         ServiceName = ServiceName,
-                        ActionName = "AnyAsync"
+                        ActionName = "Any"
                     };
-                    afterEventHandler = await _eventService.GetEvent(ModuleName, $"{ServiceName}.AnyAsync.After")
-                        .EventHandler<bool, IAfterEventParameterModel<IReturnModel<bool>, GenericFilterModel<TDTO>>>(afterEventParameterModel).ConfigureAwait(false);
+                    afterEventHandler = _eventService.GetEvent(ModuleName, $"{ServiceName}.Any.After")
+                        .EventHandler<bool, IAfterEventParameterModel<IReturnModel<bool>, GenericFilterModel<TDTO>>>(afterEventParameterModel);
                     if (afterEventHandler != null)
                     {
                         if (afterEventHandler.Error.Status)
@@ -650,7 +648,7 @@ namespace CSBEF.Core.Abstracts
             return rtn;
         }
 
-        public virtual async Task<IReturnModel<bool>> AnyAsync(ActionFilterModel filter)
+        public virtual IReturnModel<bool> Any(ActionFilterModel filter)
         {
             if (filter == null)
                 throw new ArgumentNullException(nameof(filter));
@@ -671,7 +669,7 @@ namespace CSBEF.Core.Abstracts
 
                 #region Before Event Handler
 
-                beforeEventHandler = await _eventService.GetEvent(ModuleName, $"{ServiceName}.AnyAsync.Before").EventHandler<bool, ActionFilterModel>(filter).ConfigureAwait(false);
+                beforeEventHandler = _eventService.GetEvent(ModuleName, $"{ServiceName}.Any.Before").EventHandler<bool, ActionFilterModel>(filter);
                 if (beforeEventHandler != null)
                 {
                     if (beforeEventHandler.Error.Status)
@@ -699,7 +697,7 @@ namespace CSBEF.Core.Abstracts
                         query = query.OrderBy(filter.Order);
                     }
 
-                    rtn.Result = await query.AnyAsync().ConfigureAwait(false);
+                    rtn.Result = query.Any();
                 }
 
                 #endregion Action Body
@@ -714,10 +712,10 @@ namespace CSBEF.Core.Abstracts
                         ActionParameter = filter,
                         ModuleName = ModuleName,
                         ServiceName = ServiceName,
-                        ActionName = "AnyAsync"
+                        ActionName = "Any"
                     };
-                    afterEventHandler = await _eventService.GetEvent(ModuleName, $"{ServiceName}.AnyAsync.After")
-                        .EventHandler<bool, IAfterEventParameterModel<IReturnModel<bool>, ActionFilterModel>>(afterEventParameterModel).ConfigureAwait(false);
+                    afterEventHandler = _eventService.GetEvent(ModuleName, $"{ServiceName}.Any.After")
+                        .EventHandler<bool, IAfterEventParameterModel<IReturnModel<bool>, ActionFilterModel>>(afterEventParameterModel);
                     if (afterEventHandler != null)
                     {
                         if (afterEventHandler.Error.Status)
@@ -752,7 +750,7 @@ namespace CSBEF.Core.Abstracts
             return rtn;
         }
 
-        public virtual async Task<IReturnModel<IList<TDTO>>> ListAsync(GenericFilterModel<TDTO> filter)
+        public virtual IReturnModel<IList<TDTO>> List(GenericFilterModel<TDTO> filter)
         {
             if (filter == null)
                 throw new ArgumentNullException(nameof(filter));
@@ -775,7 +773,7 @@ namespace CSBEF.Core.Abstracts
 
                 #region Before Event Handler
 
-                beforeEventHandler = await _eventService.GetEvent(ModuleName, $"{ServiceName}.ListAsync.Before").EventHandler<bool, GenericFilterModel<TDTO>>(filter).ConfigureAwait(false);
+                beforeEventHandler = _eventService.GetEvent(ModuleName, $"{ServiceName}.List.Before").EventHandler<bool, GenericFilterModel<TDTO>>(filter);
                 if (beforeEventHandler != null)
                 {
                     if (beforeEventHandler.Error.Status)
@@ -822,7 +820,7 @@ namespace CSBEF.Core.Abstracts
 
                     query = query.Skip((filter.Page - 1) * filter.PageSize).Take(filter.PageSize);
 
-                    rtn.Result = _mapper.Map<List<TDTO>>(await query.ToListAsync().ConfigureAwait(false));
+                    rtn.Result = _mapper.Map<List<TDTO>>(query.ToList());
                 }
 
                 #endregion Action Body
@@ -837,10 +835,10 @@ namespace CSBEF.Core.Abstracts
                         ActionParameter = filter,
                         ModuleName = ModuleName,
                         ServiceName = ServiceName,
-                        ActionName = "ListAsync"
+                        ActionName = "List"
                     };
-                    afterEventHandler = await _eventService.GetEvent(ModuleName, $"{ServiceName}.ListAsync.After")
-                        .EventHandler<IList<TDTO>, IAfterEventParameterModel<IReturnModel<IList<TDTO>>, GenericFilterModel<TDTO>>>(afterEventParameterModel).ConfigureAwait(false);
+                    afterEventHandler = _eventService.GetEvent(ModuleName, $"{ServiceName}.List.After")
+                        .EventHandler<IList<TDTO>, IAfterEventParameterModel<IReturnModel<IList<TDTO>>, GenericFilterModel<TDTO>>>(afterEventParameterModel);
                     if (afterEventHandler != null)
                     {
                         if (afterEventHandler.Error.Status)
@@ -877,7 +875,7 @@ namespace CSBEF.Core.Abstracts
             return rtn;
         }
 
-        public virtual async Task<IReturnModel<IList<TDTO>>> ListAsync(ActionFilterModel filter)
+        public virtual IReturnModel<IList<TDTO>> List(ActionFilterModel filter)
         {
             if (filter == null)
                 throw new ArgumentNullException(nameof(filter));
@@ -898,7 +896,7 @@ namespace CSBEF.Core.Abstracts
 
                 #region Before Event Handler
 
-                beforeEventHandler = await _eventService.GetEvent(ModuleName, $"{ServiceName}.FirstAsync.Before").EventHandler<bool, ActionFilterModel>(filter).ConfigureAwait(false);
+                beforeEventHandler = _eventService.GetEvent(ModuleName, $"{ServiceName}.List.Before").EventHandler<bool, ActionFilterModel>(filter);
                 if (beforeEventHandler != null)
                 {
                     if (beforeEventHandler.Error.Status)
@@ -934,7 +932,7 @@ namespace CSBEF.Core.Abstracts
 
                     query = query.Skip((filter.Page - 1) * filter.PageSize).Take(filter.PageSize);
 
-                    rtn.Result = _mapper.Map<List<TDTO>>(await query.ToListAsync().ConfigureAwait(false));
+                    rtn.Result = _mapper.Map<List<TDTO>>(query.ToList());
                 }
 
                 #endregion Action Body
@@ -949,10 +947,10 @@ namespace CSBEF.Core.Abstracts
                         ActionParameter = filter,
                         ModuleName = ModuleName,
                         ServiceName = ServiceName,
-                        ActionName = "ListAsync"
+                        ActionName = "List"
                     };
-                    afterEventHandler = await _eventService.GetEvent(ModuleName, $"{ServiceName}.FirstAsync.After")
-                        .EventHandler<IList<TDTO>, IAfterEventParameterModel<IReturnModel<IList<TDTO>>, ActionFilterModel>>(afterEventParameterModel).ConfigureAwait(false);
+                    afterEventHandler = _eventService.GetEvent(ModuleName, $"{ServiceName}.List.After")
+                        .EventHandler<IList<TDTO>, IAfterEventParameterModel<IReturnModel<IList<TDTO>>, ActionFilterModel>>(afterEventParameterModel);
                     if (afterEventHandler != null)
                     {
                         if (afterEventHandler.Error.Status)
@@ -987,7 +985,7 @@ namespace CSBEF.Core.Abstracts
             return rtn;
         }
 
-        public virtual async Task<IReturnModel<int>> CountAsync(ActionFilterModel filter)
+        public virtual IReturnModel<int> Count(ActionFilterModel filter)
         {
             if (filter == null)
                 throw new ArgumentNullException(nameof(filter));
@@ -1008,7 +1006,7 @@ namespace CSBEF.Core.Abstracts
 
                 #region Before Event Handler
 
-                beforeEventHandler = await _eventService.GetEvent(ModuleName, $"{ServiceName}.FirstAsync.CountAsync").EventHandler<bool, ActionFilterModel>(filter).ConfigureAwait(false);
+                beforeEventHandler = _eventService.GetEvent(ModuleName, $"{ServiceName}.Count.Before").EventHandler<bool, ActionFilterModel>(filter);
                 if (beforeEventHandler != null)
                 {
                     if (beforeEventHandler.Error.Status)
@@ -1036,7 +1034,7 @@ namespace CSBEF.Core.Abstracts
                         query = query.OrderBy(filter.Order);
                     }
 
-                    rtn.Result = await query.CountAsync().ConfigureAwait(false);
+                    rtn.Result = query.Count();
                 }
 
                 #endregion Action Body
@@ -1051,10 +1049,10 @@ namespace CSBEF.Core.Abstracts
                         ActionParameter = filter,
                         ModuleName = ModuleName,
                         ServiceName = ServiceName,
-                        ActionName = "CountAsync"
+                        ActionName = "Count"
                     };
-                    afterEventHandler = await _eventService.GetEvent(ModuleName, $"{ServiceName}.FirstAsync.CountAsync")
-                        .EventHandler<int, IAfterEventParameterModel<IReturnModel<int>, ActionFilterModel>>(afterEventParameterModel).ConfigureAwait(false);
+                    afterEventHandler = _eventService.GetEvent(ModuleName, $"{ServiceName}.Count.After")
+                        .EventHandler<int, IAfterEventParameterModel<IReturnModel<int>, ActionFilterModel>>(afterEventParameterModel);
                     if (afterEventHandler != null)
                     {
                         if (afterEventHandler.Error.Status)

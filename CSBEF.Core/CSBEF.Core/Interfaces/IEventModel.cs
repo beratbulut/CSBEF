@@ -1,9 +1,8 @@
 ﻿using CSBEF.Core.Models;
-using System.Threading.Tasks;
 
 namespace CSBEF.Core.Interfaces
 {
-    public delegate Task<dynamic> EventDelegate(dynamic data, IEventInfo eventInfo);
+    public delegate dynamic EventDelegate(dynamic data, IEventInfo eventInfo);
 
     public interface IEventModel
     {
@@ -11,6 +10,6 @@ namespace CSBEF.Core.Interfaces
 
         event EventDelegate Event;
 
-        Task<ReturnModel<TResult>> EventHandler<TResult, TParam>(TParam data);
+        ReturnModel<TResult> EventHandler<TResult, TParam>(TParam data);
     }
 }

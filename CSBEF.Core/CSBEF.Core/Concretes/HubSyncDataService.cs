@@ -14,8 +14,8 @@ namespace CSBEF.Core.Concretes
     {
         #region Dependencies
 
-        private IServiceProvider _serviceProvider;
-        private ILogger<ILog> _logger;
+        private readonly IServiceProvider _serviceProvider;
+        private readonly ILogger<ILog> _logger;
 
         #endregion Dependencies
 

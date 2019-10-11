@@ -1,7 +1,6 @@
 ﻿using CSBEF.Core.Models;
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace CSBEF.Core.Interfaces
 {
@@ -15,22 +14,22 @@ namespace CSBEF.Core.Interfaces
     {
         IRepositoryBase<TPoco> Repository { get; set; }
 
-        Task<IReturnModel<TDTO>> FirstAsync(GenericFilterModel<TDTO> filter);
+        IReturnModel<TDTO> First(GenericFilterModel<TDTO> filter);
 
-        Task<IReturnModel<TDTO>> FirstAsync(ActionFilterModel filter);
+        IReturnModel<TDTO> First(ActionFilterModel filter);
 
-        Task<IReturnModel<TDTO>> FirstOrDefaultAsync(GenericFilterModel<TDTO> filter);
+        IReturnModel<TDTO> FirstOrDefault(GenericFilterModel<TDTO> filter);
 
-        Task<IReturnModel<TDTO>> FirstOrDefaultAsync(ActionFilterModel filter);
+        IReturnModel<TDTO> FirstOrDefault(ActionFilterModel filter);
 
-        Task<IReturnModel<bool>> AnyAsync(GenericFilterModel<TDTO> filter);
+        IReturnModel<bool> Any(GenericFilterModel<TDTO> filter);
 
-        Task<IReturnModel<bool>> AnyAsync(ActionFilterModel filter);
+        IReturnModel<bool> Any(ActionFilterModel filter);
 
-        Task<IReturnModel<IList<TDTO>>> ListAsync(GenericFilterModel<TDTO> filter);
+        IReturnModel<IList<TDTO>> List(GenericFilterModel<TDTO> filter);
 
-        Task<IReturnModel<IList<TDTO>>> ListAsync(ActionFilterModel filter);
+        IReturnModel<IList<TDTO>> List(ActionFilterModel filter);
 
-        Task<IReturnModel<int>> CountAsync(ActionFilterModel filter);
+        IReturnModel<int> Count(ActionFilterModel filter);
     }
 }

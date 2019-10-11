@@ -13,8 +13,9 @@
     <RepositoryUrl>https://github.com/mkurak/CSBEF</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <PackageTags>Modular API Builder</PackageTags>
-    <Version>2.0.3</Version>
-    <PackageReleaseNotes>- Fixed some codes</PackageReleaseNotes>
+    <Version>2.0.4</Version>
+    <PackageReleaseNotes>- Clear extra async operations
+- Fixed some code and fixed some bugs</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>

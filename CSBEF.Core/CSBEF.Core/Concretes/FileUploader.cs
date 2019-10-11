@@ -14,12 +14,12 @@ namespace CSBEF.Core.Concretes
 {
     public class FileUploader
     {
-        private IConfiguration _configuration;
-        private ILogger<ILog> _logger;
-        private List<string> _allowTypes;
-        private int _minSize;
-        private int _maxSize;
-        private string _path;
+        private readonly IConfiguration _configuration;
+        private readonly ILogger<ILog> _logger;
+        private readonly List<string> _allowTypes;
+        private readonly int _minSize;
+        private readonly int _maxSize;
+        private readonly string _path;
 
         public FileUploader(
             IConfiguration configuration,
@@ -61,7 +61,7 @@ namespace CSBEF.Core.Concretes
             _path = path;
         }
 
-        public async Task<IReturnModel<string>> Upload(IFormFile file)
+        public IReturnModel<string> Upload(IFormFile file)
         {
             if (file == null)
                 throw new ArgumentNullException(nameof(file));
@@ -103,10 +103,8 @@ namespace CSBEF.Core.Concretes
 
                 if (cnt)
                 {
-                    using (var stream = new FileStream(Path.Combine(_path, newFilePath), FileMode.Create))
-                    {
-                        await file.CopyToAsync(stream).ConfigureAwait(false);
-                    }
+                    using var stream = new FileStream(Path.Combine(_path, newFilePath), FileMode.Create);
+                    file.CopyTo(stream);
                 }
 
                 if (cnt)

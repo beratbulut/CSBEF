@@ -9,7 +9,7 @@ namespace CSBEF.Core.Models
     {
         #region Dependencies
 
-        private ILogger<ILog> _logger;
+        private readonly ILogger<ILog> _logger;
 
         #endregion Dependencies
 

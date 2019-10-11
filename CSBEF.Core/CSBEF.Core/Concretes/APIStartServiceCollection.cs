@@ -118,13 +118,18 @@ namespace CSBEF.Core.Concretes
                     {
                         try
                         {
-                            var currentToken = ((JwtSecurityToken)context.SecurityToken).RawData;
-                            var eventServiceInstance = context.HttpContext.RequestServices.GetService<IEventService>();
-                            var checkTokenStatus = await eventServiceInstance.GetEvent("Main", "InComingToken").EventHandler<bool, string>(currentToken).ConfigureAwait(false);
-                            if (checkTokenStatus.Error.Status || !checkTokenStatus.Result)
+                            var job = Task.Run(() =>
                             {
-                                context.Fail("TokenExpiredOrPassive");
-                            }
+                                var currentToken = ((JwtSecurityToken)context.SecurityToken).RawData;
+                                var eventServiceInstance = context.HttpContext.RequestServices.GetService<IEventService>();
+                                var checkTokenStatus = eventServiceInstance.GetEvent("Main", "InComingToken").EventHandler<bool, string>(currentToken);
+                                if (checkTokenStatus.Error.Status || !checkTokenStatus.Result)
+                                {
+                                    context.Fail("TokenExpiredOrPassive");
+                                }
+                            });
+
+                            await job.ConfigureAwait(false);
                         }
                         catch (Exception ex)
                         {

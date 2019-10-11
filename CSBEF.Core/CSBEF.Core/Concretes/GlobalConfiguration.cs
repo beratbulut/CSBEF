@@ -8,8 +8,8 @@ namespace CSBEF.Core.Concretes
         public static IList<ModuleInfo> Modules { get; }
         public static string DbProvider { get; set; }
         public static string DbConnectionString { get; set; }
-        public static string sAppPath { get; set; }
-        public static string sWwwRootPath { get; set; }
+        public static string SAppPath { get; set; }
+        public static string SWwwRootPath { get; set; }
 
         static GlobalConfiguration()
         {

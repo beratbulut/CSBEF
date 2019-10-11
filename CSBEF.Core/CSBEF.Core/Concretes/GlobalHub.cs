@@ -72,7 +72,7 @@ namespace CSBEF.Core.Concretes
             return await HubConnectedUserStore.ConnectedUserList().ConfigureAwait(false);
         }
 
-        public async Task<IReturnModel<SendModuleDataModel>> InComingClientData(InComingClientDataModel data)
+        public IReturnModel<SendModuleDataModel> InComingClientData(InComingClientDataModel data)
         {
             IReturnModel<SendModuleDataModel> rtn = new ReturnModel<SendModuleDataModel>(_logger);
 
@@ -81,7 +81,7 @@ namespace CSBEF.Core.Concretes
                 var userId = Tools.GetTokenNameClaim(Context);
                 var tokenId = Tools.GetTokenIdClaim(Context);
                 var serviceParam = new ServiceParamsWithIdentifier<InComingClientDataModel>(data, userId, tokenId);
-                var exec = await _eventService.GetEvent("Main", "InComingHubClientData").EventHandler<SendModuleDataModel, ServiceParamsWithIdentifier<InComingClientDataModel>>(serviceParam).ConfigureAwait(false);
+                var exec = _eventService.GetEvent("Main", "InComingHubClientData").EventHandler<SendModuleDataModel, ServiceParamsWithIdentifier<InComingClientDataModel>>(serviceParam);
                 if (exec.Error.Status)
                 {
                     rtn.Error = exec.Error;

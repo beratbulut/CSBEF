@@ -8,8 +8,8 @@ namespace CSBEF.Core.Helpers
 {
     public class TransactionHelper : ITransactionHelper
     {
-        private ModularDbContext _context;
-        private IDbContextTransaction _transaction { get; set; }
+        private readonly ModularDbContext _context;
+        private IDbContextTransaction Transaction { get; set; }
 
         public TransactionHelper(ModularDbContext context)
         {
@@ -26,18 +26,18 @@ namespace CSBEF.Core.Helpers
                 }).ConfigureAwait(false);
             }
 
-            _transaction = _context.Database.BeginTransaction();
+            Transaction = _context.Database.BeginTransaction();
         }
 
         public void EndTransaction()
         {
-            _transaction.Commit();
-            _transaction.Dispose();
+            Transaction.Commit();
+            Transaction.Dispose();
         }
 
         public void CancelTransaction()
         {
-            _transaction.Rollback();
+            Transaction.Rollback();
         }
 
         private void WaitDbTransaction()

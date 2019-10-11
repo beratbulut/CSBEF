@@ -13,8 +13,8 @@ namespace CSBEF.Core.Concretes
 
     public static class HubConnectedUserStore
     {
-        private static List<IHubUserModel> _store = new List<IHubUserModel>();
-        private static List<IHubConnectedIdModel> _store_connectedIds = new List<IHubConnectedIdModel>();
+        private static readonly List<IHubUserModel> _store = new List<IHubUserModel>();
+        private static readonly List<IHubConnectedIdModel> _store_connectedIds = new List<IHubConnectedIdModel>();
         private static bool _lock = false;
 
         public static event HubConnectedUserStoreCursDelegate AddEvent;
