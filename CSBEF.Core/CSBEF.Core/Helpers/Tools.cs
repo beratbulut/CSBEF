@@ -18,6 +18,9 @@ namespace CSBEF.Core.Helpers
     {
         public static DateTime ToDateTime(this object value)
         {
+            if (value == null)
+                throw new ArgumentNullException(nameof(value));
+
             return (DateTime.TryParse(value.ToString(), out DateTime result)) ?
                 result :
                 DateTime.MinValue;
@@ -27,6 +30,7 @@ namespace CSBEF.Core.Helpers
         {
             if (value == null)
                 return "";
+
             return (DateTime.TryParse(value.ToString(), out DateTime result)) ?
                 result > "1900-01-01".ToDateTime() ? result.ToString("d") : "" :
                 "";
@@ -46,6 +50,9 @@ namespace CSBEF.Core.Helpers
 
         public static int ToInt(this object value)
         {
+            if (value == null)
+                return -1;
+
             try
             {
                 return int.Parse(value.ToString());
@@ -58,6 +65,9 @@ namespace CSBEF.Core.Helpers
 
         public static int ToInt(this object value, int onErrorReturnValue)
         {
+            if (value == null)
+                return onErrorReturnValue;
+
             try
             {
                 return int.Parse(value.ToString());
@@ -82,6 +92,9 @@ namespace CSBEF.Core.Helpers
 
         public static decimal ToDecimal(this object value)
         {
+            if (value == null)
+                return -1;
+
             try
             {
                 return decimal.Parse(value.ToString().Replace(",", "").Replace(".", ",").Replace(" ₺", "").Replace(" TL", ""));
@@ -94,6 +107,9 @@ namespace CSBEF.Core.Helpers
 
         public static decimal ToDecimal(this object value, decimal onErrorReturnValue)
         {
+            if (value == null)
+                return onErrorReturnValue;
+
             try
             {
                 return decimal.Parse(value.ToString().Replace(",", "").Replace(".", ",").Replace(" ₺", "").Replace(" TL", ""));
@@ -106,6 +122,9 @@ namespace CSBEF.Core.Helpers
 
         public static double ToDouble(this object value)
         {
+            if (value == null)
+                return -1;
+
             try
             {
                 return double.Parse(value.ToString().Replace(",", "").Replace(".", ",").Replace(" ₺", "").Replace(" TL", ""));
@@ -118,6 +137,9 @@ namespace CSBEF.Core.Helpers
 
         public static double ToDouble(this object value, double onErrorReturnValue = 0)
         {
+            if (value == null)
+                return onErrorReturnValue;
+
             try
             {
                 return double.Parse(value.ToString().Replace(",", "").Replace(".", ",").Replace(" ₺", "").Replace(" TL", ""));
@@ -130,6 +152,9 @@ namespace CSBEF.Core.Helpers
 
         public static bool ToBool(this object value)
         {
+            if (value == null)
+                return false;
+
             return bool.TryParse(value.ToString(), out bool result) ?
                 result :
                 false;
@@ -137,6 +162,9 @@ namespace CSBEF.Core.Helpers
 
         public static string ToStringNotNull(this object value, string onErrorReturnValue = "")
         {
+            if (value == null)
+                return onErrorReturnValue;
+
             try
             {
                 return value.ToString();
@@ -149,6 +177,9 @@ namespace CSBEF.Core.Helpers
 
         public static bool ToBool2(this object value)
         {
+            if (value == null)
+                return false;
+
             if (value.GetType() == typeof(int))
             {
                 return value.ToInt() == 1;
@@ -163,6 +194,9 @@ namespace CSBEF.Core.Helpers
 
         public static byte ToByte(this object value)
         {
+            if (value == null)
+                return 0;
+
             try
             {
                 return byte.Parse(value.ToString());
@@ -175,6 +209,9 @@ namespace CSBEF.Core.Helpers
 
         public static Guid ToGuid(this object value)
         {
+            if (value == null)
+                return new Guid();
+
             try
             {
                 return new Guid(value.ToString());
@@ -187,6 +224,9 @@ namespace CSBEF.Core.Helpers
 
         public static bool URLValidate(this object value)
         {
+            if (value == null)
+                return false;
+
             try
             {
                 bool result = Uri.TryCreate(value.ToString(), UriKind.Absolute, out Uri uriResult) && uriResult.Scheme == Uri.UriSchemeHttp;
@@ -217,6 +257,9 @@ namespace CSBEF.Core.Helpers
 
         public static bool TCKNDogrula(string tckn)
         {
+            if (tckn == null)
+                return false;
+
             try
             {
                 if (tckn == "11111111111" || tckn == "00000000000")
@@ -269,9 +312,9 @@ namespace CSBEF.Core.Helpers
             return x => f(x);
         }
 
-        public static bool In<T>(this T obj, params T[] args)
+        public static bool In<T>(this T objx, params T[] args)
         {
-            return args.Contains(obj);
+            return args.Contains(objx);
         }
 
         public static string ToMd5(this string input)
@@ -289,6 +332,9 @@ namespace CSBEF.Core.Helpers
 
         public static string GetExceptionDetails(this Exception exception)
         {
+            if (exception == null)
+                return "";
+
             PropertyInfo[] properties = exception.GetType()
                 .GetProperties();
             List<string> fields = new List<string>();
@@ -326,8 +372,8 @@ namespace CSBEF.Core.Helpers
             }
         }
 
-        public static List<ValidationResult> ModelValidation<Tmodel>(this Tmodel model)
-        where Tmodel : class
+        public static List<ValidationResult> ModelValidation<T>(this T model)
+        where T : class
         {
             var context = new ValidationContext(model);
             var results = new List<ValidationResult>();
@@ -335,9 +381,12 @@ namespace CSBEF.Core.Helpers
             return results;
         }
 
-        public static string FixFileName(this object obj)
+        public static string FixFileName(this object objx)
         {
-            var fileName = obj.ToString();
+            if (objx == null)
+                return "";
+
+            var fileName = objx.ToString();
             foreach (char c in Path.GetInvalidFileNameChars())
             {
                 fileName = fileName.Replace(c, '_');
@@ -345,9 +394,12 @@ namespace CSBEF.Core.Helpers
             return fileName;
         }
 
-        public static bool CheckExtension(this object obj)
+        public static bool CheckExtension(this object objx)
         {
-            var ext = Path.GetExtension(obj.ToString());
+            if (objx == null)
+                return false;
+
+            var ext = Path.GetExtension(objx.ToString());
 
             var allowExt = new List<string>
             {
@@ -397,11 +449,11 @@ namespace CSBEF.Core.Helpers
 
         public static bool ValidatePassword(this string password)
         {
+            if (password == null)
+                throw new ArgumentNullException(nameof(password));
+
             const int MIN_LENGTH = 8;
             const int MAX_LENGTH = 32;
-
-            if (password == null)
-                throw new ArgumentNullException();
 
             bool meetsLengthRequirements = password.Length >= MIN_LENGTH && password.Length <= MAX_LENGTH;
             bool hasUpperCaseLetter = false;
@@ -430,6 +482,9 @@ namespace CSBEF.Core.Helpers
 
         public static int GetTokenNameClaim(HttpContext context)
         {
+            if (context == null)
+                return 0;
+
             var rtn = 0;
 
             if (context.User != null)
@@ -450,6 +505,9 @@ namespace CSBEF.Core.Helpers
 
         public static int GetTokenNameClaim(HubCallerContext context)
         {
+            if (context == null)
+                return 0;
+
             var rtn = 0;
 
             if (context.User != null)
@@ -470,6 +528,9 @@ namespace CSBEF.Core.Helpers
 
         public static int GetTokenIdClaim(HttpContext context)
         {
+            if (context == null)
+                return 0;
+
             var rtn = 0;
 
             if (context.User != null)
@@ -490,6 +551,9 @@ namespace CSBEF.Core.Helpers
 
         public static int GetTokenIdClaim(HubCallerContext context)
         {
+            if (context == null)
+                return 0;
+
             var rtn = 0;
 
             if (context.User != null)
@@ -510,6 +574,12 @@ namespace CSBEF.Core.Helpers
 
         public static Expression<Func<T, bool>> ExpAnd<T>(Expression<Func<T, bool>> expressionOne, Expression<Func<T, bool>> expressionTwo)
         {
+            if (expressionOne == null)
+                throw new ArgumentNullException(nameof(expressionOne));
+
+            if (expressionTwo == null)
+                throw new ArgumentNullException(nameof(expressionTwo));
+
             var invokedSecond = Expression.Invoke(expressionTwo, expressionOne.Parameters.Cast<Expression>());
             return Expression.Lambda<Func<T, bool>>(
                 Expression.And(expressionOne.Body, invokedSecond), expressionOne.Parameters
@@ -518,6 +588,12 @@ namespace CSBEF.Core.Helpers
 
         public static Expression<Func<T, bool>> ExpOr<T>(Expression<Func<T, bool>> expressionOne, Expression<Func<T, bool>> expressionTwo)
         {
+            if (expressionOne == null)
+                throw new ArgumentNullException(nameof(expressionOne));
+
+            if (expressionTwo == null)
+                throw new ArgumentNullException(nameof(expressionTwo));
+
             var invokedSecond = Expression.Invoke(expressionTwo, expressionOne.Parameters.Cast<Expression>());
             return Expression.Lambda<Func<T, bool>>(
                 Expression.Or(expressionOne.Body, invokedSecond), expressionOne.Parameters
@@ -571,8 +647,6 @@ namespace CSBEF.Core.Helpers
 
         public static bool HashControl<TParam>(this TParam data, string secureKey)
         {
-            //AppendDebugLogText(Environment.NewLine + Environment.NewLine + Environment.NewLine + "======HashControl======");
-
             var properties = GetProperties(data);
             var valueChain = "";
             var incomingHashProperty = properties.FirstOrDefault(i => i.Name.ToLower() == "hash");
@@ -598,12 +672,10 @@ namespace CSBEF.Core.Helpers
                     {
                         if ((bool)property.GetValue(data, null))
                         {
-                            //valueChain += "1";
                             valueChain += "true";
                         }
                         else
                         {
-                            //valueChain += "0";
                             valueChain += "false";
                         }
                     }
@@ -644,7 +716,7 @@ namespace CSBEF.Core.Helpers
         {
             try
             {
-                if(File.Exists("DebugLog.txt"))
+                if (File.Exists("DebugLog.txt"))
                     File.AppendAllText("DebugLog.txt", text + Environment.NewLine);
             }
             catch (Exception)

@@ -50,9 +50,9 @@ namespace CSBEF.Core.Concretes
 
             #region Transfer Dependencies
 
-            _configuration = configuration;
-            _hostingEnvironment = hostingEnvironment;
-            _services = services;
+            _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+            _hostingEnvironment = hostingEnvironment ?? throw new ArgumentNullException(nameof(hostingEnvironment));
+            _services = services ?? throw new ArgumentNullException(nameof(services));
 
             #endregion Transfer Dependencies
 
@@ -120,7 +120,7 @@ namespace CSBEF.Core.Concretes
                         {
                             var currentToken = ((JwtSecurityToken)context.SecurityToken).RawData;
                             var eventServiceInstance = context.HttpContext.RequestServices.GetService<IEventService>();
-                            var checkTokenStatus = await eventServiceInstance.GetEvent("Main", "InComingToken").EventHandler<bool, string>(currentToken);
+                            var checkTokenStatus = await eventServiceInstance.GetEvent("Main", "InComingToken").EventHandler<bool, string>(currentToken).ConfigureAwait(false);
                             if (checkTokenStatus.Error.Status || !checkTokenStatus.Result)
                             {
                                 context.Fail("TokenExpiredOrPassive");
@@ -139,8 +139,7 @@ namespace CSBEF.Core.Concretes
 
                             // If the request is for our hub...
                             var path = context.HttpContext.Request.Path;
-                            if (!string.IsNullOrEmpty(accessToken) &&
-                                (path.StartsWithSegments("/signalr")))
+                            if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/signalr"))
                             {
                                 // Read the token out of the query string
                                 context.Token = accessToken;
@@ -393,7 +392,9 @@ namespace CSBEF.Core.Concretes
                 }
             }
 
-            GlobalConfiguration.Modules = modules;
+            GlobalConfiguration.Modules.Clear();
+            foreach (var module in modules)
+                GlobalConfiguration.Modules.Add(module);
         }
     }
 }

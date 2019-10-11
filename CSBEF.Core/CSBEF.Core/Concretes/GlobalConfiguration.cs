@@ -5,7 +5,7 @@ namespace CSBEF.Core.Concretes
 {
     public static class GlobalConfiguration
     {
-        public static IList<ModuleInfo> Modules { get; set; }
+        public static IList<ModuleInfo> Modules { get; }
         public static string DbProvider { get; set; }
         public static string DbConnectionString { get; set; }
         public static string sAppPath { get; set; }

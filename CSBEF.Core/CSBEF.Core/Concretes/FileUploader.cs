@@ -30,8 +30,8 @@ namespace CSBEF.Core.Concretes
             string path = ""
         )
         {
-            _configuration = configuration;
-            _logger = logger;
+            _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
             if (allowTypes == null)
             {
@@ -63,6 +63,9 @@ namespace CSBEF.Core.Concretes
 
         public async Task<IReturnModel<string>> Upload(IFormFile file)
         {
+            if (file == null)
+                throw new ArgumentNullException(nameof(file));
+
             IReturnModel<string> rtn = new ReturnModel<string>(_logger);
             bool cnt = true;
             string newFilePath = "";
@@ -102,7 +105,7 @@ namespace CSBEF.Core.Concretes
                 {
                     using (var stream = new FileStream(Path.Combine(_path, newFilePath), FileMode.Create))
                     {
-                        await file.CopyToAsync(stream);
+                        await file.CopyToAsync(stream).ConfigureAwait(false);
                     }
                 }
 

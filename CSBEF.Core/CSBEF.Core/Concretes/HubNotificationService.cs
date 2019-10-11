@@ -41,11 +41,11 @@ namespace CSBEF.Core.Concretes
 
                 if (!string.IsNullOrWhiteSpace(group))
                 {
-                    await globalHub.Clients.Group(group).SendAsync("HubNotifiy", data);
+                    await globalHub.Clients.Group(group).SendAsync("HubNotifiy", data).ConfigureAwait(false);
                 }
                 else
                 {
-                    await globalHub.Clients.All.SendAsync("HubNotifiy", data);
+                    await globalHub.Clients.All.SendAsync("HubNotifiy", data).ConfigureAwait(false);
                 }
             }
             catch (Exception ex)

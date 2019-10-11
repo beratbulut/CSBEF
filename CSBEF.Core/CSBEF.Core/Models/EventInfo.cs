@@ -11,7 +11,7 @@ namespace CSBEF.Core.Models
         public string ServiceName { get; set; }
         public string ActionName { get; set; }
         public bool DenyHubUse { get; set; } = false;
-        public List<string> AccessHubs { get; set; } = new List<string>();
+        public List<string> AccessHubs { get; } = new List<string>();
         public EventTypeEnum EventType { get; set; }
     }
 }

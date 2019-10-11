@@ -32,14 +32,14 @@ namespace CSBEF.Core.Models
 
         #region Public Actions
 
-        public IReturnModel<TResult> SendError<TerrorsEnum>(TerrorsEnum error)
-            where TerrorsEnum : struct, IConvertible
+        public IReturnModel<TResult> SendError<T>(T error)
+            where T : struct, IConvertible
         {
-            if (!typeof(TerrorsEnum).IsEnum)
+            if (!typeof(T).IsEnum)
                 return SendError(GlobalErrors.TechnicalError);
 
             Error.Code = error.ToString();
-            Error.Message = Enum.GetName(typeof(TerrorsEnum), error);
+            Error.Message = Enum.GetName(typeof(T), error);
             Error.Status = true;
 
             _logger.LogError("(" + Error.Code + ")" + Error.Message);
@@ -47,14 +47,14 @@ namespace CSBEF.Core.Models
             return this;
         }
 
-        public IReturnModel<TResult> SendError<TerrorsEnum>(TerrorsEnum error, Exception ex)
-            where TerrorsEnum : struct, IConvertible
+        public IReturnModel<TResult> SendError<T>(T error, Exception ex)
+            where T : struct, IConvertible
         {
-            if (!typeof(TerrorsEnum).IsEnum)
+            if (!typeof(T).IsEnum)
                 return SendError(GlobalErrors.TechnicalError);
 
             Error.Code = error.ToString();
-            Error.Message = Enum.GetName(typeof(TerrorsEnum), error);
+            Error.Message = Enum.GetName(typeof(T), error);
             Error.Status = true;
 
             _logger.LogError(ex, "(" + Error.Code + ")" + Error.Message);
@@ -62,14 +62,14 @@ namespace CSBEF.Core.Models
             return this;
         }
 
-        public IReturnModel<TResult> SendError<TerrorsEnum>(TerrorsEnum error, Exception ex, TResult result)
-            where TerrorsEnum : struct, IConvertible
+        public IReturnModel<TResult> SendError<T>(T error, Exception ex, TResult result)
+            where T : struct, IConvertible
         {
-            if (!typeof(TerrorsEnum).IsEnum)
+            if (!typeof(T).IsEnum)
                 return SendError(GlobalErrors.TechnicalError);
 
             Error.Code = error.ToString();
-            Error.Message = Enum.GetName(typeof(TerrorsEnum), error);
+            Error.Message = Enum.GetName(typeof(T), error);
             Error.Status = true;
             Result = result;
 

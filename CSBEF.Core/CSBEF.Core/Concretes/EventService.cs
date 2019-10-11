@@ -10,7 +10,7 @@ namespace CSBEF.Core.Concretes
 {
     public class EventService : IEventService
     {
-        private List<IEventModel> _events = new List<IEventModel>();
+        private readonly List<IEventModel> _events = new List<IEventModel>();
 
         public EventService(IServiceProvider provider)
         {
@@ -74,10 +74,13 @@ namespace CSBEF.Core.Concretes
                     ServiceName = serviceName,
                     ActionName = actionName,
                     EventType = eventType,
-                    DenyHubUse = denyHubUse,
-                    AccessHubs = accessHubs ?? new List<string>()
+                    DenyHubUse = denyHubUse
                 }
             });
+
+            if (accessHubs != null)
+                foreach (var accessHub in accessHubs)
+                    _events[_events.Count - 1].EventInfo.AccessHubs.Add(accessHub);
 
             #endregion Action Body
         }

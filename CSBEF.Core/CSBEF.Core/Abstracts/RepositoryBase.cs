@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using CSBEF.Core.Concretes;
+﻿using CSBEF.Core.Concretes;
 using CSBEF.Core.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -13,38 +12,32 @@ namespace CSBEF.Core.Abstracts
     public abstract class RepositoryBase<TEntity> : IRepositoryBase<TEntity>
         where TEntity : class, IEntityModelBase
     {
-        #region Dependencies
-
-        protected ModularDbContext _context;
-        private IMapper _mapper;
-
-        #endregion Dependencies
-
         #region Construction
 
-        public RepositoryBase(ModularDbContext context, IMapper mapper)
+        public RepositoryBase(ModularDbContext context)
         {
-            _context = context;
-            _mapper = mapper;
+            DBContext = context;
         }
 
         #endregion Construction
 
         #region Actions
 
+        public ModularDbContext DBContext { get; }
+
         public virtual IQueryable<TEntity> GetAll()
         {
-            return _context.Set<TEntity>().AsNoTracking();
+            return DBContext.Set<TEntity>().AsNoTracking();
         }
 
         public virtual async Task<ICollection<TEntity>> GetAllAsyn()
         {
-            return await _context.Set<TEntity>().ToListAsync();
+            return await DBContext.Set<TEntity>().ToListAsync().ConfigureAwait(false);
         }
 
         public virtual TEntity Add(TEntity t)
         {
-            var entity = _context.Set<TEntity>().Add(t).Entity;
+            var entity = DBContext.Set<TEntity>().Add(t).Entity;
             return entity;
         }
 
@@ -55,7 +48,7 @@ namespace CSBEF.Core.Abstracts
 
         public virtual async Task<TEntity> FindAsync(Expression<Func<TEntity, bool>> match)
         {
-            return await GetAll().FirstOrDefaultAsync(match);
+            return await GetAll().FirstOrDefaultAsync(match).ConfigureAwait(false);
         }
 
         public virtual ICollection<TEntity> FindAll(Expression<Func<TEntity, bool>> match)
@@ -65,17 +58,17 @@ namespace CSBEF.Core.Abstracts
 
         public virtual async Task<ICollection<TEntity>> FindAllAsync(Expression<Func<TEntity, bool>> match)
         {
-            return await GetAll().Where(match).ToListAsync();
+            return await GetAll().Where(match).ToListAsync().ConfigureAwait(false);
         }
 
         public virtual void Delete(TEntity entity)
         {
-            _context.Set<TEntity>().Remove(entity);
+            DBContext.Set<TEntity>().Remove(entity);
         }
 
         public virtual TEntity Update(TEntity t)
         {
-            _context.Entry(t).State = EntityState.Modified;
+            DBContext.Entry(t).State = EntityState.Modified;
 
             return t;
         }
@@ -92,22 +85,22 @@ namespace CSBEF.Core.Abstracts
 
         public virtual async Task<int> CountAsync()
         {
-            return await GetAll().CountAsync();
+            return await GetAll().CountAsync().ConfigureAwait(false);
         }
 
         public virtual async Task<int> CountAsync(Expression<Func<TEntity, bool>> predicate)
         {
-            return await GetAll().Where(predicate).CountAsync();
+            return await GetAll().Where(predicate).CountAsync().ConfigureAwait(false);
         }
 
         public virtual void Save()
         {
-            _context.SaveChanges();
+            DBContext.SaveChanges();
         }
 
         public virtual async Task<int> SaveAsync()
         {
-            return await _context.SaveChangesAsync();
+            return await DBContext.SaveChangesAsync().ConfigureAwait(false);
         }
 
         public virtual IQueryable<TEntity> GetAllIncluding(params Expression<Func<TEntity, object>>[] includeProperties)
@@ -129,7 +122,7 @@ namespace CSBEF.Core.Abstracts
             {
                 if (disposing)
                 {
-                    _context.Dispose();
+                    DBContext.Dispose();
                 }
                 disposed = true;
             }

@@ -17,8 +17,8 @@ namespace CSBEF.Core.Concretes
     [Authorize]
     public class GlobalHub : Hub
     {
-        private ILogger<ILog> _logger;
-        private IEventService _eventService;
+        private readonly ILogger<ILog> _logger;
+        private readonly IEventService _eventService;
 
         public GlobalHub(ILogger<ILog> logger, IEventService eventService)
         {
@@ -30,48 +30,46 @@ namespace CSBEF.Core.Concretes
         {
             IHubUserModel user = new HubUserModel
             {
-                Id = Context.User.Claims.First(i => i.Type == ClaimTypes.Name).Value.ToInt(0),
-                ConnectionId = new List<string>
-                {
-                    Context.ConnectionId
-                }
+                Id = Context.User.Claims.First(i => i.Type == ClaimTypes.Name).Value.ToInt(0)
             };
 
-            await base.OnConnectedAsync();
-            var addNewUser = await HubConnectedUserStore.Add(user);
+            user.ConnectionId.Add(Context.ConnectionId);
 
-            await Groups.AddToGroupAsync(Context.ConnectionId, "connection_" + Context.ConnectionId);
-            await Groups.AddToGroupAsync(Context.ConnectionId, "user_" + user.Id);
+            await base.OnConnectedAsync().ConfigureAwait(false);
+            var addNewUser = await HubConnectedUserStore.Add(user).ConfigureAwait(false);
 
-            var connectedUsersList = await HubConnectedUserStore.ConnectedUserList();
-            await Clients.Group("connection_" + Context.ConnectionId).SendAsync("GiveConnectedUsersList", connectedUsersList);
+            await Groups.AddToGroupAsync(Context.ConnectionId, "connection_" + Context.ConnectionId).ConfigureAwait(false);
+            await Groups.AddToGroupAsync(Context.ConnectionId, "user_" + user.Id).ConfigureAwait(false);
+
+            var connectedUsersList = await HubConnectedUserStore.ConnectedUserList().ConfigureAwait(false);
+            await Clients.Group("connection_" + Context.ConnectionId).SendAsync("GiveConnectedUsersList", connectedUsersList).ConfigureAwait(false);
 
             if (addNewUser)
             {
-                await Clients.All.SendAsync("ConnectedNewClient", user);
+                await Clients.All.SendAsync("ConnectedNewClient", user).ConfigureAwait(false);
             }
         }
 
         public override async Task OnDisconnectedAsync(Exception exception)
         {
-            var user = await HubConnectedUserStore.FindUser(Context.ConnectionId);
+            var user = await HubConnectedUserStore.FindUser(Context.ConnectionId).ConfigureAwait(false);
 
-            await base.OnDisconnectedAsync(exception);
-            var removeUser = await HubConnectedUserStore.Remove(Context.ConnectionId);
+            await base.OnDisconnectedAsync(exception).ConfigureAwait(false);
+            var removeUser = await HubConnectedUserStore.Remove(Context.ConnectionId).ConfigureAwait(false);
 
-            await Groups.RemoveFromGroupAsync(Context.ConnectionId, "connection_" + Context.ConnectionId);
-            await Groups.RemoveFromGroupAsync(Context.ConnectionId, "user_" + user.Id);
+            await Groups.RemoveFromGroupAsync(Context.ConnectionId, "connection_" + Context.ConnectionId).ConfigureAwait(false);
+            await Groups.RemoveFromGroupAsync(Context.ConnectionId, "user_" + user.Id).ConfigureAwait(false);
 
             if (removeUser)
             {
                 user.ConnectionId.Clear();
-                await Clients.All.SendAsync("DisconnectedClient", user);
+                await Clients.All.SendAsync("DisconnectedClient", user).ConfigureAwait(false);
             }
         }
 
         public async Task<IList<IHubUserModel>> GetConnectedUsersList()
         {
-            return await HubConnectedUserStore.ConnectedUserList();
+            return await HubConnectedUserStore.ConnectedUserList().ConfigureAwait(false);
         }
 
         public async Task<IReturnModel<SendModuleDataModel>> InComingClientData(InComingClientDataModel data)
@@ -83,7 +81,7 @@ namespace CSBEF.Core.Concretes
                 var userId = Tools.GetTokenNameClaim(Context);
                 var tokenId = Tools.GetTokenIdClaim(Context);
                 var serviceParam = new ServiceParamsWithIdentifier<InComingClientDataModel>(data, userId, tokenId);
-                var exec = await _eventService.GetEvent("Main", "InComingHubClientData").EventHandler<SendModuleDataModel, ServiceParamsWithIdentifier<InComingClientDataModel>>(serviceParam);
+                var exec = await _eventService.GetEvent("Main", "InComingHubClientData").EventHandler<SendModuleDataModel, ServiceParamsWithIdentifier<InComingClientDataModel>>(serviceParam).ConfigureAwait(false);
                 if (exec.Error.Status)
                 {
                     rtn.Error = exec.Error;

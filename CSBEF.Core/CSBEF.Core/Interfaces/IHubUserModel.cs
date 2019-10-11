@@ -6,6 +6,6 @@ namespace CSBEF.Core.Interfaces
     public interface IHubUserModel : ICloneable
     {
         int Id { get; set; }
-        List<string> ConnectionId { get; set; }
+        List<string> ConnectionId { get; }
     }
 }

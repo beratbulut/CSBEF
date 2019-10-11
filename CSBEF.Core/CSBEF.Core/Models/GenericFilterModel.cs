@@ -8,8 +8,8 @@ namespace CSBEF.Core.Models
     public class GenericFilterModel<TDTO>
         where TDTO : class, IDTOModelBase, new()
     {
-        public List<Expression<Func<TDTO, bool>>> WherePredicates { get; set; }
-        public List<GenericSortModel> OrderPredicates { get; set; }
+        public List<Expression<Func<TDTO, bool>>> WherePredicates { get; } = new List<Expression<Func<TDTO, bool>>>();
+        public List<GenericSortModel> OrderPredicates { get; } = new List<GenericSortModel>();
         public int Page { get; set; }
         public int PageSize { get; set; }
 
@@ -28,13 +28,12 @@ namespace CSBEF.Core.Models
 
         public void AddOrderByPredicate(string propertyName, bool descending = false)
         {
-            OrderPredicates = new List<GenericSortModel> {
-                new GenericSortModel
-                {
-                    PropertyName = propertyName,
-                    Descending = descending
-                }
-            };
+            OrderPredicates.Clear();
+            OrderPredicates.Add(new GenericSortModel
+            {
+                PropertyName = propertyName,
+                Descending = descending
+            });
         }
 
         public GenericFilterModel<TDTO> SetOneWherePredicate(Expression<Func<TDTO, bool>> predicate)

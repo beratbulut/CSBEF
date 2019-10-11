@@ -13,11 +13,11 @@ namespace CSBEF.Core.Interfaces
 
         #region Actions
 
-        IReturnModel<TResult> SendError<TerrorsEnum>(TerrorsEnum error) where TerrorsEnum : struct, IConvertible;
+        IReturnModel<TResult> SendError<T>(T error) where T : struct, IConvertible;
 
-        IReturnModel<TResult> SendError<TerrorsEnum>(TerrorsEnum error, Exception ex) where TerrorsEnum : struct, IConvertible;
+        IReturnModel<TResult> SendError<T>(T error, Exception ex) where T : struct, IConvertible;
 
-        IReturnModel<TResult> SendError<TerrorsEnum>(TerrorsEnum error, Exception ex, TResult result) where TerrorsEnum : struct, IConvertible;
+        IReturnModel<TResult> SendError<T>(T error, Exception ex, TResult result) where T : struct, IConvertible;
 
         IReturnModel<TResult> SendError(string message);
 

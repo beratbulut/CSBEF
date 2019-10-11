@@ -31,7 +31,7 @@ namespace CSBEF.Core.Concretes
 
         #region Actions
 
-        public async Task<IReturnModel<bool>> OnSync<Tdata>(HubSyncDataModel<Tdata> data, string group = "")
+        public async Task<IReturnModel<bool>> OnSync<T>(HubSyncDataModel<T> data, string group = "")
         {
             IReturnModel<bool> rtn = new ReturnModel<bool>(_logger);
 
@@ -41,11 +41,11 @@ namespace CSBEF.Core.Concretes
 
                 if (!string.IsNullOrWhiteSpace(group))
                 {
-                    await globalHub.Clients.Group(group).SendAsync("HubSyncData", data);
+                    await globalHub.Clients.Group(group).SendAsync("HubSyncData", data).ConfigureAwait(false);
                 }
                 else
                 {
-                    await globalHub.Clients.All.SendAsync("HubSyncData", data);
+                    await globalHub.Clients.All.SendAsync("HubSyncData", data).ConfigureAwait(false);
                 }
             }
             catch (Exception ex)

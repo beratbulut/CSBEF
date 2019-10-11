@@ -23,6 +23,9 @@ namespace CSBEF.Core.Concretes
 
         public static async Task<bool> Add(IHubUserModel user)
         {
+            if (user == null)
+                throw new ArgumentNullException(nameof(user));
+
             var addNewUser = false;
 
             while (_lock)
@@ -63,7 +66,7 @@ namespace CSBEF.Core.Concretes
             catch (Exception)
             {
                 Thread.Sleep(100);
-                return await Add(user);
+                return await Add(user).ConfigureAwait(false);
             }
 
             return addNewUser;
@@ -98,7 +101,7 @@ namespace CSBEF.Core.Concretes
             catch (Exception)
             {
                 Thread.Sleep(100);
-                return await Remove(connectionId);
+                return await Remove(connectionId).ConfigureAwait(false);
             }
 
             return removeUser;
@@ -123,7 +126,7 @@ namespace CSBEF.Core.Concretes
             {
                 _lock = false;
                 Thread.Sleep(100);
-                return await ConnectedUserList();
+                return await ConnectedUserList().ConfigureAwait(false);
             }
         }
 
@@ -146,7 +149,7 @@ namespace CSBEF.Core.Concretes
             {
                 _lock = false;
                 Thread.Sleep(100);
-                return await ConnectedIdList();
+                return await ConnectedIdList().ConfigureAwait(false);
             }
         }
 
@@ -177,7 +180,7 @@ namespace CSBEF.Core.Concretes
             {
                 _lock = false;
                 Thread.Sleep(100);
-                user = await FindUser(connectionId);
+                user = await FindUser(connectionId).ConfigureAwait(false);
             }
 
             _lock = false;

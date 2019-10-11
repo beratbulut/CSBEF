@@ -23,7 +23,7 @@ namespace CSBEF.Core.Helpers
                 await Task.Run(() =>
                 {
                     WaitDbTransaction();
-                });
+                }).ConfigureAwait(false);
             }
 
             _transaction = _context.Database.BeginTransaction();

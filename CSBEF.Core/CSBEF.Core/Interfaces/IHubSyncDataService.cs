@@ -5,6 +5,6 @@ namespace CSBEF.Core.Interfaces
 {
     public interface IHubSyncDataService
     {
-        Task<IReturnModel<bool>> OnSync<Tdata>(HubSyncDataModel<Tdata> data, string group = "");
+        Task<IReturnModel<bool>> OnSync<T>(HubSyncDataModel<T> data, string group = "");
     }
 }

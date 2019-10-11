@@ -10,7 +10,7 @@ namespace CSBEF.Core.Interfaces
         string ServiceName { get; set; }
         string ActionName { get; set; }
         bool DenyHubUse { get; set; }
-        List<string> AccessHubs { get; set; }
+        List<string> AccessHubs { get; }
         EventTypeEnum EventType { get; set; }
     }
 }
