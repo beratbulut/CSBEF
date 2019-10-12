@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Threading.Tasks;
 
 namespace CSBEF.Core.Concretes
 {
@@ -31,7 +30,7 @@ namespace CSBEF.Core.Concretes
 
         #region Actions
 
-        public async Task<IReturnModel<bool>> OnNotify(NotificationModel data, string group = "")
+        public IReturnModel<bool> OnNotify(NotificationModel data, string group = "")
         {
             IReturnModel<bool> rtn = new ReturnModel<bool>(_logger);
 
@@ -41,11 +40,11 @@ namespace CSBEF.Core.Concretes
 
                 if (!string.IsNullOrWhiteSpace(group))
                 {
-                    await globalHub.Clients.Group(group).SendAsync("HubNotifiy", data).ConfigureAwait(false);
+                    globalHub.Clients.Group(group).SendAsync("HubNotifiy", data).ConfigureAwait(false);
                 }
                 else
                 {
-                    await globalHub.Clients.All.SendAsync("HubNotifiy", data).ConfigureAwait(false);
+                    globalHub.Clients.All.SendAsync("HubNotifiy", data).ConfigureAwait(false);
                 }
             }
             catch (Exception ex)

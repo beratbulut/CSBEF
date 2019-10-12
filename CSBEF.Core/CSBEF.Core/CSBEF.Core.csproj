@@ -13,9 +13,9 @@
     <RepositoryUrl>https://github.com/mkurak/CSBEF</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <PackageTags>Modular API Builder</PackageTags>
-    <Version>2.0.4</Version>
-    <PackageReleaseNotes>- Clear extra async operations
-- Fixed some code and fixed some bugs</PackageReleaseNotes>
+    <Version>2.0.5</Version>
+    <PackageReleaseNotes>- HubNotificationService clear async operations
+- HubSyncDataService clear async operations</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
