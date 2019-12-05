@@ -1,4 +1,5 @@
 ﻿using CSBEF.Core.Enums;
+using CSBEF.Core.Helpers;
 using CSBEF.Core.Interfaces;
 using CSBEF.Core.Models;
 using Microsoft.AspNetCore.Http;
@@ -98,7 +99,21 @@ namespace CSBEF.Core.Concretes
 
                 if (cnt)
                 {
-                    newFilePath = Guid.NewGuid() + Path.GetExtension(file.FileName);
+                    var setting_guidDontUse = false;
+                    var setting_prepend = "";
+                    var setting_append = "";
+                    var setting_importantExt = "";
+
+                    if(_configuration["AppSettings:FileUploader:fileName"] != null)
+                    {
+                        setting_guidDontUse = _configuration["AppSettings:FileUploader:fileName:guidDontUse"].ToBool();
+                        setting_prepend = _configuration["AppSettings:FileUploader:fileName:prepend"];
+                        setting_append = _configuration["AppSettings:FileUploader:fileName:append"];
+                        setting_append = _configuration["AppSettings:FileUploader:fileName:append"];
+                        setting_importantExt = _configuration["AppSettings:FileUploader:fileName:importantExt"];
+                    }
+
+                    newFilePath = setting_prepend + (setting_guidDontUse ? file.FileName : Guid.NewGuid().ToString()) + setting_append + (!setting_guidDontUse ? Path.GetExtension(file.FileName) : "") + (!string.IsNullOrWhiteSpace(setting_importantExt) ? setting_importantExt : "");
                 }
 
                 if (cnt)
