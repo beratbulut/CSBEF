@@ -99,19 +99,10 @@ namespace CSBEF.Core.Concretes
 
                 if (cnt)
                 {
-                    var setting_guidDontUse = false;
-                    var setting_prepend = "";
-                    var setting_append = "";
-                    var setting_importantExt = "";
-
-                    if(_configuration["AppSettings:FileUploader:fileName"] != null)
-                    {
-                        setting_guidDontUse = _configuration["AppSettings:FileUploader:fileName:guidDontUse"].ToBool2();
-                        setting_prepend = _configuration["AppSettings:FileUploader:fileName:prepend"];
-                        setting_append = _configuration["AppSettings:FileUploader:fileName:append"];
-                        setting_append = _configuration["AppSettings:FileUploader:fileName:append"];
-                        setting_importantExt = _configuration["AppSettings:FileUploader:fileName:importantExt"];
-                    }
+                    var setting_guidDontUse = _configuration["AppSettings:FileUploader:fileName:guidDontUse"] != null ? _configuration["AppSettings:FileUploader:fileName:guidDontUse"].ToBool2() : false;
+                    var setting_prepend = _configuration["AppSettings:FileUploader:fileName:prepend"] != null ? _configuration["AppSettings:FileUploader:fileName:prepend"] : "";
+                    var setting_append = _configuration["AppSettings:FileUploader:fileName:append"] != null ? _configuration["AppSettings:FileUploader:fileName:append"] : "";
+                    var setting_importantExt = _configuration["AppSettings:FileUploader:fileName:importantExt"] != null ? _configuration["AppSettings:FileUploader:fileName:importantExt"] : "";
 
                     newFilePath = setting_prepend + (setting_guidDontUse ? file.FileName : Guid.NewGuid().ToString()) + setting_append + (!setting_guidDontUse ? Path.GetExtension(file.FileName) : "") + (!string.IsNullOrWhiteSpace(setting_importantExt) ? setting_importantExt : "");
                 }
