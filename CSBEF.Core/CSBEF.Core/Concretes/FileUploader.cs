@@ -106,7 +106,7 @@ namespace CSBEF.Core.Concretes
 
                     if(_configuration["AppSettings:FileUploader:fileName"] != null)
                     {
-                        setting_guidDontUse = _configuration["AppSettings:FileUploader:fileName:guidDontUse"].ToBool();
+                        setting_guidDontUse = _configuration["AppSettings:FileUploader:fileName:guidDontUse"].ToBool2();
                         setting_prepend = _configuration["AppSettings:FileUploader:fileName:prepend"];
                         setting_append = _configuration["AppSettings:FileUploader:fileName:append"];
                         setting_append = _configuration["AppSettings:FileUploader:fileName:append"];
