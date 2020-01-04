@@ -13,8 +13,8 @@
     <RepositoryUrl>https://github.com/mkurak/CSBEF</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <PackageTags>Modular API Builder</PackageTags>
-    <Version>2.1.2</Version>
-    <PackageReleaseNotes>- Fixed FileUpload.Upload</PackageReleaseNotes>
+    <Version>2.2.0</Version>
+    <PackageReleaseNotes>- New features added (ServiceBase in BaseAdd, BaseUpdate and BaseChangeStatus)</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>

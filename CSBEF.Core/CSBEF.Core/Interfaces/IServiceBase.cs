@@ -1,4 +1,5 @@
-﻿using CSBEF.Core.Models;
+﻿using CSBEF.Core.Concretes;
+using CSBEF.Core.Models;
 using System;
 using System.Collections.Generic;
 
@@ -31,5 +32,11 @@ namespace CSBEF.Core.Interfaces
         IReturnModel<IList<TDTO>> List(ActionFilterModel filter);
 
         IReturnModel<int> Count(ActionFilterModel filter);
+
+        IReturnModel<TDTO> BaseAdd<TModel>(ServiceParamsWithIdentifier<TDTO> data);
+
+        IReturnModel<TDTO> BaseUpdate<TModel>(ServiceParamsWithIdentifier<TDTO> data);
+
+        IReturnModel<TDTO> BaseChangeStatus<TModel>(ServiceParamsWithIdentifier<ChangeStatusModel> data);
     }
 }

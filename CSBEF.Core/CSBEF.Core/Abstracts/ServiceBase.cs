@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using CSBEF.Core.Concretes;
 using CSBEF.Core.Enums;
 using CSBEF.Core.Helpers;
 using CSBEF.Core.Interfaces;
@@ -1078,6 +1079,91 @@ namespace CSBEF.Core.Abstracts
                 afterEventHandler = null;
 
                 #endregion Clear Memory
+            }
+            catch (Exception ex)
+            {
+                rtn = rtn.SendError(GlobalErrors.TechnicalError, ex);
+            }
+
+            return rtn;
+        }
+
+        public virtual IReturnModel<TDTO> BaseAdd<TModel>(ServiceParamsWithIdentifier<TDTO> data)
+        {
+            if (data == null)
+                throw new ArgumentNullException(nameof(data));
+
+            IReturnModel<TDTO> rtn = new ReturnModel<TDTO>(_logger);
+
+            try
+            {
+                var convertPoco = _mapper.Map<TPoco>(data.Param);
+                convertPoco.AddingDate = DateTime.Now;
+                convertPoco.UpdatingDate = DateTime.Now;
+                convertPoco.AddingUserId = data.UserId;
+                convertPoco.UpdatingUserId = data.UserId;
+                var savedModel = Repository.Add(convertPoco);
+                Repository.Save();
+                rtn.Result = _mapper.Map<TDTO>(savedModel);
+            }
+            catch (Exception ex)
+            {
+                rtn = rtn.SendError(GlobalErrors.TechnicalError, ex);
+            }
+
+            return rtn;
+        }
+
+        public virtual IReturnModel<TDTO> BaseUpdate<TModel>(ServiceParamsWithIdentifier<TDTO> data)
+        {
+            if (data == null)
+                throw new ArgumentNullException(nameof(data));
+
+            IReturnModel<TDTO> rtn = new ReturnModel<TDTO>(_logger);
+
+            try
+            {
+                var getData = Repository.Find(i => i.Id == data.Param.Id);
+                if(getData == null)
+                {
+                    rtn = rtn.SendError(GlobalErrors.DataNotFound);
+                    return rtn;
+                }
+
+                getData = _mapper.Map<TPoco>(data.Param);
+                getData.AddingDate = DateTime.Now;
+                getData.UpdatingDate = DateTime.Now;
+                getData.AddingUserId = data.UserId;
+                getData.UpdatingUserId = data.UserId;
+                getData = Repository.Update(getData);
+                Repository.Save();
+                rtn.Result = _mapper.Map<TDTO>(getData);
+            }
+            catch (Exception ex)
+            {
+                rtn = rtn.SendError(GlobalErrors.TechnicalError, ex);
+            }
+
+            return rtn;
+        }
+
+        public virtual IReturnModel<TDTO> BaseChangeStatus<TModel>(ServiceParamsWithIdentifier<ChangeStatusModel> data)
+        {
+            IReturnModel<TDTO> rtn = new ReturnModel<TDTO>(_logger);
+
+            try
+            {
+                var getData = Repository.Find(i => i.Id == data.Param.Id);
+                if (getData == null)
+                {
+                    rtn = rtn.SendError(GlobalErrors.DataNotFound);
+                    return rtn;
+                }
+
+                getData.Status = data.Param.Status;
+                getData = Repository.Update(getData);
+                Repository.Save();
+                rtn.Result = _mapper.Map<TDTO>(getData);
             }
             catch (Exception ex)
             {
