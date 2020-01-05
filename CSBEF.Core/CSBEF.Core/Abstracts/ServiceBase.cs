@@ -1149,6 +1149,9 @@ namespace CSBEF.Core.Abstracts
 
         public virtual IReturnModel<TDTO> BaseChangeStatus(ServiceParamsWithIdentifier<ChangeStatusModel> data)
         {
+            if (data == null)
+                throw new ArgumentNullException(nameof(data));
+
             IReturnModel<TDTO> rtn = new ReturnModel<TDTO>(_logger);
 
             try
