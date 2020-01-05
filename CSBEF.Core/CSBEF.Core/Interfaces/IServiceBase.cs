@@ -33,10 +33,10 @@ namespace CSBEF.Core.Interfaces
 
         IReturnModel<int> Count(ActionFilterModel filter);
 
-        IReturnModel<TDTO> BaseAdd<TModel>(ServiceParamsWithIdentifier<TDTO> data);
+        IReturnModel<TDTO> BaseAdd(ServiceParamsWithIdentifier<TDTO> data);
 
-        IReturnModel<TDTO> BaseUpdate<TModel>(ServiceParamsWithIdentifier<TDTO> data);
+        IReturnModel<TDTO> BaseUpdate(ServiceParamsWithIdentifier<TDTO> data);
 
-        IReturnModel<TDTO> BaseChangeStatus<TModel>(ServiceParamsWithIdentifier<ChangeStatusModel> data);
+        IReturnModel<TDTO> BaseChangeStatus(ServiceParamsWithIdentifier<ChangeStatusModel> data);
     }
 }

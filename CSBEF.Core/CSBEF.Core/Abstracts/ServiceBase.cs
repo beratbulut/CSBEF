@@ -1088,7 +1088,7 @@ namespace CSBEF.Core.Abstracts
             return rtn;
         }
 
-        public virtual IReturnModel<TDTO> BaseAdd<TModel>(ServiceParamsWithIdentifier<TDTO> data)
+        public virtual IReturnModel<TDTO> BaseAdd(ServiceParamsWithIdentifier<TDTO> data)
         {
             if (data == null)
                 throw new ArgumentNullException(nameof(data));
@@ -1114,7 +1114,7 @@ namespace CSBEF.Core.Abstracts
             return rtn;
         }
 
-        public virtual IReturnModel<TDTO> BaseUpdate<TModel>(ServiceParamsWithIdentifier<TDTO> data)
+        public virtual IReturnModel<TDTO> BaseUpdate(ServiceParamsWithIdentifier<TDTO> data)
         {
             if (data == null)
                 throw new ArgumentNullException(nameof(data));
@@ -1147,7 +1147,7 @@ namespace CSBEF.Core.Abstracts
             return rtn;
         }
 
-        public virtual IReturnModel<TDTO> BaseChangeStatus<TModel>(ServiceParamsWithIdentifier<ChangeStatusModel> data)
+        public virtual IReturnModel<TDTO> BaseChangeStatus(ServiceParamsWithIdentifier<ChangeStatusModel> data)
         {
             IReturnModel<TDTO> rtn = new ReturnModel<TDTO>(_logger);
 
