@@ -13,9 +13,10 @@
     <RepositoryUrl>https://github.com/mkurak/CSBEF</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <PackageTags>Modular API Builder</PackageTags>
-    <Version>2.2.3</Version>
-    <PackageReleaseNotes>- Updated framework (3.1)
-- Updated dependencies</PackageReleaseNotes>
+    <Version>2.2.4</Version>
+    <PackageReleaseNotes>- Added "ServiceBase.BaseAddWithSocket"
+- Added "ServiceBase.BaseUpdateWithSocket"
+- Added "ServiceBase.BaseChangeStatusWithSocket"</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>

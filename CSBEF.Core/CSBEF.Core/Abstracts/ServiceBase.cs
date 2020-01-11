@@ -4,6 +4,7 @@ using CSBEF.Core.Enums;
 using CSBEF.Core.Helpers;
 using CSBEF.Core.Interfaces;
 using CSBEF.Core.Models;
+using CSBEF.Core.Models.HubModels;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -32,6 +33,7 @@ namespace CSBEF.Core.Abstracts
         protected ILogger<ILog> _logger;
         protected IMapper _mapper;
         protected IEventService _eventService;
+        private readonly IHubSyncDataService _hubSyncDataService;
 
         #endregion Dependencies
 
@@ -51,6 +53,7 @@ namespace CSBEF.Core.Abstracts
             IMapper mapper,
             IRepositoryBase<TPoco> repository,
             IEventService eventService,
+            IHubSyncDataService hubSyncDataService,
             string moduleName,
             string serviceName
         )
@@ -63,6 +66,7 @@ namespace CSBEF.Core.Abstracts
             ModuleName = moduleName;
             ServiceName = serviceName;
             _eventService = eventService;
+            _hubSyncDataService = hubSyncDataService;
         }
 
         #endregion Construction
@@ -1124,7 +1128,7 @@ namespace CSBEF.Core.Abstracts
             try
             {
                 var getData = Repository.Find(i => i.Id == data.Param.Id);
-                if(getData == null)
+                if (getData == null)
                 {
                     rtn = rtn.SendError(GlobalErrors.DataNotFound);
                     return rtn;
@@ -1167,6 +1171,135 @@ namespace CSBEF.Core.Abstracts
                 getData = Repository.Update(getData);
                 Repository.Save();
                 rtn.Result = _mapper.Map<TDTO>(getData);
+            }
+            catch (Exception ex)
+            {
+                rtn = rtn.SendError(GlobalErrors.TechnicalError, ex);
+            }
+
+            return rtn;
+        }
+
+        public virtual IReturnModel<TDTO> BaseAddWithSocket(ServiceParamsWithIdentifier<TDTO> data, string socketUpdateKey, string socketUpdatedDataName)
+        {
+            if (data == null)
+                throw new ArgumentNullException(nameof(data));
+
+            if (string.IsNullOrWhiteSpace(socketUpdateKey))
+                throw new ArgumentNullException(nameof(socketUpdateKey));
+
+            if (string.IsNullOrWhiteSpace(socketUpdatedDataName))
+                throw new ArgumentNullException(nameof(socketUpdatedDataName));
+
+            IReturnModel<TDTO> rtn = new ReturnModel<TDTO>(_logger);
+
+            try
+            {
+                var save = BaseAdd(data);
+                if (save.Error.Status)
+                {
+                    rtn.Error = save.Error;
+                }
+                else
+                {
+                    rtn.Result = save.Result;
+
+                    _hubSyncDataService.OnSync(new HubSyncDataModel<TDTO>
+                    {
+                        Key = socketUpdateKey,
+                        ProcessType = "add",
+                        Id = rtn.Result.Id,
+                        UserId = data.UserId,
+                        Name = socketUpdatedDataName,
+                        Data = rtn.Result
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                rtn = rtn.SendError(GlobalErrors.TechnicalError, ex);
+            }
+
+            return rtn;
+        }
+
+        public virtual IReturnModel<TDTO> BaseUpdateWithSocket(ServiceParamsWithIdentifier<TDTO> data, string socketUpdateKey, string socketUpdatedDataName)
+        {
+            if (data == null)
+                throw new ArgumentNullException(nameof(data));
+
+            if (string.IsNullOrWhiteSpace(socketUpdateKey))
+                throw new ArgumentNullException(nameof(socketUpdateKey));
+
+            if (string.IsNullOrWhiteSpace(socketUpdatedDataName))
+                throw new ArgumentNullException(nameof(socketUpdatedDataName));
+
+            IReturnModel<TDTO> rtn = new ReturnModel<TDTO>(_logger);
+
+            try
+            {
+                var save = BaseUpdate(data);
+                if (save.Error.Status)
+                {
+                    rtn.Error = save.Error;
+                }
+                else
+                {
+                    rtn.Result = save.Result;
+
+                    _hubSyncDataService.OnSync(new HubSyncDataModel<TDTO>
+                    {
+                        Key = socketUpdateKey,
+                        ProcessType = "update",
+                        Id = rtn.Result.Id,
+                        UserId = data.UserId,
+                        Name = socketUpdatedDataName,
+                        Data = rtn.Result
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                rtn = rtn.SendError(GlobalErrors.TechnicalError, ex);
+            }
+
+            return rtn;
+        }
+
+        public virtual IReturnModel<TDTO> BaseChangeStatusWithSocket(ServiceParamsWithIdentifier<ChangeStatusModel> data, string socketUpdateKey, string socketUpdatedDataName)
+        {
+            if (data == null)
+                throw new ArgumentNullException(nameof(data));
+
+            if (string.IsNullOrWhiteSpace(socketUpdateKey))
+                throw new ArgumentNullException(nameof(socketUpdateKey));
+
+            if (string.IsNullOrWhiteSpace(socketUpdatedDataName))
+                throw new ArgumentNullException(nameof(socketUpdatedDataName));
+
+            IReturnModel<TDTO> rtn = new ReturnModel<TDTO>(_logger);
+
+            try
+            {
+                var save = BaseChangeStatus(data);
+                if (save.Error.Status)
+                {
+                    rtn.Error = save.Error;
+                }
+                else
+                {
+                    rtn.Result = save.Result;
+
+                    _hubSyncDataService.OnSync(new HubSyncDataModel<bool>
+                    {
+                        Key = socketUpdateKey,
+                        ProcessType = "remove",
+                        Id = rtn.Result.Id,
+                        UserId = data.UserId,
+                        Name = socketUpdatedDataName,
+                        Data = rtn.Result.Status
+                    });
+                }
             }
             catch (Exception ex)
             {

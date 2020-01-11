@@ -38,5 +38,11 @@ namespace CSBEF.Core.Interfaces
         IReturnModel<TDTO> BaseUpdate(ServiceParamsWithIdentifier<TDTO> data);
 
         IReturnModel<TDTO> BaseChangeStatus(ServiceParamsWithIdentifier<ChangeStatusModel> data);
+
+        IReturnModel<TDTO> BaseAddWithSocket(ServiceParamsWithIdentifier<TDTO> data, string socketUpdateKey, string socketUpdatedDataName);
+
+        IReturnModel<TDTO> BaseUpdateWithSocket(ServiceParamsWithIdentifier<TDTO> data, string socketUpdateKey, string socketUpdatedDataName);
+
+        IReturnModel<TDTO> BaseChangeStatusWithSocket(ServiceParamsWithIdentifier<ChangeStatusModel> data, string socketUpdateKey, string socketUpdatedDataName);
     }
 }
