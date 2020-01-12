@@ -1102,6 +1102,7 @@ namespace CSBEF.Core.Abstracts
             try
             {
                 var convertPoco = _mapper.Map<TPoco>(data.Param);
+                convertPoco.Status = true;
                 convertPoco.AddingDate = DateTime.Now;
                 convertPoco.UpdatingDate = DateTime.Now;
                 convertPoco.AddingUserId = data.UserId;
@@ -1135,6 +1136,7 @@ namespace CSBEF.Core.Abstracts
                 }
 
                 getData = _mapper.Map<TPoco>(data.Param);
+                getData.Status = true;
                 getData.AddingDate = DateTime.Now;
                 getData.UpdatingDate = DateTime.Now;
                 getData.AddingUserId = data.UserId;
