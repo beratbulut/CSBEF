@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using CSBEF.Core.Interfaces;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -645,7 +647,7 @@ namespace CSBEF.Core.Helpers
             return obj.GetType().GetProperties();
         }
 
-        public static bool HashControl<TParam>(this TParam data, string secureKey)
+        public static bool HashControl<TParam>(this TParam data, string secureKey, ILogger<ILog> logger = null)
         {
             var properties = GetProperties(data);
             var valueChain = "";
@@ -664,8 +666,6 @@ namespace CSBEF.Core.Helpers
             {
                 if (property.Name.ToLower() != "hash")
                 {
-                    AppendDebugLogText(property.PropertyType.Name);
-
                     if (property.PropertyType.Name == "IFormFile")
                         continue;
                     else if (property.PropertyType == typeof(bool) || property.PropertyType == typeof(bool?))
@@ -694,15 +694,22 @@ namespace CSBEF.Core.Helpers
                 }
             }
 
-            AppendDebugLogText("valueChain: " + valueChain);
-
             var systemHash = valueChain.ToSha1(secureKey);
 
-            AppendDebugLogText("secureKey: " + secureKey);
-            AppendDebugLogText("systemHash: " + systemHash);
-            AppendDebugLogText("incomingHashString: " + incomingHashString);
+            var control = systemHash.ToLower() == incomingHashString.ToLower();
 
-            return systemHash.ToLower() == incomingHashString.ToLower();
+            if(!control && logger != null)
+            {
+                var logBuilder = new StringBuilder();
+                logBuilder.AppendLine("Failed hash code validation!");
+                logBuilder.AppendLine("Incoming Hash Code: " + incomingHashString);
+                logBuilder.AppendLine("Secure Key: " + secureKey);
+                logBuilder.AppendLine("Has Code to System: " + systemHash);
+                logBuilder.AppendLine("Using String Chain for Hash: " + valueChain);
+                logger.LogError(logBuilder.ToString());
+            }
+
+            return control;
         }
 
         public static bool UserNameIsValid(this string input)
