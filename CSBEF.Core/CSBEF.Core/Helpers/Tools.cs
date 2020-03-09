@@ -683,6 +683,10 @@ namespace CSBEF.Core.Helpers
                     {
                         valueChain += ((double)property.GetValue(data, null)).ToString("F").Replace(",", ".");
                     }
+                    else if (property.PropertyType == typeof(DateTime) || property.PropertyType == typeof(DateTime?))
+                    {
+                        valueChain += ((DateTime)property.GetValue(data, null)).ToString("yyyy/MM/dd HH:mm:ss");
+                    }
                     else if (property.PropertyType == typeof(Array))
                     {
                         valueChain += string.Join(",", property.GetValue(data, null));
