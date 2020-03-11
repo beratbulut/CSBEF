@@ -33,7 +33,7 @@ namespace CSBEF.Core.Abstracts
         protected ILogger<ILog> _logger;
         protected IMapper _mapper;
         protected IEventService _eventService;
-        private readonly IHubSyncDataService _hubSyncDataService;
+        protected readonly IHubSyncDataService _hubSyncDataService;
 
         #endregion Dependencies
 
