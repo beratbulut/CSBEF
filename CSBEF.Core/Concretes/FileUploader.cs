@@ -68,7 +68,7 @@ namespace CSBEF.Core.Concretes
 
             IReturnModel<string> rtn = new ReturnModel<string>(_logger);
             bool cnt = true;
-            string newFilePath = "";
+            string newFilePath = string.Empty;
 
             try
             {
@@ -99,11 +99,11 @@ namespace CSBEF.Core.Concretes
                 if (cnt)
                 {
                     var setting_guidDontUse = _configuration["AppSettings:FileUploader:fileName:guidDontUse"] != null ? _configuration["AppSettings:FileUploader:fileName:guidDontUse"].ToBool2() : false;
-                    var setting_prepend = _configuration["AppSettings:FileUploader:fileName:prepend"] != null ? _configuration["AppSettings:FileUploader:fileName:prepend"] : "";
-                    var setting_append = _configuration["AppSettings:FileUploader:fileName:append"] != null ? _configuration["AppSettings:FileUploader:fileName:append"] : "";
-                    var setting_importantExt = _configuration["AppSettings:FileUploader:fileName:importantExt"] != null ? _configuration["AppSettings:FileUploader:fileName:importantExt"] : "";
+                    var setting_prepend = _configuration["AppSettings:FileUploader:fileName:prepend"] != null ? _configuration["AppSettings:FileUploader:fileName:prepend"] : string.Empty;
+                    var setting_append = _configuration["AppSettings:FileUploader:fileName:append"] != null ? _configuration["AppSettings:FileUploader:fileName:append"] : string.Empty;
+                    var setting_importantExt = _configuration["AppSettings:FileUploader:fileName:importantExt"] != null ? _configuration["AppSettings:FileUploader:fileName:importantExt"] : string.Empty;
 
-                    newFilePath = setting_prepend + (setting_guidDontUse ? file.FileName : Guid.NewGuid().ToString()) + setting_append + (!setting_guidDontUse ? Path.GetExtension(file.FileName) : "") + (!string.IsNullOrWhiteSpace(setting_importantExt) ? setting_importantExt : "");
+                    newFilePath = setting_prepend + (setting_guidDontUse ? file.FileName : Guid.NewGuid().ToString()) + setting_append + (!setting_guidDontUse ? Path.GetExtension(file.FileName) : string.Empty) + (!string.IsNullOrWhiteSpace(setting_importantExt) ? setting_importantExt : string.Empty);
                 }
 
                 if (cnt)
@@ -120,7 +120,7 @@ namespace CSBEF.Core.Concretes
             catch (Exception ex)
             {
                 rtn = rtn.SendError(GlobalErrors.TechnicalError, ex);
-                rtn.Result = "";
+                rtn.Result = string.Empty;
             }
 
             return rtn;

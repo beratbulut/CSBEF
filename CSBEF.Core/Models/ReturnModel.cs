@@ -80,7 +80,7 @@ namespace CSBEF.Core.Models
 
         public IReturnModel<TResult> SendError(string message)
         {
-            Error.Code = "";
+            Error.Code = string.Empty;
             Error.Message = message;
             Error.Status = true;
 
@@ -91,7 +91,7 @@ namespace CSBEF.Core.Models
 
         public IReturnModel<TResult> SendError(string message, Exception ex)
         {
-            Error.Code = "";
+            Error.Code = string.Empty;
             Error.Message = message;
             Error.Status = true;
 
@@ -102,7 +102,7 @@ namespace CSBEF.Core.Models
 
         public IReturnModel<TResult> SendError(string message, Exception ex, TResult result)
         {
-            Error.Code = "";
+            Error.Code = string.Empty;
             Error.Message = message;
             Error.Status = true;
             Result = result;

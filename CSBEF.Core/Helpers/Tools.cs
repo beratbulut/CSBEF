@@ -31,11 +31,10 @@ namespace CSBEF.Core.Helpers
         public static string ToDateTimeToString(this object value)
         {
             if (value == null)
-                return "";
+                return string.Empty;
 
             return (DateTime.TryParse(value.ToString(), out DateTime result)) ?
-                result > "1900-01-01".ToDateTime() ? result.ToString("d") : "" :
-                "";
+                result > "1900-01-01".ToDateTime() ? result.ToString("d") : string.Empty : string.Empty;
         }
 
         public static string ToFormatedStr(this object value)
@@ -99,7 +98,7 @@ namespace CSBEF.Core.Helpers
 
             try
             {
-                return decimal.Parse(value.ToString().Replace(",", "").Replace(".", ",").Replace(" ₺", "").Replace(" TL", ""));
+                return decimal.Parse(value.ToString().Replace(",", string.Empty).Replace(".", ",").Replace(" ₺", string.Empty).Replace(" TL", string.Empty));
             }
             catch (Exception)
             {
@@ -114,7 +113,7 @@ namespace CSBEF.Core.Helpers
 
             try
             {
-                return decimal.Parse(value.ToString().Replace(",", "").Replace(".", ",").Replace(" ₺", "").Replace(" TL", ""));
+                return decimal.Parse(value.ToString().Replace(",", string.Empty).Replace(".", ",").Replace(" ₺", string.Empty).Replace(" TL", string.Empty));
             }
             catch (Exception)
             {
@@ -129,7 +128,7 @@ namespace CSBEF.Core.Helpers
 
             try
             {
-                return double.Parse(value.ToString().Replace(",", "").Replace(".", ",").Replace(" ₺", "").Replace(" TL", ""));
+                return double.Parse(value.ToString().Replace(",", string.Empty).Replace(".", ",").Replace(" ₺", string.Empty).Replace(" TL", string.Empty));
             }
             catch (Exception)
             {
@@ -144,7 +143,7 @@ namespace CSBEF.Core.Helpers
 
             try
             {
-                return double.Parse(value.ToString().Replace(",", "").Replace(".", ",").Replace(" ₺", "").Replace(" TL", ""));
+                return double.Parse(value.ToString().Replace(",", string.Empty).Replace(".", ",").Replace(" ₺", string.Empty).Replace(" TL", string.Empty));
             }
             catch (Exception)
             {
@@ -335,7 +334,7 @@ namespace CSBEF.Core.Helpers
         public static string GetExceptionDetails(this Exception exception)
         {
             if (exception == null)
-                return "";
+                return string.Empty;
 
             PropertyInfo[] properties = exception.GetType()
                 .GetProperties();
@@ -386,7 +385,7 @@ namespace CSBEF.Core.Helpers
         public static string FixFileName(this object objx)
         {
             if (objx == null)
-                return "";
+                return string.Empty;
 
             var fileName = objx.ToString();
             foreach (char c in Path.GetInvalidFileNameChars())
@@ -427,7 +426,7 @@ namespace CSBEF.Core.Helpers
         {
             var rnd = new Random();
             var counter = size / 8;
-            var rtnString = "";
+            var rtnString = string.Empty;
             for (var i = 0; i < counter; i++)
             {
                 rtnString += rnd.Next(11111111, 99999999);
@@ -650,17 +649,17 @@ namespace CSBEF.Core.Helpers
         public static bool HashControl<TParam>(this TParam data, string secureKey, ILogger<ILog> logger = null)
         {
             var properties = GetProperties(data);
-            var valueChain = "";
+            var valueChain = string.Empty;
             var incomingHashProperty = properties.FirstOrDefault(i => i.Name.ToLower() == "hash");
-            var incomingHashString = "";
+            var incomingHashString = string.Empty;
 
             if (incomingHashProperty == null)
                 return false;
 
-            if (string.IsNullOrWhiteSpace(incomingHashProperty.GetValue(data, null).ToStringNotNull("")))
+            if (string.IsNullOrWhiteSpace(incomingHashProperty.GetValue(data, null).ToStringNotNull(string.Empty)))
                 return false;
 
-            incomingHashString = incomingHashProperty.GetValue(data, null).ToStringNotNull("");
+            incomingHashString = incomingHashProperty.GetValue(data, null).ToStringNotNull(string.Empty);
 
             foreach (var property in properties)
             {
@@ -702,7 +701,7 @@ namespace CSBEF.Core.Helpers
 
             var control = systemHash.ToLower() == incomingHashString.ToLower();
 
-            if(!control && logger != null)
+            if (!control && logger != null)
             {
                 var logBuilder = new StringBuilder();
                 logBuilder.AppendLine("Failed hash code validation!");

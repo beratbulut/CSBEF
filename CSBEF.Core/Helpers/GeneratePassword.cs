@@ -20,7 +20,7 @@ namespace CSBEF.Core.Helpers
                 return "Password length must be between 8 and 128.";
             }
 
-            string characterSet = "";
+            string characterSet = string.Empty;
 
             if (includeLowercase)
             {
