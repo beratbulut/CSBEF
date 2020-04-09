@@ -6,8 +6,7 @@ using CSBEF.Core.Helpers;
 using CSBEF.Core.Interfaces;
 using CSBEF.Core.Models.HubModels;
 
-namespace CSBEF.Core.Concretes
-{
+namespace CSBEF.Core.Concretes {
     public delegate Task HubConnectedUserStoreCursDelegate (IHubUserModel user);
 
     public static class HubConnectedUserStore {

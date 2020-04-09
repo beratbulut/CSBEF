@@ -69,7 +69,7 @@ namespace CSBEF.Core.Concretes {
 
             if (accessHubs != null)
                 foreach (var accessHub in accessHubs)
-                    _events[^1].EventInfo.AccessHubs.Add (accessHub);
+                    _events[ ^ 1].EventInfo.AccessHubs.Add (accessHub);
 
             #endregion Action Body
         }

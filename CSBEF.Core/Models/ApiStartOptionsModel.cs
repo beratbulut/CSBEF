@@ -1,4 +1,5 @@
-﻿using AutoMapper.Configuration;
+﻿using System;
+using AutoMapper.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
@@ -26,6 +27,11 @@ namespace CSBEF.Core.Models {
         public ServiceLifetime ModuleInterfacesIHubNotificationServiceLifeTime { get; set; }
         public ServiceLifetime ModuleInterfacesIHubSyncDataServiceLifeTime { get; set; }
         public ServiceLifetime ModuleInterfacesITransactionHelperLifeTime { get; set; }
+        public bool UseEntityFramework { get; set; }
+        public bool UseJwt { get; set; }
+        public Func<IMvcBuilder, IMvcBuilder> CustomMvcBuilder { get; set; }
+        public bool UseAutomapper { get; set; }
+        public bool UseSignalR { get; set; }
 
         public ApiStartOptionsModel () {
             DbContextLifeTimeType = ServiceLifetime.Scoped;
@@ -49,6 +55,10 @@ namespace CSBEF.Core.Models {
             ModuleInterfacesIHubNotificationServiceLifeTime = ServiceLifetime.Transient;
             ModuleInterfacesIHubSyncDataServiceLifeTime = ServiceLifetime.Transient;
             ModuleInterfacesITransactionHelperLifeTime = ServiceLifetime.Transient;
+            UseEntityFramework = true;
+            UseJwt = true;
+            UseAutomapper = true;
+            UseSignalR = true;
         }
     }
 }

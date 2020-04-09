@@ -3,7 +3,7 @@ using System.Threading;
 
 namespace CSBEF.Core.Helpers {
     public class CustomCultureInfo {
-        public CustomCultureInfo(){
+        public CustomCultureInfo () {
             CultureInfo = Thread.CurrentThread.CurrentCulture;
             IgnoreCase = false;
         }

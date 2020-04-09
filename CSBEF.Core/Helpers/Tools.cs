@@ -14,8 +14,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 
-namespace CSBEF.Core.Helpers
-{
+namespace CSBEF.Core.Helpers {
     public static class Tools {
         public static DateTime ToDateTime (this object value) {
             if (value == null)

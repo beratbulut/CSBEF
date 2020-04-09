@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Linq.Expressions;
 
-namespace CSBEF.Core.Helpers
-{
+namespace CSBEF.Core.Helpers {
     public static class ExpressionFuncConverter {
         public static Expression<Func<TTo, TR>> Convert<TTo, TFrom, TR> (Expression<Func<TFrom, TR>> e) {
             if (e == null)

@@ -5,12 +5,10 @@ using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
 using System.Reflection;
 using AutoMapper;
-using CSBEF.Core.Concretes;
 using CSBEF.Core.Enums;
 using CSBEF.Core.Helpers;
 using CSBEF.Core.Interfaces;
 using CSBEF.Core.Models;
-using CSBEF.Core.Models.HubModels;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -171,7 +169,6 @@ namespace CSBEF.Core.Abstracts {
 
             return rtn;
         }
-
         public virtual IReturnModel<TDTO> First (ActionFilterModel filter) {
             if (filter == null)
                 throw new ArgumentNullException (nameof (filter));
@@ -264,7 +261,6 @@ namespace CSBEF.Core.Abstracts {
 
             return rtn;
         }
-
         public virtual IReturnModel<TDTO> FirstOrDefault (GenericFilterModel<TDTO> filter) {
             if (filter == null)
                 throw new ArgumentNullException (nameof (filter));
@@ -371,7 +367,6 @@ namespace CSBEF.Core.Abstracts {
 
             return rtn;
         }
-
         public virtual IReturnModel<TDTO> FirstOrDefault (ActionFilterModel filter) {
             if (filter == null)
                 throw new ArgumentNullException (nameof (filter));
@@ -464,7 +459,6 @@ namespace CSBEF.Core.Abstracts {
 
             return rtn;
         }
-
         public virtual IReturnModel<bool> Any (GenericFilterModel<TDTO> filter) {
             if (filter == null)
                 throw new ArgumentNullException (nameof (filter));
@@ -564,7 +558,6 @@ namespace CSBEF.Core.Abstracts {
 
             return rtn;
         }
-
         public virtual IReturnModel<bool> Any (ActionFilterModel filter) {
             if (filter == null)
                 throw new ArgumentNullException (nameof (filter));
@@ -651,7 +644,6 @@ namespace CSBEF.Core.Abstracts {
 
             return rtn;
         }
-
         public virtual IReturnModel<IList<TDTO>> List (GenericFilterModel<TDTO> filter) {
             if (filter == null)
                 throw new ArgumentNullException (nameof (filter));
@@ -759,7 +751,6 @@ namespace CSBEF.Core.Abstracts {
 
             return rtn;
         }
-
         public virtual IReturnModel<IList<TDTO>> List (ActionFilterModel filter) {
             if (filter == null)
                 throw new ArgumentNullException (nameof (filter));
@@ -854,7 +845,6 @@ namespace CSBEF.Core.Abstracts {
 
             return rtn;
         }
-
         public virtual IReturnModel<int> Count (ActionFilterModel filter) {
             if (filter == null)
                 throw new ArgumentNullException (nameof (filter));
@@ -935,187 +925,6 @@ namespace CSBEF.Core.Abstracts {
                 afterEventHandler = null;
 
                 #endregion Clear Memory
-            } catch (CustomException ex) {
-                rtn = rtn.SendError (GlobalError.TechnicalError, ex);
-            }
-
-            return rtn;
-        }
-
-        public virtual IReturnModel<TDTO> BaseAdd (ServiceParamsWithIdentifier<TDTO> data) {
-            if (data == null)
-                throw new ArgumentNullException (nameof (data));
-
-            IReturnModel<TDTO> rtn = new ReturnModel<TDTO> (_logger);
-
-            try {
-                var convertPoco = _mapper.Map<TPoco> (data.Param);
-                convertPoco.Status = true;
-                convertPoco.AddingDate = DateTime.Now;
-                convertPoco.UpdatingDate = DateTime.Now;
-                convertPoco.AddingUserId = data.UserId;
-                convertPoco.UpdatingUserId = data.UserId;
-                var savedModel = Repository.Add (convertPoco);
-                Repository.Save ();
-                rtn.Result = _mapper.Map<TDTO> (savedModel);
-            } catch (CustomException ex) {
-                rtn = rtn.SendError (GlobalError.TechnicalError, ex);
-            }
-
-            return rtn;
-        }
-
-        public virtual IReturnModel<TDTO> BaseUpdate (ServiceParamsWithIdentifier<TDTO> data) {
-            if (data == null)
-                throw new ArgumentNullException (nameof (data));
-
-            IReturnModel<TDTO> rtn = new ReturnModel<TDTO> (_logger);
-
-            try {
-                var getData = Repository.Find (i => i.Id == data.Param.Id);
-                if (getData == null) {
-                    rtn = rtn.SendError (GlobalError.DataNotFound);
-                    return rtn;
-                }
-
-                getData = _mapper.Map<TPoco> (data.Param);
-                getData.Status = true;
-                getData.AddingDate = DateTime.Now;
-                getData.UpdatingDate = DateTime.Now;
-                getData.AddingUserId = data.UserId;
-                getData.UpdatingUserId = data.UserId;
-                getData = Repository.Update (getData);
-                Repository.Save ();
-                rtn.Result = _mapper.Map<TDTO> (getData);
-            } catch (CustomException ex) {
-                rtn = rtn.SendError (GlobalError.TechnicalError, ex);
-            }
-
-            return rtn;
-        }
-
-        public virtual IReturnModel<TDTO> BaseChangeStatus (ServiceParamsWithIdentifier<ChangeStatusModel> data) {
-            if (data == null)
-                throw new ArgumentNullException (nameof (data));
-
-            IReturnModel<TDTO> rtn = new ReturnModel<TDTO> (_logger);
-
-            try {
-                var getData = Repository.Find (i => i.Id == data.Param.Id);
-                if (getData == null) {
-                    rtn = rtn.SendError (GlobalError.DataNotFound);
-                    return rtn;
-                }
-
-                getData.Status = data.Param.Status;
-                getData = Repository.Update (getData);
-                Repository.Save ();
-                rtn.Result = _mapper.Map<TDTO> (getData);
-            } catch (CustomException ex) {
-                rtn = rtn.SendError (GlobalError.TechnicalError, ex);
-            }
-
-            return rtn;
-        }
-
-        public virtual IReturnModel<TDTO> BaseAddWithSocket (ServiceParamsWithIdentifier<TDTO> data, string socketUpdateKey, string socketUpdatedDataName) {
-            if (data == null)
-                throw new ArgumentNullException (nameof (data));
-
-            if (string.IsNullOrWhiteSpace (socketUpdateKey))
-                throw new ArgumentNullException (nameof (socketUpdateKey));
-
-            if (string.IsNullOrWhiteSpace (socketUpdatedDataName))
-                throw new ArgumentNullException (nameof (socketUpdatedDataName));
-
-            IReturnModel<TDTO> rtn = new ReturnModel<TDTO> (_logger);
-
-            try {
-                var save = BaseAdd (data);
-                if (save.ErrorInfo.Status) {
-                    rtn.ErrorInfo = save.ErrorInfo;
-                } else {
-                    rtn.Result = save.Result;
-
-                    _hubSyncDataService.OnSync (new HubSyncDataModel<TDTO> {
-                        Key = socketUpdateKey,
-                        ProcessType = "add",
-                        Id = rtn.Result.Id,
-                        UserId = data.UserId,
-                        Name = socketUpdatedDataName,
-                        Data = rtn.Result
-                    });
-                }
-            } catch (CustomException ex) {
-                rtn = rtn.SendError (GlobalError.TechnicalError, ex);
-            }
-
-            return rtn;
-        }
-
-        public virtual IReturnModel<TDTO> BaseUpdateWithSocket (ServiceParamsWithIdentifier<TDTO> data, string socketUpdateKey, string socketUpdatedDataName) {
-            if (data == null)
-                throw new ArgumentNullException (nameof (data));
-
-            if (string.IsNullOrWhiteSpace (socketUpdateKey))
-                throw new ArgumentNullException (nameof (socketUpdateKey));
-
-            if (string.IsNullOrWhiteSpace (socketUpdatedDataName))
-                throw new ArgumentNullException (nameof (socketUpdatedDataName));
-
-            IReturnModel<TDTO> rtn = new ReturnModel<TDTO> (_logger);
-
-            try {
-                var save = BaseUpdate (data);
-                if (save.ErrorInfo.Status) {
-                    rtn.ErrorInfo = save.ErrorInfo;
-                } else {
-                    rtn.Result = save.Result;
-
-                    _hubSyncDataService.OnSync (new HubSyncDataModel<TDTO> {
-                        Key = socketUpdateKey,
-                        ProcessType = "update",
-                        Id = rtn.Result.Id,
-                        UserId = data.UserId,
-                        Name = socketUpdatedDataName,
-                        Data = rtn.Result
-                    });
-                }
-            } catch (CustomException ex) {
-                rtn = rtn.SendError (GlobalError.TechnicalError, ex);
-            }
-
-            return rtn;
-        }
-
-        public virtual IReturnModel<TDTO> BaseChangeStatusWithSocket (ServiceParamsWithIdentifier<ChangeStatusModel> data, string socketUpdateKey, string socketUpdatedDataName) {
-            if (data == null)
-                throw new ArgumentNullException (nameof (data));
-
-            if (string.IsNullOrWhiteSpace (socketUpdateKey))
-                throw new ArgumentNullException (nameof (socketUpdateKey));
-
-            if (string.IsNullOrWhiteSpace (socketUpdatedDataName))
-                throw new ArgumentNullException (nameof (socketUpdatedDataName));
-
-            IReturnModel<TDTO> rtn = new ReturnModel<TDTO> (_logger);
-
-            try {
-                var save = BaseChangeStatus (data);
-                if (save.ErrorInfo.Status) {
-                    rtn.ErrorInfo = save.ErrorInfo;
-                } else {
-                    rtn.Result = save.Result;
-
-                    _hubSyncDataService.OnSync (new HubSyncDataModel<bool> {
-                        Key = socketUpdateKey,
-                        ProcessType = "remove",
-                        Id = rtn.Result.Id,
-                        UserId = data.UserId,
-                        Name = socketUpdatedDataName,
-                        Data = rtn.Result.Status
-                    });
-                }
             } catch (CustomException ex) {
                 rtn = rtn.SendError (GlobalError.TechnicalError, ex);
             }

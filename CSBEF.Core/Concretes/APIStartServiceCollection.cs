@@ -74,81 +74,87 @@ namespace CSBEF.Core.Concretes {
 
             #region DbContext
 
-            _services.AddDbContext<ModularDbContext> (opt => {
-                switch (configuration["AppSettings:DBSettings:Provider"]) {
-                    case "mssql":
-                        opt.UseSqlServer (configuration["AppSettings:DBSettings:ConnectionString"]);
-                        break;
+            if (options.UseEntityFramework) {
+                _services.AddDbContext<ModularDbContext> (opt => {
+                    switch (configuration["AppSettings:DBSettings:Provider"]) {
+                        case "mssql":
+                            opt.UseSqlServer (configuration["AppSettings:DBSettings:ConnectionString"]);
+                            break;
 
-                    case "mysql":
-                        opt.UseMySQL (configuration["AppSettings:DBSettings:ConnectionString"]);
-                        break;
+                        case "mysql":
+                            opt.UseMySQL (configuration["AppSettings:DBSettings:ConnectionString"]);
+                            break;
 
-                    case "postgresql":
-                        opt.UseNpgsql (configuration["AppSettings:DBSettings:ConnectionString"]);
-                        break;
-                }
+                        case "postgresql":
+                            opt.UseNpgsql (configuration["AppSettings:DBSettings:ConnectionString"]);
+                            break;
+                    }
 
-                opt.EnableDetailedErrors (options.DbContextEnableDetailedErrors);
-                opt.EnableSensitiveDataLogging (options.DbContextEnableSensitiveDataLogging);
-            }, options.DbContextLifeTimeType);
+                    opt.EnableDetailedErrors (options.DbContextEnableDetailedErrors);
+                    opt.EnableSensitiveDataLogging (options.DbContextEnableSensitiveDataLogging);
+                }, options.DbContextLifeTimeType);
+            }
 
             #endregion DbContext
 
             #region Install JWT Settings
 
-            var JWTSecretKey = Encoding.ASCII.GetBytes (_configuration["AppSettings:JWTSettings:SecretCode"]);
-            _services.AddAuthentication (x => {
-                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            }).AddJwtBearer (x => {
-                x.RequireHttpsMetadata = options.JwtJwtBearerRequireHttpsMetadata;
-                x.SaveToken = options.JwtJwtBearerSaveToken;
-                x.TokenValidationParameters = new TokenValidationParameters {
-                    ValidateIssuerSigningKey = options.JwtJwtBearerTokenValidationParametersValidateIssuerSigningKey,
-                    IssuerSigningKey = new SymmetricSecurityKey (JWTSecretKey),
-                    ValidateIssuer = options.JwtJwtBearerTokenValidationParametersValidateIssuer,
-                    ValidateAudience = options.JwtJwtBearerTokenValidationParametersValidateAudience
-                };
-                x.Events = new JwtBearerEvents () {
-                    OnTokenValidated = async (context) => {
-                            try {
-                                var job = Task.Run (() => {
-                                    var currentToken = ((JwtSecurityToken) context.SecurityToken).RawData;
-                                    var eventServiceInstance = context.HttpContext.RequestServices.GetService<IEventService> ();
-                                    var checkTokenStatus = eventServiceInstance.GetEvent ("Main", "InComingToken").EventHandler<bool, string> (currentToken);
-                                    if (checkTokenStatus.ErrorInfo.Status || !checkTokenStatus.Result) {
-                                        context.Fail ("TokenExpiredOrPassive");
-                                    }
-                                });
+            if (options.UseJwt) {
+                var JWTSecretKey = Encoding.ASCII.GetBytes (_configuration["AppSettings:JWTSettings:SecretCode"]);
+                _services.AddAuthentication (x => {
+                    x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                    x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                }).AddJwtBearer (x => {
+                    x.RequireHttpsMetadata = options.JwtJwtBearerRequireHttpsMetadata;
+                    x.SaveToken = options.JwtJwtBearerSaveToken;
+                    x.TokenValidationParameters = new TokenValidationParameters {
+                        ValidateIssuerSigningKey = options.JwtJwtBearerTokenValidationParametersValidateIssuerSigningKey,
+                        IssuerSigningKey = new SymmetricSecurityKey (JWTSecretKey),
+                        ValidateIssuer = options.JwtJwtBearerTokenValidationParametersValidateIssuer,
+                        ValidateAudience = options.JwtJwtBearerTokenValidationParametersValidateAudience
+                    };
+                    x.Events = new JwtBearerEvents () {
+                        OnTokenValidated = async (context) => {
+                                try {
+                                    var job = Task.Run (() => {
+                                        var currentToken = ((JwtSecurityToken) context.SecurityToken).RawData;
+                                        var eventServiceInstance = context.HttpContext.RequestServices.GetService<IEventService> ();
+                                        var checkTokenStatus = eventServiceInstance.GetEvent ("Main", "InComingToken").EventHandler<bool, string> (currentToken);
+                                        if (checkTokenStatus.ErrorInfo.Status || !checkTokenStatus.Result) {
+                                            context.Fail ("TokenExpiredOrPassive");
+                                        }
+                                    });
 
-                                await job.ConfigureAwait (false);
-                            } catch (CustomException ex) {
-                                context.Fail (ex);
-                            }
-                        },
-                        OnMessageReceived = context => {
-                            try {
-                                var accessToken = context.Request.Query["access_token"];
-
-                                var path = context.HttpContext.Request.Path;
-                                if (!string.IsNullOrEmpty (accessToken) && path.StartsWithSegments ("/signalr", _stringComparison)) {
-                                    context.Token = accessToken;
+                                    await job.ConfigureAwait (false);
+                                } catch (CustomException ex) {
+                                    context.Fail (ex);
                                 }
-                                return Task.CompletedTask;
-                            } catch (CustomException) {
-                                return Task.CompletedTask;
+                            },
+                            OnMessageReceived = context => {
+                                try {
+                                    var accessToken = context.Request.Query["access_token"];
+
+                                    var path = context.HttpContext.Request.Path;
+                                    if (!string.IsNullOrEmpty (accessToken) && path.StartsWithSegments ("/signalr", _stringComparison)) {
+                                        context.Token = accessToken;
+                                    }
+                                    return Task.CompletedTask;
+                                } catch (CustomException) {
+                                    return Task.CompletedTask;
+                                }
                             }
-                        }
-                };
-            });
+                    };
+                });
+            }
 
             #endregion Install JWT Settings
 
             #region Install MVC Settings
 
             var mvcBuilder = _services.AddMvc ().SetCompatibilityVersion (CompatibilityVersion.Version_3_0);
-            if (options.JsonOptionsUsing) {
+            if (options.CustomMvcBuilder != null) {
+                mvcBuilder = options.CustomMvcBuilder (mvcBuilder);
+            } else if (options.JsonOptionsUsing) {
                 mvcBuilder.AddNewtonsoftJson (x => x.SerializerSettings.ReferenceLoopHandling = options.JsonOptionsReferenceLoopHandling);
                 mvcBuilder.AddNewtonsoftJson (x => x.SerializerSettings.PreserveReferencesHandling = options.JsonOptionsPreserveReferencesHandling);
                 mvcBuilder.AddNewtonsoftJson (x => x.SerializerSettings.ContractResolver = options.JsonOptionsContractResolver);
@@ -158,34 +164,66 @@ namespace CSBEF.Core.Concretes {
 
             #region Run Process : ModuleInitializer, ModuleEventsAddInitializer, AutoMapperInitializer
 
-            var autoMapperConfig = options.AutoMapperConfig;
+            if (options.UseAutomapper) {
+                var autoMapperConfig = options.AutoMapperConfig;
 
-            foreach (var module in modules) {
-                mvcBuilder.AddApplicationPart (module.Assembly);
+                foreach (var module in modules) {
+                    mvcBuilder.AddApplicationPart (module.Assembly);
 
-                var moduleInitializerType = module.Assembly.GetTypes ().Where (x => typeof (IModuleInitializer).IsAssignableFrom (x)).FirstOrDefault ();
-                if (moduleInitializerType != null && moduleInitializerType != typeof (IModuleInitializer)) {
-                    var moduleInitializer = (IModuleInitializer) Activator.CreateInstance (moduleInitializerType);
-                    moduleInitializer.Init (_services);
+                    var moduleInitializerType = module.Assembly.GetTypes ().Where (x => typeof (IModuleInitializer).IsAssignableFrom (x)).FirstOrDefault ();
+                    if (moduleInitializerType != null && moduleInitializerType != typeof (IModuleInitializer)) {
+                        var moduleInitializer = (IModuleInitializer) Activator.CreateInstance (moduleInitializerType);
+                        moduleInitializer.Init (_services);
+                    }
+
+                    var moduleMapperProfileType = module.Assembly.GetTypes ().Where (x => typeof (Profile).IsAssignableFrom (x)).FirstOrDefault ();
+                    var moduleMapperProfileTypeInstance = (Profile) Activator.CreateInstance (moduleMapperProfileType);
+                    autoMapperConfig.AddProfile (moduleMapperProfileTypeInstance);
                 }
 
-                var moduleMapperProfileType = module.Assembly.GetTypes ().Where (x => typeof (Profile).IsAssignableFrom (x)).FirstOrDefault ();
-                var moduleMapperProfileTypeInstance = (Profile) Activator.CreateInstance (moduleMapperProfileType);
-                autoMapperConfig.AddProfile (moduleMapperProfileTypeInstance);
+                var autoMapperMappingConfig = new MapperConfiguration (autoMapperConfig);
+
+                IMapper mapper = autoMapperMappingConfig.CreateMapper ();
+                _services.AddSingleton (mapper);
             }
-
-            var autoMapperMappingConfig = new MapperConfiguration (autoMapperConfig);
-
-            IMapper mapper = autoMapperMappingConfig.CreateMapper ();
-            _services.AddSingleton (mapper);
 
             #endregion Run Process : ModuleInitializer, ModuleEventsAddInitializer, AutoMapperInitializer
 
             #region SignalR
 
-            _services.AddSignalR (opt => {
-                opt.EnableDetailedErrors = options.SignalREnableDetailedErrors;
-            });
+            if (options.UseSignalR) {
+                _services.AddSignalR (opt => {
+                    opt.EnableDetailedErrors = options.SignalREnableDetailedErrors;
+                });
+
+                switch (options.ModuleInterfacesIHubNotificationServiceLifeTime) {
+                    case ServiceLifetime.Scoped:
+                        services.AddScoped<IHubNotificationService, HubNotificationService> ();
+                        break;
+
+                    case ServiceLifetime.Singleton:
+                        services.AddSingleton<IHubNotificationService, HubNotificationService> ();
+                        break;
+
+                    case ServiceLifetime.Transient:
+                        services.AddTransient<IHubNotificationService, HubNotificationService> ();
+                        break;
+                }
+
+                switch (options.ModuleInterfacesIHubSyncDataServiceLifeTime) {
+                    case ServiceLifetime.Scoped:
+                        services.AddScoped<IHubSyncDataService, HubSyncDataService> ();
+                        break;
+
+                    case ServiceLifetime.Singleton:
+                        services.AddSingleton<IHubSyncDataService, HubSyncDataService> ();
+                        break;
+
+                    case ServiceLifetime.Transient:
+                        services.AddTransient<IHubSyncDataService, HubSyncDataService> ();
+                        break;
+                }
+            }
 
             #endregion SignalR
 
@@ -267,42 +305,6 @@ namespace CSBEF.Core.Concretes {
 
             #endregion EventService
 
-            #region HubNotificationService
-
-            switch (options.ModuleInterfacesIHubNotificationServiceLifeTime) {
-                case ServiceLifetime.Scoped:
-                    services.AddScoped<IHubNotificationService, HubNotificationService> ();
-                    break;
-
-                case ServiceLifetime.Singleton:
-                    services.AddSingleton<IHubNotificationService, HubNotificationService> ();
-                    break;
-
-                case ServiceLifetime.Transient:
-                    services.AddTransient<IHubNotificationService, HubNotificationService> ();
-                    break;
-            }
-
-            #endregion HubNotificationService
-
-            #region HubSyncDataService
-
-            switch (options.ModuleInterfacesIHubSyncDataServiceLifeTime) {
-                case ServiceLifetime.Scoped:
-                    services.AddScoped<IHubSyncDataService, HubSyncDataService> ();
-                    break;
-
-                case ServiceLifetime.Singleton:
-                    services.AddSingleton<IHubSyncDataService, HubSyncDataService> ();
-                    break;
-
-                case ServiceLifetime.Transient:
-                    services.AddTransient<IHubSyncDataService, HubSyncDataService> ();
-                    break;
-            }
-
-            #endregion HubSyncDataService
-
             #region Transaction Helper
 
             switch (options.ModuleInterfacesITransactionHelperLifeTime) {
@@ -326,6 +328,8 @@ namespace CSBEF.Core.Concretes {
             var sp = services.BuildServiceProvider ();
 
             #endregion Build Service Provider
+
+            GlobalConfiguration.ApiStartOptions = options;
 
             return sp;
         }

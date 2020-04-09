@@ -17,9 +17,9 @@ namespace CSBEF.Core.Helpers {
         }
 
         protected override Expression VisitMember (MemberExpression node) {
-            if(node == null)
-                throw new ArgumentNullException(nameof(node));
-            
+            if (node == null)
+                throw new ArgumentNullException (nameof (node));
+
             if (node.Expression != oldParameter)
                 return base.VisitMember (node);
 

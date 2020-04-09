@@ -1,9 +1,7 @@
 ﻿using System;
 
-namespace CSBEF.Core.Models.HubModels
-{
-    public class NotificationModel
-    {
+namespace CSBEF.Core.Models.HubModels {
+    public class NotificationModel {
         public string Title { get; set; }
         public string Content { get; set; }
         public DateTime AddDate { get; set; }
