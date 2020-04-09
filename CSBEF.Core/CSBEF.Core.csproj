@@ -13,8 +13,8 @@
     <RepositoryUrl>https://github.com/mkurak/CSBEF</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <PackageTags>Modular API Builder</PackageTags>
-    <Version>2.2.9</Version>
-    <PackageReleaseNotes>- Changed ServiceBase (private IHubSyncDataService instance change to protected)</PackageReleaseNotes>
+    <Version>3.0.0.Development1</Version>
+    <PackageReleaseNotes></PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
