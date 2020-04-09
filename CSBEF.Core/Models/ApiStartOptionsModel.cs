@@ -3,32 +3,52 @@ using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
-namespace CSBEF.Core.Models
-{
-    public class ApiStartOptionsModel
-    {
-        public ServiceLifetime DbContext_LifeTimeType { get; set; } = ServiceLifetime.Scoped;
-        public bool DbContext_EnableDetailedErrors { get; set; } = true;
-        public bool DbContext_EnableSensitiveDataLogging { get; set; } = true;
-        public bool Jwt_JwtBearer_RequireHttpsMetadata { get; set; } = false;
-        public bool Jwt_JwtBearer_SaveToken { get; set; } = true;
-        public bool Jwt_JwtBearer_TokenValidationParameters_ValidateIssuerSigningKey { get; set; } = true;
-        public bool Jwt_JwtBearer_TokenValidationParameters_ValidateIssuer { get; set; } = false;
-        public bool Jwt_JwtBearer_TokenValidationParameters_ValidateAudience { get; set; } = false;
-        public bool JsonOptions_Using { get; set; } = false;
-        public ReferenceLoopHandling JsonOptions_ReferenceLoopHandling { get; set; } = ReferenceLoopHandling.Ignore;
-        public PreserveReferencesHandling JsonOptions_PreserveReferencesHandling { get; set; } = PreserveReferencesHandling.Objects;
-        public DefaultContractResolver JsonOptions_ContractResolver { get; set; } = new DefaultContractResolver();
+namespace CSBEF.Core.Models {
+    public class ApiStartOptionsModel {
+        public ServiceLifetime DbContextLifeTimeType { get; set; }
+        public bool DbContextEnableDetailedErrors { get; set; }
+        public bool DbContextEnableSensitiveDataLogging { get; set; }
+        public bool JwtJwtBearerRequireHttpsMetadata { get; set; }
+        public bool JwtJwtBearerSaveToken { get; set; }
+        public bool JwtJwtBearerTokenValidationParametersValidateIssuerSigningKey { get; set; }
+        public bool JwtJwtBearerTokenValidationParametersValidateIssuer { get; set; }
+        public bool JwtJwtBearerTokenValidationParametersValidateAudience { get; set; }
+        public bool JsonOptionsUsing { get; set; }
+        public ReferenceLoopHandling JsonOptionsReferenceLoopHandling { get; set; }
+        public PreserveReferencesHandling JsonOptionsPreserveReferencesHandling { get; set; }
+        public DefaultContractResolver JsonOptionsContractResolver { get; set; }
+        public MapperConfigurationExpression AutoMapperConfig { get; set; }
+        public bool SignalREnableDetailedErrors { get; set; }
+        public ServiceLifetime ModuleInterfacesIModuleEventsAddInitializerLifeTime { get; set; }
+        public ServiceLifetime ModuleInterfacesIModuleEventsJoinInitializerLifeTime { get; set; }
+        public ServiceLifetime ModuleInterfacesMainIModuleEventsAddInitializerLifeTime { get; set; }
+        public ServiceLifetime ModuleInterfacesIEventServiceLifeTime { get; set; }
+        public ServiceLifetime ModuleInterfacesIHubNotificationServiceLifeTime { get; set; }
+        public ServiceLifetime ModuleInterfacesIHubSyncDataServiceLifeTime { get; set; }
+        public ServiceLifetime ModuleInterfacesITransactionHelperLifeTime { get; set; }
 
-        public MapperConfigurationExpression AutoMapperConfig { get; set; } = new MapperConfigurationExpression();
-
-        public bool SignalR_EnableDetailedErrors { get; set; } = false;
-        public ServiceLifetime ModuleInterfaces_IModuleEventsAddInitializer_LifeTime { get; set; } = ServiceLifetime.Scoped;
-        public ServiceLifetime ModuleInterfaces_IModuleEventsJoinInitializer_LifeTime { get; set; } = ServiceLifetime.Scoped;
-        public ServiceLifetime ModuleInterfaces_Main_IModuleEventsAddInitializer_LifeTime { get; set; } = ServiceLifetime.Scoped;
-        public ServiceLifetime ModuleInterfaces_IEventService_LifeTime { get; set; } = ServiceLifetime.Scoped;
-        public ServiceLifetime ModuleInterfaces_IHubNotificationService_LifeTime { get; set; } = ServiceLifetime.Scoped;
-        public ServiceLifetime ModuleInterfaces_IHubSyncDataService_LifeTime { get; set; } = ServiceLifetime.Scoped;
-        public ServiceLifetime ModuleInterfaces_ITransactionHelper_LifeTime { get; set; } = ServiceLifetime.Scoped;
+        public ApiStartOptionsModel () {
+            DbContextLifeTimeType = ServiceLifetime.Scoped;
+            DbContextEnableDetailedErrors = true;
+            DbContextEnableSensitiveDataLogging = true;
+            JwtJwtBearerRequireHttpsMetadata = false;
+            JwtJwtBearerSaveToken = true;
+            JwtJwtBearerTokenValidationParametersValidateIssuerSigningKey = true;
+            JwtJwtBearerTokenValidationParametersValidateIssuer = false;
+            JwtJwtBearerTokenValidationParametersValidateAudience = false;
+            JsonOptionsUsing = false;
+            JsonOptionsReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+            JsonOptionsPreserveReferencesHandling = PreserveReferencesHandling.Objects;
+            JsonOptionsContractResolver = new DefaultContractResolver ();
+            AutoMapperConfig = new MapperConfigurationExpression ();
+            SignalREnableDetailedErrors = false;
+            ModuleInterfacesIModuleEventsAddInitializerLifeTime = ServiceLifetime.Transient;
+            ModuleInterfacesIModuleEventsJoinInitializerLifeTime = ServiceLifetime.Transient;
+            ModuleInterfacesMainIModuleEventsAddInitializerLifeTime = ServiceLifetime.Transient;
+            ModuleInterfacesIEventServiceLifeTime = ServiceLifetime.Transient;
+            ModuleInterfacesIHubNotificationServiceLifeTime = ServiceLifetime.Transient;
+            ModuleInterfacesIHubSyncDataServiceLifeTime = ServiceLifetime.Transient;
+            ModuleInterfacesITransactionHelperLifeTime = ServiceLifetime.Transient;
+        }
     }
 }

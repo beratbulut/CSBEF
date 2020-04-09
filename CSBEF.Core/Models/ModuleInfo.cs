@@ -1,18 +1,14 @@
 ﻿using System.Linq;
 using System.Reflection;
 
-namespace CSBEF.Core.Models
-{
-    public class ModuleInfo
-    {
+namespace CSBEF.Core.Models {
+    public class ModuleInfo {
         public string Name { get; set; }
         public Assembly Assembly { get; set; }
 
-        public string ShortName
-        {
-            get
-            {
-                return Name.Split('.').Last();
+        public string ShortName {
+            get {
+                return Name.Split ('.').Last ();
             }
         }
 

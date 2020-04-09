@@ -1,11 +1,9 @@
-﻿using CSBEF.Core.Interfaces;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using CSBEF.Core.Interfaces;
 
-namespace CSBEF.Core.Models.HubModels
-{
-    public class HubNewConnectedUserModel : IHubNewConnectedUserModel
-    {
+namespace CSBEF.Core.Models.HubModels {
+    public class HubNewConnectedUserModel : IHubNewConnectedUserModel {
         public IHubUserModel ConnectedUser { get; set; }
-        public IList<IHubUserModel> ConnectedUsers { get; } = new List<IHubUserModel>();
+        public IList<IHubUserModel> ConnectedUsers { get; } = new List<IHubUserModel> ();
     }
 }

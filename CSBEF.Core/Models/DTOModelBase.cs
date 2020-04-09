@@ -1,10 +1,8 @@
-﻿using CSBEF.Core.Interfaces;
-using System;
+﻿using System;
+using CSBEF.Core.Interfaces;
 
-namespace CSBEF.Core.Models
-{
-    public abstract class DTOModelBase : IDTOModelBase
-    {
+namespace CSBEF.Core.Models {
+    public abstract class DTOModelBase : IDTOModelBase {
         #region Public Properties
 
         public int Id { get; set; }

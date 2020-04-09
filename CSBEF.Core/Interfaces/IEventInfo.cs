@@ -1,10 +1,8 @@
-﻿using CSBEF.Core.Enums;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using CSBEF.Core.Enums;
 
-namespace CSBEF.Core.Interfaces
-{
-    public interface IEventInfo
-    {
+namespace CSBEF.Core.Interfaces {
+    public interface IEventInfo {
         string EventName { get; set; }
         string ModuleName { get; set; }
         string ServiceName { get; set; }

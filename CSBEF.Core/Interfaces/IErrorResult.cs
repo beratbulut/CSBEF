@@ -1,7 +1,5 @@
-﻿namespace CSBEF.Core.Interfaces
-{
-    public interface IErrorResult
-    {
+﻿namespace CSBEF.Core.Interfaces {
+    public interface IErrorResult {
         #region Properties
 
         string Message { get; set; }

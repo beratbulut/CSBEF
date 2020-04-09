@@ -1,4 +1,10 @@
-﻿using AutoMapper;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Dynamic.Core;
+using System.Linq.Expressions;
+using System.Reflection;
+using AutoMapper;
 using CSBEF.Core.Concretes;
 using CSBEF.Core.Enums;
 using CSBEF.Core.Helpers;
@@ -8,32 +14,20 @@ using CSBEF.Core.Models.HubModels;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Dynamic.Core;
-using System.Linq.Expressions;
-using System.Reflection;
 
-namespace CSBEF.Core.Abstracts
-{
-    public class ServiceBase : IServiceBase
-    {
-    }
-
-    public class ServiceBase<TPoco, TDTO> : IServiceBase<TPoco, TDTO>
-        where TPoco : class, IEntityModelBase, new()
-        where TDTO : class, IDTOModelBase, new()
-    {
+namespace CSBEF.Core.Abstracts {
+    public abstract class ServiceBase<TPoco, TDTO> : IServiceBase<TPoco, TDTO>
+        where TPoco : class, IEntityModelBase, new ()
+    where TDTO : class, IDTOModelBase, new () {
         #region Dependencies
 
-        protected IConfiguration _configuration;
-        protected IWebHostEnvironment _hostingEnvironment;
+        internal IConfiguration _configuration;
+        internal IWebHostEnvironment _hostingEnvironment;
+        internal ILogger<IReturnModel<bool>> _logger;
+        internal IMapper _mapper;
+        internal IEventService _eventService;
+        internal readonly IHubSyncDataService _hubSyncDataService;
         public IRepositoryBase<TPoco> Repository { get; set; }
-        protected ILogger<ILog> _logger;
-        protected IMapper _mapper;
-        protected IEventService _eventService;
-        protected readonly IHubSyncDataService _hubSyncDataService;
 
         #endregion Dependencies
 
@@ -46,18 +40,17 @@ namespace CSBEF.Core.Abstracts
 
         #region Construction
 
-        public ServiceBase(
+        public ServiceBase (
             IWebHostEnvironment hostingEnvironment,
             IConfiguration configuration,
-            ILogger<ILog> logger,
+            ILogger<IReturnModel<bool>> logger,
             IMapper mapper,
             IRepositoryBase<TPoco> repository,
             IEventService eventService,
             IHubSyncDataService hubSyncDataService,
             string moduleName,
             string serviceName
-        )
-        {
+        ) {
             _hostingEnvironment = hostingEnvironment;
             _configuration = configuration;
             _logger = logger;
@@ -73,15 +66,13 @@ namespace CSBEF.Core.Abstracts
 
         #region Public Actions
 
-        public virtual IReturnModel<TDTO> First(GenericFilterModel<TDTO> filter)
-        {
+        public virtual IReturnModel<TDTO> First (GenericFilterModel<TDTO> filter) {
             if (filter == null)
-                throw new ArgumentNullException(nameof(filter));
+                throw new ArgumentNullException (nameof (filter));
 
-            IReturnModel<TDTO> rtn = new ReturnModel<TDTO>(_logger);
+            IReturnModel<TDTO> rtn = new ReturnModel<TDTO> (_logger);
 
-            try
-            {
+            try {
                 #region Variables
 
                 bool cnt = true;
@@ -98,12 +89,10 @@ namespace CSBEF.Core.Abstracts
 
                 #region Before Event Handler
 
-                beforeEventHandler = _eventService.GetEvent(ModuleName, $"{ServiceName}.First.Before").EventHandler<bool, GenericFilterModel<TDTO>>(filter);
-                if (beforeEventHandler != null)
-                {
-                    if (beforeEventHandler.Error.Status)
-                    {
-                        rtn.Error = beforeEventHandler.Error;
+                beforeEventHandler = _eventService.GetEvent (ModuleName, $"{ServiceName}.First.Before").EventHandler<bool, GenericFilterModel<TDTO>> (filter);
+                if (beforeEventHandler != null) {
+                    if (beforeEventHandler.ErrorInfo.Status) {
+                        rtn.ErrorInfo = beforeEventHandler.ErrorInfo;
                         cnt = false;
                     }
                 }
@@ -112,33 +101,28 @@ namespace CSBEF.Core.Abstracts
 
                 #region Action Body
 
-                if (cnt)
-                {
-                    query = Repository.GetAll();
+                if (cnt) {
+                    query = Repository.GetAll ();
 
-                    if (filter.WherePredicates.Any())
-                    {
-                        foreach (var wherePre in filter.WherePredicates)
-                        {
-                            convertExpression = ExpressionFuncConverter<TPoco>.Convert(wherePre);
-                            query = query.Where(convertExpression);
+                    if (filter.WherePredicates.Any ()) {
+                        foreach (var wherePre in filter.WherePredicates) {
+                            convertExpression = ExpressionFuncConverter.Convert<TPoco, TDTO, bool> (wherePre);
+                            query = query.Where (convertExpression);
                         }
                     }
 
-                    if (filter.OrderPredicates.Any())
-                    {
-                        foreach (var op in filter.OrderPredicates)
-                        {
-                            prop = typeof(TPoco).GetProperty(op.PropertyName);
+                    if (filter.OrderPredicates.Any ()) {
+                        foreach (var op in filter.OrderPredicates) {
+                            prop = typeof (TPoco).GetProperty (op.PropertyName);
                             if (op.Descending)
-                                query = query.OrderByDescending(x => prop.GetValue(x, null));
+                                query = query.OrderByDescending (x => prop.GetValue (x, null));
                             else
-                                query = query.OrderBy(x => prop.GetValue(x, null));
+                                query = query.OrderBy (x => prop.GetValue (x, null));
                         }
                     }
 
-                    getData = query.First();
-                    convertModel = _mapper.Map<TDTO>(getData);
+                    getData = query.First ();
+                    convertModel = _mapper.Map<TDTO> (getData);
                     rtn.Result = convertModel;
                 }
 
@@ -146,27 +130,21 @@ namespace CSBEF.Core.Abstracts
 
                 #region After Event Handler
 
-                if (cnt)
-                {
-                    afterEventParameterModel = new AfterEventParameterModel<IReturnModel<TDTO>, GenericFilterModel<TDTO>>
-                    {
+                if (cnt) {
+                    afterEventParameterModel = new AfterEventParameterModel<IReturnModel<TDTO>, GenericFilterModel<TDTO>> {
                         DataToBeSent = rtn,
                         ActionParameter = filter,
                         ModuleName = ModuleName,
                         ServiceName = ServiceName,
                         ActionName = "First"
                     };
-                    afterEventHandler = _eventService.GetEvent(ModuleName, $"{ServiceName}.First.After")
-                        .EventHandler<TDTO, IAfterEventParameterModel<IReturnModel<TDTO>, GenericFilterModel<TDTO>>>(afterEventParameterModel);
-                    if (afterEventHandler != null)
-                    {
-                        if (afterEventHandler.Error.Status)
-                        {
-                            rtn.Error = afterEventHandler.Error;
+                    afterEventHandler = _eventService.GetEvent (ModuleName, $"{ServiceName}.First.After")
+                        .EventHandler<TDTO, IAfterEventParameterModel<IReturnModel<TDTO>, GenericFilterModel<TDTO>>> (afterEventParameterModel);
+                    if (afterEventHandler != null) {
+                        if (afterEventHandler.ErrorInfo.Status) {
+                            rtn.ErrorInfo = afterEventHandler.ErrorInfo;
                             cnt = false;
-                        }
-                        else
-                        {
+                        } else {
                             rtn.Result = afterEventHandler.Result;
                         }
                     }
@@ -187,24 +165,20 @@ namespace CSBEF.Core.Abstracts
                 afterEventHandler = null;
 
                 #endregion Clear Memory
-            }
-            catch (Exception ex)
-            {
-                rtn = rtn.SendError(GlobalErrors.TechnicalError, ex);
+            } catch (CustomException ex) {
+                rtn = rtn.SendError (GlobalError.TechnicalError, ex);
             }
 
             return rtn;
         }
 
-        public virtual IReturnModel<TDTO> First(ActionFilterModel filter)
-        {
+        public virtual IReturnModel<TDTO> First (ActionFilterModel filter) {
             if (filter == null)
-                throw new ArgumentNullException(nameof(filter));
+                throw new ArgumentNullException (nameof (filter));
 
-            IReturnModel<TDTO> rtn = new ReturnModel<TDTO>(_logger);
+            IReturnModel<TDTO> rtn = new ReturnModel<TDTO> (_logger);
 
-            try
-            {
+            try {
                 #region Variables
 
                 bool cnt = true;
@@ -219,12 +193,10 @@ namespace CSBEF.Core.Abstracts
 
                 #region Before Event Handler
 
-                beforeEventHandler = _eventService.GetEvent(ModuleName, $"{ServiceName}.First.Before").EventHandler<bool, ActionFilterModel>(filter);
-                if (beforeEventHandler != null)
-                {
-                    if (beforeEventHandler.Error.Status)
-                    {
-                        rtn.Error = beforeEventHandler.Error;
+                beforeEventHandler = _eventService.GetEvent (ModuleName, $"{ServiceName}.First.Before").EventHandler<bool, ActionFilterModel> (filter);
+                if (beforeEventHandler != null) {
+                    if (beforeEventHandler.ErrorInfo.Status) {
+                        rtn.ErrorInfo = beforeEventHandler.ErrorInfo;
                         cnt = false;
                     }
                 }
@@ -233,22 +205,19 @@ namespace CSBEF.Core.Abstracts
 
                 #region Action Body
 
-                if (cnt)
-                {
-                    query = Repository.GetAll();
+                if (cnt) {
+                    query = Repository.GetAll ();
 
-                    if (!string.IsNullOrWhiteSpace(filter.Where))
-                    {
-                        query = query.Where(filter.Where);
+                    if (!string.IsNullOrWhiteSpace (filter.Where)) {
+                        query = query.Where (filter.Where);
                     }
 
-                    if (!string.IsNullOrWhiteSpace(filter.Order))
-                    {
-                        query = query.OrderBy(filter.Order);
+                    if (!string.IsNullOrWhiteSpace (filter.Order)) {
+                        query = query.OrderBy (filter.Order);
                     }
 
-                    getData = query.First();
-                    convertModel = _mapper.Map<TDTO>(getData);
+                    getData = query.First ();
+                    convertModel = _mapper.Map<TDTO> (getData);
                     rtn.Result = convertModel;
                 }
 
@@ -256,27 +225,21 @@ namespace CSBEF.Core.Abstracts
 
                 #region After Event Handler
 
-                if (cnt)
-                {
-                    afterEventParameterModel = new AfterEventParameterModel<IReturnModel<TDTO>, ActionFilterModel>
-                    {
+                if (cnt) {
+                    afterEventParameterModel = new AfterEventParameterModel<IReturnModel<TDTO>, ActionFilterModel> {
                         DataToBeSent = rtn,
                         ActionParameter = filter,
                         ModuleName = ModuleName,
                         ServiceName = ServiceName,
                         ActionName = "First"
                     };
-                    afterEventHandler = _eventService.GetEvent(ModuleName, $"{ServiceName}.First.After")
-                        .EventHandler<TDTO, IAfterEventParameterModel<IReturnModel<TDTO>, ActionFilterModel>>(afterEventParameterModel);
-                    if (afterEventHandler != null)
-                    {
-                        if (afterEventHandler.Error.Status)
-                        {
-                            rtn.Error = afterEventHandler.Error;
+                    afterEventHandler = _eventService.GetEvent (ModuleName, $"{ServiceName}.First.After")
+                        .EventHandler<TDTO, IAfterEventParameterModel<IReturnModel<TDTO>, ActionFilterModel>> (afterEventParameterModel);
+                    if (afterEventHandler != null) {
+                        if (afterEventHandler.ErrorInfo.Status) {
+                            rtn.ErrorInfo = afterEventHandler.ErrorInfo;
                             cnt = false;
-                        }
-                        else
-                        {
+                        } else {
                             rtn.Result = afterEventHandler.Result;
                         }
                     }
@@ -295,24 +258,20 @@ namespace CSBEF.Core.Abstracts
                 afterEventHandler = null;
 
                 #endregion Clear Memory
-            }
-            catch (Exception ex)
-            {
-                rtn = rtn.SendError(GlobalErrors.TechnicalError, ex);
+            } catch (CustomException ex) {
+                rtn = rtn.SendError (GlobalError.TechnicalError, ex);
             }
 
             return rtn;
         }
 
-        public virtual IReturnModel<TDTO> FirstOrDefault(GenericFilterModel<TDTO> filter)
-        {
+        public virtual IReturnModel<TDTO> FirstOrDefault (GenericFilterModel<TDTO> filter) {
             if (filter == null)
-                throw new ArgumentNullException(nameof(filter));
+                throw new ArgumentNullException (nameof (filter));
 
-            IReturnModel<TDTO> rtn = new ReturnModel<TDTO>(_logger);
+            IReturnModel<TDTO> rtn = new ReturnModel<TDTO> (_logger);
 
-            try
-            {
+            try {
                 #region Variables
 
                 bool cnt = true;
@@ -329,12 +288,10 @@ namespace CSBEF.Core.Abstracts
 
                 #region Before Event Handler
 
-                beforeEventHandler = _eventService.GetEvent(ModuleName, $"{ServiceName}.FirstOrDefault.Before").EventHandler<bool, GenericFilterModel<TDTO>>(filter);
-                if (beforeEventHandler != null)
-                {
-                    if (beforeEventHandler.Error.Status)
-                    {
-                        rtn.Error = beforeEventHandler.Error;
+                beforeEventHandler = _eventService.GetEvent (ModuleName, $"{ServiceName}.FirstOrDefault.Before").EventHandler<bool, GenericFilterModel<TDTO>> (filter);
+                if (beforeEventHandler != null) {
+                    if (beforeEventHandler.ErrorInfo.Status) {
+                        rtn.ErrorInfo = beforeEventHandler.ErrorInfo;
                         cnt = false;
                     }
                 }
@@ -343,34 +300,29 @@ namespace CSBEF.Core.Abstracts
 
                 #region Action Body
 
-                if (cnt)
-                {
-                    query = Repository.GetAll();
+                if (cnt) {
+                    query = Repository.GetAll ();
 
-                    if (filter.WherePredicates.Any())
-                    {
-                        foreach (var wherePre in filter.WherePredicates)
-                        {
-                            convertExpression = ExpressionFuncConverter<TPoco>.Convert(wherePre);
-                            query = query.Where(convertExpression);
+                    if (filter.WherePredicates.Any ()) {
+                        foreach (var wherePre in filter.WherePredicates) {
+                            convertExpression = ExpressionFuncConverter.Convert<TPoco, TDTO, bool> (wherePre);
+                            query = query.Where (convertExpression);
                         }
                     }
 
-                    if (filter.OrderPredicates.Any())
-                    {
-                        foreach (var op in filter.OrderPredicates)
-                        {
-                            prop = typeof(TPoco).GetProperty(op.PropertyName);
+                    if (filter.OrderPredicates.Any ()) {
+                        foreach (var op in filter.OrderPredicates) {
+                            prop = typeof (TPoco).GetProperty (op.PropertyName);
                             if (op.Descending)
-                                query = query.OrderByDescending(x => prop.GetValue(x, null));
+                                query = query.OrderByDescending (x => prop.GetValue (x, null));
                             else
-                                query = query.OrderBy(x => prop.GetValue(x, null));
+                                query = query.OrderBy (x => prop.GetValue (x, null));
                         }
                     }
 
-                    getData = query.FirstOrDefault();
+                    getData = query.FirstOrDefault ();
                     if (getData != null)
-                        convertModel = _mapper.Map<TDTO>(getData);
+                        convertModel = _mapper.Map<TDTO> (getData);
                     rtn.Result = convertModel;
                 }
 
@@ -378,27 +330,21 @@ namespace CSBEF.Core.Abstracts
 
                 #region After Event Handler
 
-                if (cnt)
-                {
-                    afterEventParameterModel = new AfterEventParameterModel<IReturnModel<TDTO>, GenericFilterModel<TDTO>>
-                    {
+                if (cnt) {
+                    afterEventParameterModel = new AfterEventParameterModel<IReturnModel<TDTO>, GenericFilterModel<TDTO>> {
                         DataToBeSent = rtn,
                         ActionParameter = filter,
                         ModuleName = ModuleName,
                         ServiceName = ServiceName,
                         ActionName = "FirstOrDefault"
                     };
-                    afterEventHandler = _eventService.GetEvent(ModuleName, $"{ServiceName}.FirstOrDefault.After")
-                        .EventHandler<TDTO, IAfterEventParameterModel<IReturnModel<TDTO>, GenericFilterModel<TDTO>>>(afterEventParameterModel);
-                    if (afterEventHandler != null)
-                    {
-                        if (afterEventHandler.Error.Status)
-                        {
-                            rtn.Error = afterEventHandler.Error;
+                    afterEventHandler = _eventService.GetEvent (ModuleName, $"{ServiceName}.FirstOrDefault.After")
+                        .EventHandler<TDTO, IAfterEventParameterModel<IReturnModel<TDTO>, GenericFilterModel<TDTO>>> (afterEventParameterModel);
+                    if (afterEventHandler != null) {
+                        if (afterEventHandler.ErrorInfo.Status) {
+                            rtn.ErrorInfo = afterEventHandler.ErrorInfo;
                             cnt = false;
-                        }
-                        else
-                        {
+                        } else {
                             rtn.Result = afterEventHandler.Result;
                         }
                     }
@@ -419,24 +365,20 @@ namespace CSBEF.Core.Abstracts
                 afterEventHandler = null;
 
                 #endregion Clear Memory
-            }
-            catch (Exception ex)
-            {
-                rtn = rtn.SendError(GlobalErrors.TechnicalError, ex);
+            } catch (CustomException ex) {
+                rtn = rtn.SendError (GlobalError.TechnicalError, ex);
             }
 
             return rtn;
         }
 
-        public virtual IReturnModel<TDTO> FirstOrDefault(ActionFilterModel filter)
-        {
+        public virtual IReturnModel<TDTO> FirstOrDefault (ActionFilterModel filter) {
             if (filter == null)
-                throw new ArgumentNullException(nameof(filter));
+                throw new ArgumentNullException (nameof (filter));
 
-            IReturnModel<TDTO> rtn = new ReturnModel<TDTO>(_logger);
+            IReturnModel<TDTO> rtn = new ReturnModel<TDTO> (_logger);
 
-            try
-            {
+            try {
                 #region Variables
 
                 bool cnt = true;
@@ -451,12 +393,10 @@ namespace CSBEF.Core.Abstracts
 
                 #region Before Event Handler
 
-                beforeEventHandler = _eventService.GetEvent(ModuleName, $"{ServiceName}.FirstOrDefault.Before").EventHandler<bool, ActionFilterModel>(filter);
-                if (beforeEventHandler != null)
-                {
-                    if (beforeEventHandler.Error.Status)
-                    {
-                        rtn.Error = beforeEventHandler.Error;
+                beforeEventHandler = _eventService.GetEvent (ModuleName, $"{ServiceName}.FirstOrDefault.Before").EventHandler<bool, ActionFilterModel> (filter);
+                if (beforeEventHandler != null) {
+                    if (beforeEventHandler.ErrorInfo.Status) {
+                        rtn.ErrorInfo = beforeEventHandler.ErrorInfo;
                         cnt = false;
                     }
                 }
@@ -465,22 +405,19 @@ namespace CSBEF.Core.Abstracts
 
                 #region Action Body
 
-                if (cnt)
-                {
-                    query = Repository.GetAll();
+                if (cnt) {
+                    query = Repository.GetAll ();
 
-                    if (!string.IsNullOrWhiteSpace(filter.Where))
-                    {
-                        query = query.Where(filter.Where);
+                    if (!string.IsNullOrWhiteSpace (filter.Where)) {
+                        query = query.Where (filter.Where);
                     }
 
-                    if (!string.IsNullOrWhiteSpace(filter.Order))
-                    {
-                        query = query.OrderBy(filter.Order);
+                    if (!string.IsNullOrWhiteSpace (filter.Order)) {
+                        query = query.OrderBy (filter.Order);
                     }
 
-                    getData = query.FirstOrDefault();
-                    convertModel = _mapper.Map<TDTO>(getData);
+                    getData = query.FirstOrDefault ();
+                    convertModel = _mapper.Map<TDTO> (getData);
                     rtn.Result = convertModel;
                 }
 
@@ -488,27 +425,21 @@ namespace CSBEF.Core.Abstracts
 
                 #region After Event Handler
 
-                if (cnt)
-                {
-                    afterEventParameterModel = new AfterEventParameterModel<IReturnModel<TDTO>, ActionFilterModel>
-                    {
+                if (cnt) {
+                    afterEventParameterModel = new AfterEventParameterModel<IReturnModel<TDTO>, ActionFilterModel> {
                         DataToBeSent = rtn,
                         ActionParameter = filter,
                         ModuleName = ModuleName,
                         ServiceName = ServiceName,
                         ActionName = "FirstOrDefault"
                     };
-                    afterEventHandler = _eventService.GetEvent(ModuleName, $"{ServiceName}.FirstOrDefault.After")
-                        .EventHandler<TDTO, IAfterEventParameterModel<IReturnModel<TDTO>, ActionFilterModel>>(afterEventParameterModel);
-                    if (afterEventHandler != null)
-                    {
-                        if (afterEventHandler.Error.Status)
-                        {
-                            rtn.Error = afterEventHandler.Error;
+                    afterEventHandler = _eventService.GetEvent (ModuleName, $"{ServiceName}.FirstOrDefault.After")
+                        .EventHandler<TDTO, IAfterEventParameterModel<IReturnModel<TDTO>, ActionFilterModel>> (afterEventParameterModel);
+                    if (afterEventHandler != null) {
+                        if (afterEventHandler.ErrorInfo.Status) {
+                            rtn.ErrorInfo = afterEventHandler.ErrorInfo;
                             cnt = false;
-                        }
-                        else
-                        {
+                        } else {
                             rtn.Result = afterEventHandler.Result;
                         }
                     }
@@ -527,24 +458,20 @@ namespace CSBEF.Core.Abstracts
                 afterEventHandler = null;
 
                 #endregion Clear Memory
-            }
-            catch (Exception ex)
-            {
-                rtn = rtn.SendError(GlobalErrors.TechnicalError, ex);
+            } catch (CustomException ex) {
+                rtn = rtn.SendError (GlobalError.TechnicalError, ex);
             }
 
             return rtn;
         }
 
-        public virtual IReturnModel<bool> Any(GenericFilterModel<TDTO> filter)
-        {
+        public virtual IReturnModel<bool> Any (GenericFilterModel<TDTO> filter) {
             if (filter == null)
-                throw new ArgumentNullException(nameof(filter));
+                throw new ArgumentNullException (nameof (filter));
 
-            IReturnModel<bool> rtn = new ReturnModel<bool>(_logger);
+            IReturnModel<bool> rtn = new ReturnModel<bool> (_logger);
 
-            try
-            {
+            try {
                 #region Variables
 
                 bool cnt = true;
@@ -559,12 +486,10 @@ namespace CSBEF.Core.Abstracts
 
                 #region Before Event Handler
 
-                beforeEventHandler = _eventService.GetEvent(ModuleName, $"{ServiceName}.Any.Before").EventHandler<bool, GenericFilterModel<TDTO>>(filter);
-                if (beforeEventHandler != null)
-                {
-                    if (beforeEventHandler.Error.Status)
-                    {
-                        rtn.Error = beforeEventHandler.Error;
+                beforeEventHandler = _eventService.GetEvent (ModuleName, $"{ServiceName}.Any.Before").EventHandler<bool, GenericFilterModel<TDTO>> (filter);
+                if (beforeEventHandler != null) {
+                    if (beforeEventHandler.ErrorInfo.Status) {
+                        rtn.ErrorInfo = beforeEventHandler.ErrorInfo;
                         cnt = false;
                     }
                 }
@@ -573,59 +498,48 @@ namespace CSBEF.Core.Abstracts
 
                 #region Action Body
 
-                if (cnt)
-                {
-                    query = Repository.GetAll();
+                if (cnt) {
+                    query = Repository.GetAll ();
 
-                    if (filter.WherePredicates.Any())
-                    {
-                        foreach (var wherePre in filter.WherePredicates)
-                        {
-                            convertExpression = ExpressionFuncConverter<TPoco>.Convert(wherePre);
-                            query = query.Where(convertExpression);
+                    if (filter.WherePredicates.Any ()) {
+                        foreach (var wherePre in filter.WherePredicates) {
+                            convertExpression = ExpressionFuncConverter.Convert<TPoco, TDTO, bool> (wherePre);
+                            query = query.Where (convertExpression);
                         }
                     }
 
-                    if (filter.OrderPredicates.Any())
-                    {
-                        foreach (var op in filter.OrderPredicates)
-                        {
-                            prop = typeof(TPoco).GetProperty(op.PropertyName);
+                    if (filter.OrderPredicates.Any ()) {
+                        foreach (var op in filter.OrderPredicates) {
+                            prop = typeof (TPoco).GetProperty (op.PropertyName);
                             if (op.Descending)
-                                query = query.OrderByDescending(x => prop.GetValue(x, null));
+                                query = query.OrderByDescending (x => prop.GetValue (x, null));
                             else
-                                query = query.OrderBy(x => prop.GetValue(x, null));
+                                query = query.OrderBy (x => prop.GetValue (x, null));
                         }
                     }
 
-                    rtn.Result = query.Any();
+                    rtn.Result = query.Any ();
                 }
 
                 #endregion Action Body
 
                 #region After Event Handler
 
-                if (cnt)
-                {
-                    afterEventParameterModel = new AfterEventParameterModel<IReturnModel<bool>, GenericFilterModel<TDTO>>
-                    {
+                if (cnt) {
+                    afterEventParameterModel = new AfterEventParameterModel<IReturnModel<bool>, GenericFilterModel<TDTO>> {
                         DataToBeSent = rtn,
                         ActionParameter = filter,
                         ModuleName = ModuleName,
                         ServiceName = ServiceName,
                         ActionName = "Any"
                     };
-                    afterEventHandler = _eventService.GetEvent(ModuleName, $"{ServiceName}.Any.After")
-                        .EventHandler<bool, IAfterEventParameterModel<IReturnModel<bool>, GenericFilterModel<TDTO>>>(afterEventParameterModel);
-                    if (afterEventHandler != null)
-                    {
-                        if (afterEventHandler.Error.Status)
-                        {
-                            rtn.Error = afterEventHandler.Error;
+                    afterEventHandler = _eventService.GetEvent (ModuleName, $"{ServiceName}.Any.After")
+                        .EventHandler<bool, IAfterEventParameterModel<IReturnModel<bool>, GenericFilterModel<TDTO>>> (afterEventParameterModel);
+                    if (afterEventHandler != null) {
+                        if (afterEventHandler.ErrorInfo.Status) {
+                            rtn.ErrorInfo = afterEventHandler.ErrorInfo;
                             cnt = false;
-                        }
-                        else
-                        {
+                        } else {
                             rtn.Result = afterEventHandler.Result;
                         }
                     }
@@ -644,24 +558,20 @@ namespace CSBEF.Core.Abstracts
                 afterEventHandler = null;
 
                 #endregion Clear Memory
-            }
-            catch (Exception ex)
-            {
-                rtn = rtn.SendError(GlobalErrors.TechnicalError, ex);
+            } catch (CustomException ex) {
+                rtn = rtn.SendError (GlobalError.TechnicalError, ex);
             }
 
             return rtn;
         }
 
-        public virtual IReturnModel<bool> Any(ActionFilterModel filter)
-        {
+        public virtual IReturnModel<bool> Any (ActionFilterModel filter) {
             if (filter == null)
-                throw new ArgumentNullException(nameof(filter));
+                throw new ArgumentNullException (nameof (filter));
 
-            IReturnModel<bool> rtn = new ReturnModel<bool>(_logger);
+            IReturnModel<bool> rtn = new ReturnModel<bool> (_logger);
 
-            try
-            {
+            try {
                 #region Variables
 
                 bool cnt = true;
@@ -674,12 +584,10 @@ namespace CSBEF.Core.Abstracts
 
                 #region Before Event Handler
 
-                beforeEventHandler = _eventService.GetEvent(ModuleName, $"{ServiceName}.Any.Before").EventHandler<bool, ActionFilterModel>(filter);
-                if (beforeEventHandler != null)
-                {
-                    if (beforeEventHandler.Error.Status)
-                    {
-                        rtn.Error = beforeEventHandler.Error;
+                beforeEventHandler = _eventService.GetEvent (ModuleName, $"{ServiceName}.Any.Before").EventHandler<bool, ActionFilterModel> (filter);
+                if (beforeEventHandler != null) {
+                    if (beforeEventHandler.ErrorInfo.Status) {
+                        rtn.ErrorInfo = beforeEventHandler.ErrorInfo;
                         cnt = false;
                     }
                 }
@@ -688,48 +596,39 @@ namespace CSBEF.Core.Abstracts
 
                 #region Action Body
 
-                if (cnt)
-                {
-                    query = Repository.GetAll();
+                if (cnt) {
+                    query = Repository.GetAll ();
 
-                    if (!string.IsNullOrWhiteSpace(filter.Where))
-                    {
-                        query = query.Where(filter.Where);
+                    if (!string.IsNullOrWhiteSpace (filter.Where)) {
+                        query = query.Where (filter.Where);
                     }
 
-                    if (!string.IsNullOrWhiteSpace(filter.Order))
-                    {
-                        query = query.OrderBy(filter.Order);
+                    if (!string.IsNullOrWhiteSpace (filter.Order)) {
+                        query = query.OrderBy (filter.Order);
                     }
 
-                    rtn.Result = query.Any();
+                    rtn.Result = query.Any ();
                 }
 
                 #endregion Action Body
 
                 #region After Event Handler
 
-                if (cnt)
-                {
-                    afterEventParameterModel = new AfterEventParameterModel<IReturnModel<bool>, ActionFilterModel>
-                    {
+                if (cnt) {
+                    afterEventParameterModel = new AfterEventParameterModel<IReturnModel<bool>, ActionFilterModel> {
                         DataToBeSent = rtn,
                         ActionParameter = filter,
                         ModuleName = ModuleName,
                         ServiceName = ServiceName,
                         ActionName = "Any"
                     };
-                    afterEventHandler = _eventService.GetEvent(ModuleName, $"{ServiceName}.Any.After")
-                        .EventHandler<bool, IAfterEventParameterModel<IReturnModel<bool>, ActionFilterModel>>(afterEventParameterModel);
-                    if (afterEventHandler != null)
-                    {
-                        if (afterEventHandler.Error.Status)
-                        {
-                            rtn.Error = afterEventHandler.Error;
+                    afterEventHandler = _eventService.GetEvent (ModuleName, $"{ServiceName}.Any.After")
+                        .EventHandler<bool, IAfterEventParameterModel<IReturnModel<bool>, ActionFilterModel>> (afterEventParameterModel);
+                    if (afterEventHandler != null) {
+                        if (afterEventHandler.ErrorInfo.Status) {
+                            rtn.ErrorInfo = afterEventHandler.ErrorInfo;
                             cnt = false;
-                        }
-                        else
-                        {
+                        } else {
                             rtn.Result = afterEventHandler.Result;
                         }
                     }
@@ -746,24 +645,20 @@ namespace CSBEF.Core.Abstracts
                 afterEventHandler = null;
 
                 #endregion Clear Memory
-            }
-            catch (Exception ex)
-            {
-                rtn = rtn.SendError(GlobalErrors.TechnicalError, ex);
+            } catch (CustomException ex) {
+                rtn = rtn.SendError (GlobalError.TechnicalError, ex);
             }
 
             return rtn;
         }
 
-        public virtual IReturnModel<IList<TDTO>> List(GenericFilterModel<TDTO> filter)
-        {
+        public virtual IReturnModel<IList<TDTO>> List (GenericFilterModel<TDTO> filter) {
             if (filter == null)
-                throw new ArgumentNullException(nameof(filter));
+                throw new ArgumentNullException (nameof (filter));
 
-            IReturnModel<IList<TDTO>> rtn = new ReturnModel<IList<TDTO>>(_logger);
+            IReturnModel<IList<TDTO>> rtn = new ReturnModel<IList<TDTO>> (_logger);
 
-            try
-            {
+            try {
                 #region Variables
 
                 bool cnt = true;
@@ -778,12 +673,10 @@ namespace CSBEF.Core.Abstracts
 
                 #region Before Event Handler
 
-                beforeEventHandler = _eventService.GetEvent(ModuleName, $"{ServiceName}.List.Before").EventHandler<bool, GenericFilterModel<TDTO>>(filter);
-                if (beforeEventHandler != null)
-                {
-                    if (beforeEventHandler.Error.Status)
-                    {
-                        rtn.Error = beforeEventHandler.Error;
+                beforeEventHandler = _eventService.GetEvent (ModuleName, $"{ServiceName}.List.Before").EventHandler<bool, GenericFilterModel<TDTO>> (filter);
+                if (beforeEventHandler != null) {
+                    if (beforeEventHandler.ErrorInfo.Status) {
+                        rtn.ErrorInfo = beforeEventHandler.ErrorInfo;
                         cnt = false;
                     }
                 }
@@ -792,67 +685,56 @@ namespace CSBEF.Core.Abstracts
 
                 #region Action Body
 
-                if (cnt)
-                {
-                    query = Repository.GetAll();
+                if (cnt) {
+                    query = Repository.GetAll ();
 
-                    if (filter.WherePredicates.Any())
-                    {
-                        foreach (var wherePre in filter.WherePredicates)
-                        {
-                            convertExpression = ExpressionFuncConverter<TPoco>.Convert(wherePre);
-                            query = query.Where(convertExpression);
+                    if (filter.WherePredicates.Any ()) {
+                        foreach (var wherePre in filter.WherePredicates) {
+                            convertExpression = ExpressionFuncConverter.Convert<TPoco, TDTO, bool> (wherePre);
+                            query = query.Where (convertExpression);
                         }
                     }
 
-                    if (filter.OrderPredicates.Any())
-                    {
-                        foreach (var op in filter.OrderPredicates)
-                        {
-                            prop = typeof(TPoco).GetProperty(op.PropertyName);
+                    if (filter.OrderPredicates.Any ()) {
+                        foreach (var op in filter.OrderPredicates) {
+                            prop = typeof (TPoco).GetProperty (op.PropertyName);
                             if (op.Descending)
-                                query = query.OrderByDescending(x => prop.GetValue(x, null));
+                                query = query.OrderByDescending (x => prop.GetValue (x, null));
                             else
-                                query = query.OrderBy(x => prop.GetValue(x, null));
+                                query = query.OrderBy (x => prop.GetValue (x, null));
                         }
                     }
 
-                    if (filter.Page.ToInt(0) == 0)
+                    if (filter.Page.ToInt (0) == 0)
                         filter.Page = 1;
 
-                    if (filter.PageSize.ToInt(0) == 0)
+                    if (filter.PageSize.ToInt (0) == 0)
                         filter.PageSize = 10;
 
-                    query = query.Skip((filter.Page - 1) * filter.PageSize).Take(filter.PageSize);
+                    query = query.Skip ((filter.Page - 1) * filter.PageSize).Take (filter.PageSize);
 
-                    rtn.Result = _mapper.Map<List<TDTO>>(query.ToList());
+                    rtn.Result = _mapper.Map<List<TDTO>> (query.ToList ());
                 }
 
                 #endregion Action Body
 
                 #region After Event Handler
 
-                if (cnt)
-                {
-                    afterEventParameterModel = new AfterEventParameterModel<IReturnModel<IList<TDTO>>, GenericFilterModel<TDTO>>
-                    {
+                if (cnt) {
+                    afterEventParameterModel = new AfterEventParameterModel<IReturnModel<IList<TDTO>>, GenericFilterModel<TDTO>> {
                         DataToBeSent = rtn,
                         ActionParameter = filter,
                         ModuleName = ModuleName,
                         ServiceName = ServiceName,
                         ActionName = "List"
                     };
-                    afterEventHandler = _eventService.GetEvent(ModuleName, $"{ServiceName}.List.After")
-                        .EventHandler<IList<TDTO>, IAfterEventParameterModel<IReturnModel<IList<TDTO>>, GenericFilterModel<TDTO>>>(afterEventParameterModel);
-                    if (afterEventHandler != null)
-                    {
-                        if (afterEventHandler.Error.Status)
-                        {
-                            rtn.Error = afterEventHandler.Error;
+                    afterEventHandler = _eventService.GetEvent (ModuleName, $"{ServiceName}.List.After")
+                        .EventHandler<IList<TDTO>, IAfterEventParameterModel<IReturnModel<IList<TDTO>>, GenericFilterModel<TDTO>>> (afterEventParameterModel);
+                    if (afterEventHandler != null) {
+                        if (afterEventHandler.ErrorInfo.Status) {
+                            rtn.ErrorInfo = afterEventHandler.ErrorInfo;
                             cnt = false;
-                        }
-                        else
-                        {
+                        } else {
                             rtn.Result = afterEventHandler.Result;
                         }
                     }
@@ -871,42 +753,36 @@ namespace CSBEF.Core.Abstracts
                 prop = null;
 
                 #endregion Clear Memory
-            }
-            catch (Exception ex)
-            {
-                rtn = rtn.SendError(GlobalErrors.TechnicalError, ex);
+            } catch (CustomException ex) {
+                rtn = rtn.SendError (GlobalError.TechnicalError, ex);
             }
 
             return rtn;
         }
 
-        public virtual IReturnModel<IList<TDTO>> List(ActionFilterModel filter)
-        {
+        public virtual IReturnModel<IList<TDTO>> List (ActionFilterModel filter) {
             if (filter == null)
-                throw new ArgumentNullException(nameof(filter));
+                throw new ArgumentNullException (nameof (filter));
 
-            IReturnModel<IList<TDTO>> rtn = new ReturnModel<IList<TDTO>>(_logger);
+            IReturnModel<IList<TDTO>> rtn = new ReturnModel<IList<TDTO>> (_logger);
 
-            try
-            {
+            try {
                 #region Variables
 
                 bool cnt = true;
                 IReturnModel<bool> beforeEventHandler = null;
                 IQueryable<TPoco> query;
-                AfterEventParameterModel<IReturnModel<IList<TDTO>>, ActionFilterModel> afterEventParameterModel = null;
+                AfterEventParameterModel<IReturnModel<IList<TDTO>>, ActionFilterModel > afterEventParameterModel = null;
                 IReturnModel<IList<TDTO>> afterEventHandler = null;
 
                 #endregion Variables
 
                 #region Before Event Handler
 
-                beforeEventHandler = _eventService.GetEvent(ModuleName, $"{ServiceName}.List.Before").EventHandler<bool, ActionFilterModel>(filter);
-                if (beforeEventHandler != null)
-                {
-                    if (beforeEventHandler.Error.Status)
-                    {
-                        rtn.Error = beforeEventHandler.Error;
+                beforeEventHandler = _eventService.GetEvent (ModuleName, $"{ServiceName}.List.Before").EventHandler<bool, ActionFilterModel> (filter);
+                if (beforeEventHandler != null) {
+                    if (beforeEventHandler.ErrorInfo.Status) {
+                        rtn.ErrorInfo = beforeEventHandler.ErrorInfo;
                         cnt = false;
                     }
                 }
@@ -915,56 +791,47 @@ namespace CSBEF.Core.Abstracts
 
                 #region Action Body
 
-                if (cnt)
-                {
-                    query = Repository.GetAll();
+                if (cnt) {
+                    query = Repository.GetAll ();
 
-                    if (!string.IsNullOrWhiteSpace(filter.Where))
-                    {
-                        query = query.Where(filter.Where);
+                    if (!string.IsNullOrWhiteSpace (filter.Where)) {
+                        query = query.Where (filter.Where);
                     }
 
-                    if (!string.IsNullOrWhiteSpace(filter.Order))
-                    {
-                        query = query.OrderBy(filter.Order);
+                    if (!string.IsNullOrWhiteSpace (filter.Order)) {
+                        query = query.OrderBy (filter.Order);
                     }
 
-                    if (filter.Page.ToInt(0) == 0)
+                    if (filter.Page.ToInt (0) == 0)
                         filter.Page = 1;
 
-                    if (filter.PageSize.ToInt(0) == 0)
+                    if (filter.PageSize.ToInt (0) == 0)
                         filter.PageSize = 10;
 
-                    query = query.Skip((filter.Page - 1) * filter.PageSize).Take(filter.PageSize);
+                    query = query.Skip ((filter.Page - 1) * filter.PageSize).Take (filter.PageSize);
 
-                    rtn.Result = _mapper.Map<List<TDTO>>(query.ToList());
+                    rtn.Result = _mapper.Map<List<TDTO>> (query.ToList ());
                 }
 
                 #endregion Action Body
 
                 #region After Event Handler
 
-                if (cnt)
-                {
-                    afterEventParameterModel = new AfterEventParameterModel<IReturnModel<IList<TDTO>>, ActionFilterModel>
-                    {
+                if (cnt) {
+                    afterEventParameterModel = new AfterEventParameterModel<IReturnModel<IList<TDTO>>, ActionFilterModel > {
                         DataToBeSent = rtn,
                         ActionParameter = filter,
                         ModuleName = ModuleName,
                         ServiceName = ServiceName,
                         ActionName = "List"
                     };
-                    afterEventHandler = _eventService.GetEvent(ModuleName, $"{ServiceName}.List.After")
-                        .EventHandler<IList<TDTO>, IAfterEventParameterModel<IReturnModel<IList<TDTO>>, ActionFilterModel>>(afterEventParameterModel);
-                    if (afterEventHandler != null)
-                    {
-                        if (afterEventHandler.Error.Status)
-                        {
-                            rtn.Error = afterEventHandler.Error;
+                    afterEventHandler = _eventService.GetEvent (ModuleName, $"{ServiceName}.List.After")
+                        .EventHandler<IList<TDTO>, IAfterEventParameterModel<IReturnModel<IList<TDTO>>, ActionFilterModel >> (afterEventParameterModel);
+                    if (afterEventHandler != null) {
+                        if (afterEventHandler.ErrorInfo.Status) {
+                            rtn.ErrorInfo = afterEventHandler.ErrorInfo;
                             cnt = false;
-                        }
-                        else
-                        {
+                        } else {
                             rtn.Result = afterEventHandler.Result;
                         }
                     }
@@ -981,24 +848,20 @@ namespace CSBEF.Core.Abstracts
                 afterEventHandler = null;
 
                 #endregion Clear Memory
-            }
-            catch (Exception ex)
-            {
-                rtn = rtn.SendError(GlobalErrors.TechnicalError, ex);
+            } catch (CustomException ex) {
+                rtn = rtn.SendError (GlobalError.TechnicalError, ex);
             }
 
             return rtn;
         }
 
-        public virtual IReturnModel<int> Count(ActionFilterModel filter)
-        {
+        public virtual IReturnModel<int> Count (ActionFilterModel filter) {
             if (filter == null)
-                throw new ArgumentNullException(nameof(filter));
+                throw new ArgumentNullException (nameof (filter));
 
-            IReturnModel<int> rtn = new ReturnModel<int>(_logger);
+            IReturnModel<int> rtn = new ReturnModel<int> (_logger);
 
-            try
-            {
+            try {
                 #region Variables
 
                 bool cnt = true;
@@ -1011,12 +874,10 @@ namespace CSBEF.Core.Abstracts
 
                 #region Before Event Handler
 
-                beforeEventHandler = _eventService.GetEvent(ModuleName, $"{ServiceName}.Count.Before").EventHandler<bool, ActionFilterModel>(filter);
-                if (beforeEventHandler != null)
-                {
-                    if (beforeEventHandler.Error.Status)
-                    {
-                        rtn.Error = beforeEventHandler.Error;
+                beforeEventHandler = _eventService.GetEvent (ModuleName, $"{ServiceName}.Count.Before").EventHandler<bool, ActionFilterModel> (filter);
+                if (beforeEventHandler != null) {
+                    if (beforeEventHandler.ErrorInfo.Status) {
+                        rtn.ErrorInfo = beforeEventHandler.ErrorInfo;
                         cnt = false;
                     }
                 }
@@ -1025,48 +886,39 @@ namespace CSBEF.Core.Abstracts
 
                 #region Action Body
 
-                if (cnt)
-                {
-                    query = Repository.GetAll();
+                if (cnt) {
+                    query = Repository.GetAll ();
 
-                    if (!string.IsNullOrWhiteSpace(filter.Where))
-                    {
-                        query = query.Where(filter.Where);
+                    if (!string.IsNullOrWhiteSpace (filter.Where)) {
+                        query = query.Where (filter.Where);
                     }
 
-                    if (!string.IsNullOrWhiteSpace(filter.Order))
-                    {
-                        query = query.OrderBy(filter.Order);
+                    if (!string.IsNullOrWhiteSpace (filter.Order)) {
+                        query = query.OrderBy (filter.Order);
                     }
 
-                    rtn.Result = query.Count();
+                    rtn.Result = query.Count ();
                 }
 
                 #endregion Action Body
 
                 #region After Event Handler
 
-                if (cnt)
-                {
-                    afterEventParameterModel = new AfterEventParameterModel<IReturnModel<int>, ActionFilterModel>
-                    {
+                if (cnt) {
+                    afterEventParameterModel = new AfterEventParameterModel<IReturnModel<int>, ActionFilterModel> {
                         DataToBeSent = rtn,
                         ActionParameter = filter,
                         ModuleName = ModuleName,
                         ServiceName = ServiceName,
                         ActionName = "Count"
                     };
-                    afterEventHandler = _eventService.GetEvent(ModuleName, $"{ServiceName}.Count.After")
-                        .EventHandler<int, IAfterEventParameterModel<IReturnModel<int>, ActionFilterModel>>(afterEventParameterModel);
-                    if (afterEventHandler != null)
-                    {
-                        if (afterEventHandler.Error.Status)
-                        {
-                            rtn.Error = afterEventHandler.Error;
+                    afterEventHandler = _eventService.GetEvent (ModuleName, $"{ServiceName}.Count.After")
+                        .EventHandler<int, IAfterEventParameterModel<IReturnModel<int>, ActionFilterModel>> (afterEventParameterModel);
+                    if (afterEventHandler != null) {
+                        if (afterEventHandler.ErrorInfo.Status) {
+                            rtn.ErrorInfo = afterEventHandler.ErrorInfo;
                             cnt = false;
-                        }
-                        else
-                        {
+                        } else {
                             rtn.Result = afterEventHandler.Result;
                         }
                     }
@@ -1083,131 +935,109 @@ namespace CSBEF.Core.Abstracts
                 afterEventHandler = null;
 
                 #endregion Clear Memory
-            }
-            catch (Exception ex)
-            {
-                rtn = rtn.SendError(GlobalErrors.TechnicalError, ex);
+            } catch (CustomException ex) {
+                rtn = rtn.SendError (GlobalError.TechnicalError, ex);
             }
 
             return rtn;
         }
 
-        public virtual IReturnModel<TDTO> BaseAdd(ServiceParamsWithIdentifier<TDTO> data)
-        {
+        public virtual IReturnModel<TDTO> BaseAdd (ServiceParamsWithIdentifier<TDTO> data) {
             if (data == null)
-                throw new ArgumentNullException(nameof(data));
+                throw new ArgumentNullException (nameof (data));
 
-            IReturnModel<TDTO> rtn = new ReturnModel<TDTO>(_logger);
+            IReturnModel<TDTO> rtn = new ReturnModel<TDTO> (_logger);
 
-            try
-            {
-                var convertPoco = _mapper.Map<TPoco>(data.Param);
+            try {
+                var convertPoco = _mapper.Map<TPoco> (data.Param);
                 convertPoco.Status = true;
                 convertPoco.AddingDate = DateTime.Now;
                 convertPoco.UpdatingDate = DateTime.Now;
                 convertPoco.AddingUserId = data.UserId;
                 convertPoco.UpdatingUserId = data.UserId;
-                var savedModel = Repository.Add(convertPoco);
-                Repository.Save();
-                rtn.Result = _mapper.Map<TDTO>(savedModel);
-            }
-            catch (Exception ex)
-            {
-                rtn = rtn.SendError(GlobalErrors.TechnicalError, ex);
+                var savedModel = Repository.Add (convertPoco);
+                Repository.Save ();
+                rtn.Result = _mapper.Map<TDTO> (savedModel);
+            } catch (CustomException ex) {
+                rtn = rtn.SendError (GlobalError.TechnicalError, ex);
             }
 
             return rtn;
         }
 
-        public virtual IReturnModel<TDTO> BaseUpdate(ServiceParamsWithIdentifier<TDTO> data)
-        {
+        public virtual IReturnModel<TDTO> BaseUpdate (ServiceParamsWithIdentifier<TDTO> data) {
             if (data == null)
-                throw new ArgumentNullException(nameof(data));
+                throw new ArgumentNullException (nameof (data));
 
-            IReturnModel<TDTO> rtn = new ReturnModel<TDTO>(_logger);
+            IReturnModel<TDTO> rtn = new ReturnModel<TDTO> (_logger);
 
-            try
-            {
-                var getData = Repository.Find(i => i.Id == data.Param.Id);
-                if (getData == null)
-                {
-                    rtn = rtn.SendError(GlobalErrors.DataNotFound);
+            try {
+                var getData = Repository.Find (i => i.Id == data.Param.Id);
+                if (getData == null) {
+                    rtn = rtn.SendError (GlobalError.DataNotFound);
                     return rtn;
                 }
 
-                getData = _mapper.Map<TPoco>(data.Param);
+                getData = _mapper.Map<TPoco> (data.Param);
                 getData.Status = true;
                 getData.AddingDate = DateTime.Now;
                 getData.UpdatingDate = DateTime.Now;
                 getData.AddingUserId = data.UserId;
                 getData.UpdatingUserId = data.UserId;
-                getData = Repository.Update(getData);
-                Repository.Save();
-                rtn.Result = _mapper.Map<TDTO>(getData);
-            }
-            catch (Exception ex)
-            {
-                rtn = rtn.SendError(GlobalErrors.TechnicalError, ex);
+                getData = Repository.Update (getData);
+                Repository.Save ();
+                rtn.Result = _mapper.Map<TDTO> (getData);
+            } catch (CustomException ex) {
+                rtn = rtn.SendError (GlobalError.TechnicalError, ex);
             }
 
             return rtn;
         }
 
-        public virtual IReturnModel<TDTO> BaseChangeStatus(ServiceParamsWithIdentifier<ChangeStatusModel> data)
-        {
+        public virtual IReturnModel<TDTO> BaseChangeStatus (ServiceParamsWithIdentifier<ChangeStatusModel> data) {
             if (data == null)
-                throw new ArgumentNullException(nameof(data));
+                throw new ArgumentNullException (nameof (data));
 
-            IReturnModel<TDTO> rtn = new ReturnModel<TDTO>(_logger);
+            IReturnModel<TDTO> rtn = new ReturnModel<TDTO> (_logger);
 
-            try
-            {
-                var getData = Repository.Find(i => i.Id == data.Param.Id);
-                if (getData == null)
-                {
-                    rtn = rtn.SendError(GlobalErrors.DataNotFound);
+            try {
+                var getData = Repository.Find (i => i.Id == data.Param.Id);
+                if (getData == null) {
+                    rtn = rtn.SendError (GlobalError.DataNotFound);
                     return rtn;
                 }
 
                 getData.Status = data.Param.Status;
-                getData = Repository.Update(getData);
-                Repository.Save();
-                rtn.Result = _mapper.Map<TDTO>(getData);
-            }
-            catch (Exception ex)
-            {
-                rtn = rtn.SendError(GlobalErrors.TechnicalError, ex);
+                getData = Repository.Update (getData);
+                Repository.Save ();
+                rtn.Result = _mapper.Map<TDTO> (getData);
+            } catch (CustomException ex) {
+                rtn = rtn.SendError (GlobalError.TechnicalError, ex);
             }
 
             return rtn;
         }
 
-        public virtual IReturnModel<TDTO> BaseAddWithSocket(ServiceParamsWithIdentifier<TDTO> data, string socketUpdateKey, string socketUpdatedDataName)
-        {
+        public virtual IReturnModel<TDTO> BaseAddWithSocket (ServiceParamsWithIdentifier<TDTO> data, string socketUpdateKey, string socketUpdatedDataName) {
             if (data == null)
-                throw new ArgumentNullException(nameof(data));
+                throw new ArgumentNullException (nameof (data));
 
-            if (string.IsNullOrWhiteSpace(socketUpdateKey))
-                throw new ArgumentNullException(nameof(socketUpdateKey));
+            if (string.IsNullOrWhiteSpace (socketUpdateKey))
+                throw new ArgumentNullException (nameof (socketUpdateKey));
 
-            if (string.IsNullOrWhiteSpace(socketUpdatedDataName))
-                throw new ArgumentNullException(nameof(socketUpdatedDataName));
+            if (string.IsNullOrWhiteSpace (socketUpdatedDataName))
+                throw new ArgumentNullException (nameof (socketUpdatedDataName));
 
-            IReturnModel<TDTO> rtn = new ReturnModel<TDTO>(_logger);
+            IReturnModel<TDTO> rtn = new ReturnModel<TDTO> (_logger);
 
-            try
-            {
-                var save = BaseAdd(data);
-                if (save.Error.Status)
-                {
-                    rtn.Error = save.Error;
-                }
-                else
-                {
+            try {
+                var save = BaseAdd (data);
+                if (save.ErrorInfo.Status) {
+                    rtn.ErrorInfo = save.ErrorInfo;
+                } else {
                     rtn.Result = save.Result;
 
-                    _hubSyncDataService.OnSync(new HubSyncDataModel<TDTO>
-                    {
+                    _hubSyncDataService.OnSync (new HubSyncDataModel<TDTO> {
                         Key = socketUpdateKey,
                         ProcessType = "add",
                         Id = rtn.Result.Id,
@@ -1216,41 +1046,33 @@ namespace CSBEF.Core.Abstracts
                         Data = rtn.Result
                     });
                 }
-            }
-            catch (Exception ex)
-            {
-                rtn = rtn.SendError(GlobalErrors.TechnicalError, ex);
+            } catch (CustomException ex) {
+                rtn = rtn.SendError (GlobalError.TechnicalError, ex);
             }
 
             return rtn;
         }
 
-        public virtual IReturnModel<TDTO> BaseUpdateWithSocket(ServiceParamsWithIdentifier<TDTO> data, string socketUpdateKey, string socketUpdatedDataName)
-        {
+        public virtual IReturnModel<TDTO> BaseUpdateWithSocket (ServiceParamsWithIdentifier<TDTO> data, string socketUpdateKey, string socketUpdatedDataName) {
             if (data == null)
-                throw new ArgumentNullException(nameof(data));
+                throw new ArgumentNullException (nameof (data));
 
-            if (string.IsNullOrWhiteSpace(socketUpdateKey))
-                throw new ArgumentNullException(nameof(socketUpdateKey));
+            if (string.IsNullOrWhiteSpace (socketUpdateKey))
+                throw new ArgumentNullException (nameof (socketUpdateKey));
 
-            if (string.IsNullOrWhiteSpace(socketUpdatedDataName))
-                throw new ArgumentNullException(nameof(socketUpdatedDataName));
+            if (string.IsNullOrWhiteSpace (socketUpdatedDataName))
+                throw new ArgumentNullException (nameof (socketUpdatedDataName));
 
-            IReturnModel<TDTO> rtn = new ReturnModel<TDTO>(_logger);
+            IReturnModel<TDTO> rtn = new ReturnModel<TDTO> (_logger);
 
-            try
-            {
-                var save = BaseUpdate(data);
-                if (save.Error.Status)
-                {
-                    rtn.Error = save.Error;
-                }
-                else
-                {
+            try {
+                var save = BaseUpdate (data);
+                if (save.ErrorInfo.Status) {
+                    rtn.ErrorInfo = save.ErrorInfo;
+                } else {
                     rtn.Result = save.Result;
 
-                    _hubSyncDataService.OnSync(new HubSyncDataModel<TDTO>
-                    {
+                    _hubSyncDataService.OnSync (new HubSyncDataModel<TDTO> {
                         Key = socketUpdateKey,
                         ProcessType = "update",
                         Id = rtn.Result.Id,
@@ -1259,41 +1081,33 @@ namespace CSBEF.Core.Abstracts
                         Data = rtn.Result
                     });
                 }
-            }
-            catch (Exception ex)
-            {
-                rtn = rtn.SendError(GlobalErrors.TechnicalError, ex);
+            } catch (CustomException ex) {
+                rtn = rtn.SendError (GlobalError.TechnicalError, ex);
             }
 
             return rtn;
         }
 
-        public virtual IReturnModel<TDTO> BaseChangeStatusWithSocket(ServiceParamsWithIdentifier<ChangeStatusModel> data, string socketUpdateKey, string socketUpdatedDataName)
-        {
+        public virtual IReturnModel<TDTO> BaseChangeStatusWithSocket (ServiceParamsWithIdentifier<ChangeStatusModel> data, string socketUpdateKey, string socketUpdatedDataName) {
             if (data == null)
-                throw new ArgumentNullException(nameof(data));
+                throw new ArgumentNullException (nameof (data));
 
-            if (string.IsNullOrWhiteSpace(socketUpdateKey))
-                throw new ArgumentNullException(nameof(socketUpdateKey));
+            if (string.IsNullOrWhiteSpace (socketUpdateKey))
+                throw new ArgumentNullException (nameof (socketUpdateKey));
 
-            if (string.IsNullOrWhiteSpace(socketUpdatedDataName))
-                throw new ArgumentNullException(nameof(socketUpdatedDataName));
+            if (string.IsNullOrWhiteSpace (socketUpdatedDataName))
+                throw new ArgumentNullException (nameof (socketUpdatedDataName));
 
-            IReturnModel<TDTO> rtn = new ReturnModel<TDTO>(_logger);
+            IReturnModel<TDTO> rtn = new ReturnModel<TDTO> (_logger);
 
-            try
-            {
-                var save = BaseChangeStatus(data);
-                if (save.Error.Status)
-                {
-                    rtn.Error = save.Error;
-                }
-                else
-                {
+            try {
+                var save = BaseChangeStatus (data);
+                if (save.ErrorInfo.Status) {
+                    rtn.ErrorInfo = save.ErrorInfo;
+                } else {
                     rtn.Result = save.Result;
 
-                    _hubSyncDataService.OnSync(new HubSyncDataModel<bool>
-                    {
+                    _hubSyncDataService.OnSync (new HubSyncDataModel<bool> {
                         Key = socketUpdateKey,
                         ProcessType = "remove",
                         Id = rtn.Result.Id,
@@ -1302,10 +1116,8 @@ namespace CSBEF.Core.Abstracts
                         Data = rtn.Result.Status
                     });
                 }
-            }
-            catch (Exception ex)
-            {
-                rtn = rtn.SendError(GlobalErrors.TechnicalError, ex);
+            } catch (CustomException ex) {
+                rtn = rtn.SendError (GlobalError.TechnicalError, ex);
             }
 
             return rtn;
@@ -1317,22 +1129,18 @@ namespace CSBEF.Core.Abstracts
 
         private bool disposed = false;
 
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!disposed)
-            {
-                if (disposing)
-                {
-                    Repository.Dispose();
+        protected virtual void Dispose (bool disposing) {
+            if (!disposed) {
+                if (disposing) {
+                    Repository.Dispose ();
                 }
                 disposed = true;
             }
         }
 
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
+        public void Dispose () {
+            Dispose (true);
+            GC.SuppressFinalize (this);
         }
 
         #endregion Dispose

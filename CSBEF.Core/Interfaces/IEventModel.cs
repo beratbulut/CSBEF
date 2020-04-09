@@ -1,15 +1,13 @@
 ﻿using CSBEF.Core.Models;
 
-namespace CSBEF.Core.Interfaces
-{
-    public delegate dynamic EventDelegate(dynamic data, IEventInfo eventInfo);
+namespace CSBEF.Core.Interfaces {
+    public delegate dynamic EventDelegate (dynamic data, IEventInfo eventInfo);
 
-    public interface IEventModel
-    {
+    public interface IEventModel {
         IEventInfo EventInfo { get; set; }
 
-        event EventDelegate Event;
+        event EventDelegate EventEvent;
 
-        ReturnModel<TResult> EventHandler<TResult, TParam>(TParam data);
+        ReturnModel<TResult> EventHandler<TResult, TParam> (TParam data);
     }
 }

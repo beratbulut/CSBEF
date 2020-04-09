@@ -1,10 +1,8 @@
-﻿namespace CSBEF.Core.Enums
-{
-    public enum FileUploaderErrorsEnum
-    {
-        Upload_UploadPathNotFound,
-        Upload_MinSize,
-        Upload_MaxSize,
-        Upload_ContentType
+﻿namespace CSBEF.Core.Enums {
+    public enum FileUploaderErrorsEnum {
+        UploadUploadPathNotFound,
+        UploadMinSize,
+        UploadMaxSize,
+        UploadContentType
     }
 }

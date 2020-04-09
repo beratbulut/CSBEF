@@ -1,9 +1,7 @@
 ﻿using CSBEF.Core.Interfaces;
 
-namespace CSBEF.Core.Models
-{
-    public class ErrorResult : IErrorResult
-    {
+namespace CSBEF.Core.Models {
+    public class ErrorResult : IErrorResult {
         #region Public Properties
 
         public string Message { get; set; }

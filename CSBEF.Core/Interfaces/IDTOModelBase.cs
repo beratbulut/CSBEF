@@ -1,9 +1,7 @@
 ﻿using System;
 
-namespace CSBEF.Core.Interfaces
-{
-    public interface IDTOModelBase
-    {
+namespace CSBEF.Core.Interfaces {
+    public interface IDTOModelBase {
         #region Properties
 
         int Id { get; set; }
