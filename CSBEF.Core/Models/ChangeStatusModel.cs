@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
 namespace CSBEF.Core.Models {
-    public class ChangeStatusModel : HashControlModel {
+    public class ChangeStatusModel {
         [Required (ErrorMessage = "ModelValidationError_IdRequired")]
         [Range (minimum: 1, maximum: int.MaxValue, ErrorMessage = "ModelValidationError_IdIsZero")]
         public int Id { get; set; }

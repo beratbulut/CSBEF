@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Http;
 
 namespace CSBEF.Core.Models.HelperModels {
-    public class ChangePictureModel : HashControlModel {
+    public class ChangePictureModel {
         [Required (ErrorMessage = "ModelValidationError_IdRequired")]
         [Range (minimum: 1, maximum: int.MaxValue, ErrorMessage = "ModelValidationError_IdIsZero")]
         public int Id { get; set; }
