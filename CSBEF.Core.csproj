@@ -8,14 +8,14 @@
     <Company>Code Scientific</Company>
     <Description>Modular API is a Framework structure used to create an application.</Description>
     <Copyright>2019 Code Scientific - Mesut Kurak</Copyright>
-    <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageProjectUrl>https://github.com/mkurak/CSBEF</PackageProjectUrl>
     <RepositoryUrl>https://github.com/mkurak/CSBEF</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <PackageTags>Modular API Builder</PackageTags>
-    <Version>3.1.0</Version>
+    <Version>3.1.1</Version>
     <PackageReleaseNotes>
-      - Complated release version
+      - Rebased All files and folders for github build
     </PackageReleaseNotes>
   </PropertyGroup>
 
@@ -47,7 +47,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="LICENSE.txt">
+    <None Include="LICENSE">
       <Pack>True</Pack>
       <PackagePath></PackagePath>
     </None>
