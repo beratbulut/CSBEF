@@ -13,9 +13,9 @@
     <RepositoryUrl>https://github.com/mkurak/CSBEF</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <PackageTags>Modular API Builder</PackageTags>
-    <Version>3.0.0.2</Version>
+    <Version>3.1.0</Version>
     <PackageReleaseNotes>
-      - Removed Hash Control model and integrations
+      - Complated release version
     </PackageReleaseNotes>
   </PropertyGroup>
 

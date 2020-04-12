@@ -14,17 +14,17 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 namespace CSBEF.Core.Abstracts {
-    public abstract class ServiceBase<TPoco, TDTO> : IServiceBase<TPoco, TDTO>
+    public class ServiceBase<TPoco, TDTO> : IServiceBase<TPoco, TDTO>
         where TPoco : class, IEntityModelBase, new ()
     where TDTO : class, IDTOModelBase, new () {
         #region Dependencies
 
-        internal IConfiguration _configuration;
-        internal IWebHostEnvironment _hostingEnvironment;
-        internal ILogger<IReturnModel<bool>> _logger;
-        internal IMapper _mapper;
-        internal IEventService _eventService;
-        internal readonly IHubSyncDataService _hubSyncDataService;
+        public IConfiguration Configuration { get; set; }
+        public IWebHostEnvironment HostingEnvironment { get; set; }
+        public ILogger<IReturnModel<bool>> Logger { get; set; }
+        public IMapper Mapper { get; set; }
+        public IEventService EventService { get; set; }
+        public IHubSyncDataService HubSyncDataService { get; set; }
         public IRepositoryBase<TPoco> Repository { get; set; }
 
         #endregion Dependencies
@@ -49,15 +49,15 @@ namespace CSBEF.Core.Abstracts {
             string moduleName,
             string serviceName
         ) {
-            _hostingEnvironment = hostingEnvironment;
-            _configuration = configuration;
-            _logger = logger;
-            _mapper = mapper;
+            HostingEnvironment = hostingEnvironment;
+            Configuration = configuration;
+            Logger = logger;
+            Mapper = mapper;
             Repository = repository;
             ModuleName = moduleName;
             ServiceName = serviceName;
-            _eventService = eventService;
-            _hubSyncDataService = hubSyncDataService;
+            EventService = eventService;
+            HubSyncDataService = hubSyncDataService;
         }
 
         #endregion Construction
@@ -68,7 +68,7 @@ namespace CSBEF.Core.Abstracts {
             if (filter == null)
                 throw new ArgumentNullException (nameof (filter));
 
-            IReturnModel<TDTO> rtn = new ReturnModel<TDTO> (_logger);
+            IReturnModel<TDTO> rtn = new ReturnModel<TDTO> (Logger);
 
             try {
                 #region Variables
@@ -87,7 +87,7 @@ namespace CSBEF.Core.Abstracts {
 
                 #region Before Event Handler
 
-                beforeEventHandler = _eventService.GetEvent (ModuleName, $"{ServiceName}.First.Before").EventHandler<bool, GenericFilterModel<TDTO>> (filter);
+                beforeEventHandler = EventService.GetEvent (ModuleName, $"{ServiceName}.First.Before").EventHandler<bool, GenericFilterModel<TDTO>> (filter);
                 if (beforeEventHandler != null) {
                     if (beforeEventHandler.ErrorInfo.Status) {
                         rtn.ErrorInfo = beforeEventHandler.ErrorInfo;
@@ -120,7 +120,7 @@ namespace CSBEF.Core.Abstracts {
                     }
 
                     getData = query.First ();
-                    convertModel = _mapper.Map<TDTO> (getData);
+                    convertModel = Mapper.Map<TDTO> (getData);
                     rtn.Result = convertModel;
                 }
 
@@ -136,7 +136,7 @@ namespace CSBEF.Core.Abstracts {
                         ServiceName = ServiceName,
                         ActionName = "First"
                     };
-                    afterEventHandler = _eventService.GetEvent (ModuleName, $"{ServiceName}.First.After")
+                    afterEventHandler = EventService.GetEvent (ModuleName, $"{ServiceName}.First.After")
                         .EventHandler<TDTO, IAfterEventParameterModel<IReturnModel<TDTO>, GenericFilterModel<TDTO>>> (afterEventParameterModel);
                     if (afterEventHandler != null) {
                         if (afterEventHandler.ErrorInfo.Status) {
@@ -173,7 +173,7 @@ namespace CSBEF.Core.Abstracts {
             if (filter == null)
                 throw new ArgumentNullException (nameof (filter));
 
-            IReturnModel<TDTO> rtn = new ReturnModel<TDTO> (_logger);
+            IReturnModel<TDTO> rtn = new ReturnModel<TDTO> (Logger);
 
             try {
                 #region Variables
@@ -190,7 +190,7 @@ namespace CSBEF.Core.Abstracts {
 
                 #region Before Event Handler
 
-                beforeEventHandler = _eventService.GetEvent (ModuleName, $"{ServiceName}.First.Before").EventHandler<bool, ActionFilterModel> (filter);
+                beforeEventHandler = EventService.GetEvent (ModuleName, $"{ServiceName}.First.Before").EventHandler<bool, ActionFilterModel> (filter);
                 if (beforeEventHandler != null) {
                     if (beforeEventHandler.ErrorInfo.Status) {
                         rtn.ErrorInfo = beforeEventHandler.ErrorInfo;
@@ -214,7 +214,7 @@ namespace CSBEF.Core.Abstracts {
                     }
 
                     getData = query.First ();
-                    convertModel = _mapper.Map<TDTO> (getData);
+                    convertModel = Mapper.Map<TDTO> (getData);
                     rtn.Result = convertModel;
                 }
 
@@ -230,7 +230,7 @@ namespace CSBEF.Core.Abstracts {
                         ServiceName = ServiceName,
                         ActionName = "First"
                     };
-                    afterEventHandler = _eventService.GetEvent (ModuleName, $"{ServiceName}.First.After")
+                    afterEventHandler = EventService.GetEvent (ModuleName, $"{ServiceName}.First.After")
                         .EventHandler<TDTO, IAfterEventParameterModel<IReturnModel<TDTO>, ActionFilterModel>> (afterEventParameterModel);
                     if (afterEventHandler != null) {
                         if (afterEventHandler.ErrorInfo.Status) {
@@ -265,7 +265,7 @@ namespace CSBEF.Core.Abstracts {
             if (filter == null)
                 throw new ArgumentNullException (nameof (filter));
 
-            IReturnModel<TDTO> rtn = new ReturnModel<TDTO> (_logger);
+            IReturnModel<TDTO> rtn = new ReturnModel<TDTO> (Logger);
 
             try {
                 #region Variables
@@ -284,7 +284,7 @@ namespace CSBEF.Core.Abstracts {
 
                 #region Before Event Handler
 
-                beforeEventHandler = _eventService.GetEvent (ModuleName, $"{ServiceName}.FirstOrDefault.Before").EventHandler<bool, GenericFilterModel<TDTO>> (filter);
+                beforeEventHandler = EventService.GetEvent (ModuleName, $"{ServiceName}.FirstOrDefault.Before").EventHandler<bool, GenericFilterModel<TDTO>> (filter);
                 if (beforeEventHandler != null) {
                     if (beforeEventHandler.ErrorInfo.Status) {
                         rtn.ErrorInfo = beforeEventHandler.ErrorInfo;
@@ -318,7 +318,7 @@ namespace CSBEF.Core.Abstracts {
 
                     getData = query.FirstOrDefault ();
                     if (getData != null)
-                        convertModel = _mapper.Map<TDTO> (getData);
+                        convertModel = Mapper.Map<TDTO> (getData);
                     rtn.Result = convertModel;
                 }
 
@@ -334,7 +334,7 @@ namespace CSBEF.Core.Abstracts {
                         ServiceName = ServiceName,
                         ActionName = "FirstOrDefault"
                     };
-                    afterEventHandler = _eventService.GetEvent (ModuleName, $"{ServiceName}.FirstOrDefault.After")
+                    afterEventHandler = EventService.GetEvent (ModuleName, $"{ServiceName}.FirstOrDefault.After")
                         .EventHandler<TDTO, IAfterEventParameterModel<IReturnModel<TDTO>, GenericFilterModel<TDTO>>> (afterEventParameterModel);
                     if (afterEventHandler != null) {
                         if (afterEventHandler.ErrorInfo.Status) {
@@ -371,7 +371,7 @@ namespace CSBEF.Core.Abstracts {
             if (filter == null)
                 throw new ArgumentNullException (nameof (filter));
 
-            IReturnModel<TDTO> rtn = new ReturnModel<TDTO> (_logger);
+            IReturnModel<TDTO> rtn = new ReturnModel<TDTO> (Logger);
 
             try {
                 #region Variables
@@ -388,7 +388,7 @@ namespace CSBEF.Core.Abstracts {
 
                 #region Before Event Handler
 
-                beforeEventHandler = _eventService.GetEvent (ModuleName, $"{ServiceName}.FirstOrDefault.Before").EventHandler<bool, ActionFilterModel> (filter);
+                beforeEventHandler = EventService.GetEvent (ModuleName, $"{ServiceName}.FirstOrDefault.Before").EventHandler<bool, ActionFilterModel> (filter);
                 if (beforeEventHandler != null) {
                     if (beforeEventHandler.ErrorInfo.Status) {
                         rtn.ErrorInfo = beforeEventHandler.ErrorInfo;
@@ -412,7 +412,7 @@ namespace CSBEF.Core.Abstracts {
                     }
 
                     getData = query.FirstOrDefault ();
-                    convertModel = _mapper.Map<TDTO> (getData);
+                    convertModel = Mapper.Map<TDTO> (getData);
                     rtn.Result = convertModel;
                 }
 
@@ -428,7 +428,7 @@ namespace CSBEF.Core.Abstracts {
                         ServiceName = ServiceName,
                         ActionName = "FirstOrDefault"
                     };
-                    afterEventHandler = _eventService.GetEvent (ModuleName, $"{ServiceName}.FirstOrDefault.After")
+                    afterEventHandler = EventService.GetEvent (ModuleName, $"{ServiceName}.FirstOrDefault.After")
                         .EventHandler<TDTO, IAfterEventParameterModel<IReturnModel<TDTO>, ActionFilterModel>> (afterEventParameterModel);
                     if (afterEventHandler != null) {
                         if (afterEventHandler.ErrorInfo.Status) {
@@ -463,7 +463,7 @@ namespace CSBEF.Core.Abstracts {
             if (filter == null)
                 throw new ArgumentNullException (nameof (filter));
 
-            IReturnModel<bool> rtn = new ReturnModel<bool> (_logger);
+            IReturnModel<bool> rtn = new ReturnModel<bool> (Logger);
 
             try {
                 #region Variables
@@ -480,7 +480,7 @@ namespace CSBEF.Core.Abstracts {
 
                 #region Before Event Handler
 
-                beforeEventHandler = _eventService.GetEvent (ModuleName, $"{ServiceName}.Any.Before").EventHandler<bool, GenericFilterModel<TDTO>> (filter);
+                beforeEventHandler = EventService.GetEvent (ModuleName, $"{ServiceName}.Any.Before").EventHandler<bool, GenericFilterModel<TDTO>> (filter);
                 if (beforeEventHandler != null) {
                     if (beforeEventHandler.ErrorInfo.Status) {
                         rtn.ErrorInfo = beforeEventHandler.ErrorInfo;
@@ -527,7 +527,7 @@ namespace CSBEF.Core.Abstracts {
                         ServiceName = ServiceName,
                         ActionName = "Any"
                     };
-                    afterEventHandler = _eventService.GetEvent (ModuleName, $"{ServiceName}.Any.After")
+                    afterEventHandler = EventService.GetEvent (ModuleName, $"{ServiceName}.Any.After")
                         .EventHandler<bool, IAfterEventParameterModel<IReturnModel<bool>, GenericFilterModel<TDTO>>> (afterEventParameterModel);
                     if (afterEventHandler != null) {
                         if (afterEventHandler.ErrorInfo.Status) {
@@ -562,7 +562,7 @@ namespace CSBEF.Core.Abstracts {
             if (filter == null)
                 throw new ArgumentNullException (nameof (filter));
 
-            IReturnModel<bool> rtn = new ReturnModel<bool> (_logger);
+            IReturnModel<bool> rtn = new ReturnModel<bool> (Logger);
 
             try {
                 #region Variables
@@ -577,7 +577,7 @@ namespace CSBEF.Core.Abstracts {
 
                 #region Before Event Handler
 
-                beforeEventHandler = _eventService.GetEvent (ModuleName, $"{ServiceName}.Any.Before").EventHandler<bool, ActionFilterModel> (filter);
+                beforeEventHandler = EventService.GetEvent (ModuleName, $"{ServiceName}.Any.Before").EventHandler<bool, ActionFilterModel> (filter);
                 if (beforeEventHandler != null) {
                     if (beforeEventHandler.ErrorInfo.Status) {
                         rtn.ErrorInfo = beforeEventHandler.ErrorInfo;
@@ -615,7 +615,7 @@ namespace CSBEF.Core.Abstracts {
                         ServiceName = ServiceName,
                         ActionName = "Any"
                     };
-                    afterEventHandler = _eventService.GetEvent (ModuleName, $"{ServiceName}.Any.After")
+                    afterEventHandler = EventService.GetEvent (ModuleName, $"{ServiceName}.Any.After")
                         .EventHandler<bool, IAfterEventParameterModel<IReturnModel<bool>, ActionFilterModel>> (afterEventParameterModel);
                     if (afterEventHandler != null) {
                         if (afterEventHandler.ErrorInfo.Status) {
@@ -648,7 +648,7 @@ namespace CSBEF.Core.Abstracts {
             if (filter == null)
                 throw new ArgumentNullException (nameof (filter));
 
-            IReturnModel<IList<TDTO>> rtn = new ReturnModel<IList<TDTO>> (_logger);
+            IReturnModel<IList<TDTO>> rtn = new ReturnModel<IList<TDTO>> (Logger);
 
             try {
                 #region Variables
@@ -665,7 +665,7 @@ namespace CSBEF.Core.Abstracts {
 
                 #region Before Event Handler
 
-                beforeEventHandler = _eventService.GetEvent (ModuleName, $"{ServiceName}.List.Before").EventHandler<bool, GenericFilterModel<TDTO>> (filter);
+                beforeEventHandler = EventService.GetEvent (ModuleName, $"{ServiceName}.List.Before").EventHandler<bool, GenericFilterModel<TDTO>> (filter);
                 if (beforeEventHandler != null) {
                     if (beforeEventHandler.ErrorInfo.Status) {
                         rtn.ErrorInfo = beforeEventHandler.ErrorInfo;
@@ -705,7 +705,7 @@ namespace CSBEF.Core.Abstracts {
 
                     query = query.Skip ((filter.Page - 1) * filter.PageSize).Take (filter.PageSize);
 
-                    rtn.Result = _mapper.Map<List<TDTO>> (query.ToList ());
+                    rtn.Result = Mapper.Map<List<TDTO>> (query.ToList ());
                 }
 
                 #endregion Action Body
@@ -720,7 +720,7 @@ namespace CSBEF.Core.Abstracts {
                         ServiceName = ServiceName,
                         ActionName = "List"
                     };
-                    afterEventHandler = _eventService.GetEvent (ModuleName, $"{ServiceName}.List.After")
+                    afterEventHandler = EventService.GetEvent (ModuleName, $"{ServiceName}.List.After")
                         .EventHandler<IList<TDTO>, IAfterEventParameterModel<IReturnModel<IList<TDTO>>, GenericFilterModel<TDTO>>> (afterEventParameterModel);
                     if (afterEventHandler != null) {
                         if (afterEventHandler.ErrorInfo.Status) {
@@ -755,7 +755,7 @@ namespace CSBEF.Core.Abstracts {
             if (filter == null)
                 throw new ArgumentNullException (nameof (filter));
 
-            IReturnModel<IList<TDTO>> rtn = new ReturnModel<IList<TDTO>> (_logger);
+            IReturnModel<IList<TDTO>> rtn = new ReturnModel<IList<TDTO>> (Logger);
 
             try {
                 #region Variables
@@ -770,7 +770,7 @@ namespace CSBEF.Core.Abstracts {
 
                 #region Before Event Handler
 
-                beforeEventHandler = _eventService.GetEvent (ModuleName, $"{ServiceName}.List.Before").EventHandler<bool, ActionFilterModel> (filter);
+                beforeEventHandler = EventService.GetEvent (ModuleName, $"{ServiceName}.List.Before").EventHandler<bool, ActionFilterModel> (filter);
                 if (beforeEventHandler != null) {
                     if (beforeEventHandler.ErrorInfo.Status) {
                         rtn.ErrorInfo = beforeEventHandler.ErrorInfo;
@@ -801,7 +801,7 @@ namespace CSBEF.Core.Abstracts {
 
                     query = query.Skip ((filter.Page - 1) * filter.PageSize).Take (filter.PageSize);
 
-                    rtn.Result = _mapper.Map<List<TDTO>> (query.ToList ());
+                    rtn.Result = Mapper.Map<List<TDTO>> (query.ToList ());
                 }
 
                 #endregion Action Body
@@ -816,7 +816,7 @@ namespace CSBEF.Core.Abstracts {
                         ServiceName = ServiceName,
                         ActionName = "List"
                     };
-                    afterEventHandler = _eventService.GetEvent (ModuleName, $"{ServiceName}.List.After")
+                    afterEventHandler = EventService.GetEvent (ModuleName, $"{ServiceName}.List.After")
                         .EventHandler<IList<TDTO>, IAfterEventParameterModel<IReturnModel<IList<TDTO>>, ActionFilterModel >> (afterEventParameterModel);
                     if (afterEventHandler != null) {
                         if (afterEventHandler.ErrorInfo.Status) {
@@ -849,7 +849,7 @@ namespace CSBEF.Core.Abstracts {
             if (filter == null)
                 throw new ArgumentNullException (nameof (filter));
 
-            IReturnModel<int> rtn = new ReturnModel<int> (_logger);
+            IReturnModel<int> rtn = new ReturnModel<int> (Logger);
 
             try {
                 #region Variables
@@ -864,7 +864,7 @@ namespace CSBEF.Core.Abstracts {
 
                 #region Before Event Handler
 
-                beforeEventHandler = _eventService.GetEvent (ModuleName, $"{ServiceName}.Count.Before").EventHandler<bool, ActionFilterModel> (filter);
+                beforeEventHandler = EventService.GetEvent (ModuleName, $"{ServiceName}.Count.Before").EventHandler<bool, ActionFilterModel> (filter);
                 if (beforeEventHandler != null) {
                     if (beforeEventHandler.ErrorInfo.Status) {
                         rtn.ErrorInfo = beforeEventHandler.ErrorInfo;
@@ -902,7 +902,7 @@ namespace CSBEF.Core.Abstracts {
                         ServiceName = ServiceName,
                         ActionName = "Count"
                     };
-                    afterEventHandler = _eventService.GetEvent (ModuleName, $"{ServiceName}.Count.After")
+                    afterEventHandler = EventService.GetEvent (ModuleName, $"{ServiceName}.Count.After")
                         .EventHandler<int, IAfterEventParameterModel<IReturnModel<int>, ActionFilterModel>> (afterEventParameterModel);
                     if (afterEventHandler != null) {
                         if (afterEventHandler.ErrorInfo.Status) {
