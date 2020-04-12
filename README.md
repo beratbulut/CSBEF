@@ -1,8 +1,13 @@
+![.NET Core](https://github.com/mkurak/CSBEF/workflows/.NET%20Core/badge.svg)
+
 # CSBEF
 Code Scientific - Back-End Framework
 
 # Current Version
-Version: 3.1.0 ([latest release](https://github.com/mkurak/CSBEF/releases/tag/3.1.0))
+Version: 3.1.1 ([latest release](https://github.com/mkurak/CSBEF/releases/tag/3.1.1))
+
+# Version Info
+- Rebased All files and folders for github build
 
 # Status
 Continue to write documentation
