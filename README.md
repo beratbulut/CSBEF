@@ -7,7 +7,7 @@ Code Scientific - Back-End Framework
 Version: 3.1.2 ([latest release](https://github.com/mkurak/CSBEF/releases/tag/3.1.2))
 
 # Version Info
-- Rebased All files and folders for github build
+- Since the requests from structural changes in versions 3.1.0 and 3.1.1 were abandoned, version 2.2.9 was returned and updates were made.
 
 # Status
 Continue to write documentation
