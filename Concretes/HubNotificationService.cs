@@ -1,25 +1,27 @@
-﻿using System;
-using CSBEF.Core.Enums;
-using CSBEF.Core.Helpers;
+﻿using CSBEF.Core.Enums;
 using CSBEF.Core.Interfaces;
 using CSBEF.Core.Models;
 using CSBEF.Core.Models.HubModels;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using System;
 
-namespace CSBEF.Core.Concretes {
-    public class HubNotificationService : IHubNotificationService {
+namespace CSBEF.Core.Concretes
+{
+    public class HubNotificationService : IHubNotificationService
+    {
         #region Dependencies
 
         private readonly IServiceProvider _serviceProvider;
-        private readonly ILogger<IReturnModel<bool>> _logger;
+        private readonly ILogger<ILog> _logger;
 
         #endregion Dependencies
 
         #region ctor
 
-        public HubNotificationService (IServiceProvider serviceProvider, ILogger<IReturnModel<bool>> logger) {
+        public HubNotificationService(IServiceProvider serviceProvider, ILogger<ILog> logger)
+        {
             _serviceProvider = serviceProvider;
             _logger = logger;
         }
@@ -28,19 +30,26 @@ namespace CSBEF.Core.Concretes {
 
         #region Actions
 
-        public IReturnModel<bool> OnNotify (NotificationModel data, string group = "") {
-            IReturnModel<bool> rtn = new ReturnModel<bool> (_logger);
+        public IReturnModel<bool> OnNotify(NotificationModel data, string group = "")
+        {
+            IReturnModel<bool> rtn = new ReturnModel<bool>(_logger);
 
-            try {
-                var globalHub = _serviceProvider.GetService<IHubContext<GlobalHub>> ();
+            try
+            {
+                var globalHub = _serviceProvider.GetService<IHubContext<GlobalHub>>();
 
-                if (!string.IsNullOrWhiteSpace (group)) {
-                    globalHub.Clients.Group (group).SendAsync ("HubNotifiy", data).ConfigureAwait (false);
-                } else {
-                    globalHub.Clients.All.SendAsync ("HubNotifiy", data).ConfigureAwait (false);
+                if (!string.IsNullOrWhiteSpace(group))
+                {
+                    globalHub.Clients.Group(group).SendAsync("HubNotifiy", data).ConfigureAwait(false);
                 }
-            } catch (CustomException ex) {
-                rtn = rtn.SendError (GlobalError.TechnicalError, ex);
+                else
+                {
+                    globalHub.Clients.All.SendAsync("HubNotifiy", data).ConfigureAwait(false);
+                }
+            }
+            catch (Exception ex)
+            {
+                rtn = rtn.SendError(GlobalErrors.TechnicalError, ex);
             }
 
             return rtn;

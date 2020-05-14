@@ -1,5 +1,7 @@
-﻿namespace CSBEF.Core.Enums {
-    public enum GlobalError {
+﻿namespace CSBEF.Core.Enums
+{
+    public enum GlobalErrors
+    {
         TechnicalError,
         DataNotFound,
         HashCodeInValid,

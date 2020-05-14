@@ -1,9 +1,11 @@
-﻿using System;
+﻿using CSBEF.Core.Interfaces;
+using System;
 using System.ComponentModel.DataAnnotations;
-using CSBEF.Core.Interfaces;
 
-namespace CSBEF.Core.Models {
-    public abstract class EntityModelBase : IEntityModelBase {
+namespace CSBEF.Core.Models
+{
+    public abstract class EntityModelBase : IEntityModelBase
+    {
         #region Public Properties
 
         [Key]

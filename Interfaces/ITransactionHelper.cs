@@ -1,11 +1,13 @@
 ﻿using System.Threading.Tasks;
 
-namespace CSBEF.Core.Interfaces {
-    public interface ITransactionHelper {
-        Task CreateTransaction ();
+namespace CSBEF.Core.Interfaces
+{
+    public interface ITransactionHelper
+    {
+        Task CreateTransaction();
 
-        void EndTransaction ();
+        void EndTransaction();
 
-        void CancelTransaction ();
+        void CancelTransaction();
     }
 }

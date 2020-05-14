@@ -1,5 +1,7 @@
-﻿namespace CSBEF.Core.Models.HubModels {
-    public class HubSyncDataModel<T> {
+﻿namespace CSBEF.Core.Models.HubModels
+{
+    public class HubSyncDataModel<T>
+    {
         public string Key { get; set; }
         public string ProcessType { get; set; }
         public int Id { get; set; }
