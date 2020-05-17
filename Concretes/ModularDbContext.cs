@@ -63,7 +63,14 @@ namespace CSBEF.Core.Concretes
                 if (entity.ClrType.Namespace != null)
                 {
                     nameParts = entity.ClrType.Namespace.Split('.');
-                    tableName = string.Concat(nameParts[2], "_", entity.ClrType.Name);
+                    if(nameParts.Length > 2 && nameParts[2].ToLower() == "project")
+                    {
+                        tableName = entity.ClrType.Name;
+                    }
+                    else
+                    {
+                        tableName = string.Concat(nameParts[2], "_", entity.ClrType.Name);
+                    }
                     modelBuilder.Entity(entity.Name).ToTable(tableName);
                 }
             }
