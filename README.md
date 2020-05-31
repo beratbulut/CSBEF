@@ -4,10 +4,10 @@
 Code Scientific - Back-End Framework
 
 # Current Version
-Version: 3.1.3 ([latest release](https://github.com/mkurak/CSBEF/releases/tag/3.1.3))
+Version: 3.1.4 ([latest release](https://github.com/mkurak/CSBEF/releases/tag/3.1.4))
 
 # Version Info
-For the Modular Entity Framework, the module name must be at the beginning of the table names in the table records. This rule had to be stretched for some projects. Therefore, the prefix rule for modules with module name "Project" has been removed.
+New helpful feature added (DynamicServiceAction).
 
 # Status
 Continue to write documentation
