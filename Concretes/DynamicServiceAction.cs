@@ -2,6 +2,7 @@
 using CSBEF.Core.Helpers;
 using CSBEF.Core.Interfaces;
 using CSBEF.Core.Models;
+using CSBEF.Core.Models.HubModels;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Linq;
@@ -12,20 +13,22 @@ namespace CSBEF.Core.Concretes
     {
         private ILogger<ILog> _logger;
         private IEventService _eventService;
+        private IHubSyncDataService _hubSyncDataService;
 
-        public DynamicServiceAction(ILogger<ILog> logger, IEventService eventService)
+        public DynamicServiceAction(ILogger<ILog> logger, IEventService eventService, IHubSyncDataService hubSyncDataService)
         {
             _logger = logger;
             _eventService = eventService;
+            _hubSyncDataService = hubSyncDataService;
         }
 
-        public IReturnModel<TResult> RunAction<TResult, TServiceParamsWithIdentifier>
+        public IReturnModel<TResult> RunAction<TResult, TServiceParamsWithIdentifier, TSocketSyncDataType>
             (
             ServiceParamsWithIdentifier<TServiceParamsWithIdentifier> args,
             string actionName,
             string serviceName,
             string moduleName,
-            Func<ServiceParamsWithIdentifier<TServiceParamsWithIdentifier>, IReturnModel<TResult>, IReturnModel<TResult>> invoker)
+            Func<ServiceParamsWithIdentifier<TServiceParamsWithIdentifier>, IReturnModel<TResult>, IReturnModel<TResult>> invoker, HubSyncDataModel<TSocketSyncDataType> hubSyncDataModel = null)
             where TServiceParamsWithIdentifier : class
         {
             IReturnModel<TResult> rtn = new ReturnModel<TResult>(_logger);
@@ -58,6 +61,11 @@ namespace CSBEF.Core.Concretes
 
                 if(invoker != null)
                     rtn = invoker(args, rtn);
+
+                if(hubSyncDataModel != null)
+                {
+                    _hubSyncDataService.OnSync(hubSyncDataModel);
+                }
 
                 #endregion
 

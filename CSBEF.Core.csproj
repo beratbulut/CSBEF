@@ -13,8 +13,8 @@
     <RepositoryUrl>https://github.com/mkurak/CSBEF</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <PackageTags>Modular API Builder</PackageTags>
-    <Version>3.1.4</Version>
-    <PackageReleaseNotes>New helpful feature added (DynamicServiceAction).</PackageReleaseNotes>
+    <Version>3.1.5</Version>
+    <PackageReleaseNotes>Socket support has been added to DynamicServiceAction service.</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
