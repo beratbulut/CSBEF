@@ -13,8 +13,8 @@
     <RepositoryUrl>https://github.com/mkurak/CSBEF</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
     <PackageTags>Modular API Builder</PackageTags>
-    <Version>3.1.3</Version>
-    <PackageReleaseNotes>For the Modular Entity Framework, the module name must be at the beginning of the table names in the table records. This rule had to be stretched for some projects. Therefore, the prefix rule for modules with module name "Project" has been removed.</PackageReleaseNotes>
+    <Version>3.1.4</Version>
+    <PackageReleaseNotes>New helpful feature added (DynamicServiceAction).</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>

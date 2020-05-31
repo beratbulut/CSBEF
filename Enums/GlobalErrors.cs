@@ -6,6 +6,7 @@
         DataNotFound,
         HashCodeInValid,
         NoRole,
-        WrongPictureType
+        WrongPictureType,
+        ModelValidationFail
     }
 }

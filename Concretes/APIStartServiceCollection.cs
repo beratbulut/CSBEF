@@ -352,6 +352,10 @@ namespace CSBEF.Core.Concretes
 
             #endregion Transaction Helper
 
+            #region DynamicServiceAction
+            services.AddSingleton<IDynamicServiceAction, DynamicServiceAction>();
+            #endregion
+
             #region Build Service Provider
 
             var sp = services.BuildServiceProvider();
