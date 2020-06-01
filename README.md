@@ -4,10 +4,10 @@
 Code Scientific - Back-End Framework
 
 # Current Version
-Version: 3.1.5 ([latest release](https://github.com/mkurak/CSBEF/releases/tag/3.1.5))
+Version: 3.1.6 ([latest release](https://github.com/mkurak/CSBEF/releases/tag/3.1.6))
 
 # Version Info
-Socket support has been added to DynamicServiceAction service.
+Added socket support for DynamicServiceAction is optional.
 
 # Status
 Continue to write documentation

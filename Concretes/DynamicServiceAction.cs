@@ -22,13 +22,13 @@ namespace CSBEF.Core.Concretes
             _hubSyncDataService = hubSyncDataService;
         }
 
-        public IReturnModel<TResult> RunAction<TResult, TServiceParamsWithIdentifier, TSocketSyncDataType>
-            (
+        public IReturnModel<TResult> RunAction<TResult, TServiceParamsWithIdentifier> (
             ServiceParamsWithIdentifier<TServiceParamsWithIdentifier> args,
             string actionName,
             string serviceName,
             string moduleName,
-            Func<ServiceParamsWithIdentifier<TServiceParamsWithIdentifier>, IReturnModel<TResult>, IReturnModel<TResult>> invoker, HubSyncDataModel<TSocketSyncDataType> hubSyncDataModel = null)
+            Func<ServiceParamsWithIdentifier<TServiceParamsWithIdentifier>, IReturnModel<TResult>, IReturnModel<TResult>> invoker
+        )
             where TServiceParamsWithIdentifier : class
         {
             IReturnModel<TResult> rtn = new ReturnModel<TResult>(_logger);
@@ -62,10 +62,84 @@ namespace CSBEF.Core.Concretes
                 if(invoker != null)
                     rtn = invoker(args, rtn);
 
-                if(hubSyncDataModel != null)
+                #endregion
+
+                #region After Event Handler
+
+                var afterEventParameterModel = new AfterEventParameterModel<IReturnModel<TResult>, ServiceParamsWithIdentifier<TServiceParamsWithIdentifier>>
                 {
-                    _hubSyncDataService.OnSync(hubSyncDataModel);
+                    DataToBeSent = rtn,
+                    ActionParameter = args,
+                    ModuleName = moduleName,
+                    ServiceName = serviceName,
+                    ActionName = actionName
+                };
+                var afterEventHandler = _eventService.GetEvent(moduleName, $"{serviceName}.{actionName}.After")
+                    .EventHandler<TResult, IAfterEventParameterModel<IReturnModel<TResult>, ServiceParamsWithIdentifier<TServiceParamsWithIdentifier>>>(afterEventParameterModel);
+                if (afterEventHandler != null)
+                {
+                    if (afterEventHandler.Error.Status)
+                    {
+                        rtn.Error = afterEventHandler.Error;
+                        return rtn;
+                    }
+                    else
+                    {
+                        rtn.Result = afterEventHandler.Result;
+                    }
                 }
+
+                #endregion After Event Handler
+            }
+            catch (Exception ex)
+            {
+                rtn = rtn.SendError(GlobalErrors.TechnicalError, ex);
+            }
+
+            return rtn;
+        }
+
+        public IReturnModel<TResult> RunAction<TResult, TServiceParamsWithIdentifier, TSocketSyncDataType>(
+            ServiceParamsWithIdentifier<TServiceParamsWithIdentifier> args,
+            string actionName,
+            string serviceName,
+            string moduleName,
+            Func<ServiceParamsWithIdentifier<TServiceParamsWithIdentifier>, IReturnModel<TResult>, IReturnModel<TResult>> invoker, HubSyncDataModel<TSocketSyncDataType> hubSyncDataModel
+        )
+            where TServiceParamsWithIdentifier : class
+        {
+            IReturnModel<TResult> rtn = new ReturnModel<TResult>(_logger);
+
+            try
+            {
+                var modelValidation = args.Param.ModelValidation();
+
+                if (modelValidation.Any())
+                {
+                    rtn = rtn.SendError(GlobalErrors.ModelValidationFail);
+                    return rtn;
+                }
+
+                #region Before Event Handler
+
+                var beforeEventHandler = _eventService.GetEvent(moduleName, $"{serviceName}.{actionName}.Before").EventHandler<bool, ServiceParamsWithIdentifier<TServiceParamsWithIdentifier>>(args);
+                if (beforeEventHandler != null)
+                {
+                    if (beforeEventHandler.Error.Status)
+                    {
+                        rtn.Error = beforeEventHandler.Error;
+                        return rtn;
+                    }
+                }
+
+                #endregion Before Event Handler
+
+                #region Action Body
+
+                if (invoker != null)
+                    rtn = invoker(args, rtn);
+
+                _hubSyncDataService.OnSync(hubSyncDataModel);
 
                 #endregion
 
