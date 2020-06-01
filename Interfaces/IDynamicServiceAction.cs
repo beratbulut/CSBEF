@@ -13,5 +13,13 @@ namespace CSBEF.Core.Interfaces
             string moduleName,
             Func<ServiceParamsWithIdentifier<TServiceParamsWithIdentifier>, IReturnModel<TResult>, IReturnModel<TResult>> invoker, HubSyncDataModel<TSocketSyncDataType> hubSyncDataModel = null)
             where TServiceParamsWithIdentifier : class;
+
+        IReturnModel<TResult> RunAction<TResult, TServiceParamsWithIdentifier>(
+            ServiceParamsWithIdentifier<TServiceParamsWithIdentifier> args,
+            string actionName,
+            string serviceName,
+            string moduleName,
+            Func<ServiceParamsWithIdentifier<TServiceParamsWithIdentifier>, IReturnModel<TResult>, IReturnModel<TResult>> invoker)
+            where TServiceParamsWithIdentifier : class;
     }
 }
