@@ -205,6 +205,7 @@ namespace CSBEF.Core.Concretes
             _services.AddSignalR(opt =>
             {
                 opt.EnableDetailedErrors = options.SignalR_EnableDetailedErrors;
+                opt.MaximumReceiveMessageSize = options.SignalR_MaximumReceiveMessageSize;
             });
 
             #endregion SignalR

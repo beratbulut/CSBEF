@@ -23,6 +23,7 @@ namespace CSBEF.Core.Models
         public MapperConfigurationExpression AutoMapperConfig { get; set; } = new MapperConfigurationExpression();
 
         public bool SignalR_EnableDetailedErrors { get; set; } = false;
+        public long? SignalR_MaximumReceiveMessageSize { get; set; } = null;
         public ServiceLifetime ModuleInterfaces_IModuleEventsAddInitializer_LifeTime { get; set; } = ServiceLifetime.Scoped;
         public ServiceLifetime ModuleInterfaces_IModuleEventsJoinInitializer_LifeTime { get; set; } = ServiceLifetime.Scoped;
         public ServiceLifetime ModuleInterfaces_Main_IModuleEventsAddInitializer_LifeTime { get; set; } = ServiceLifetime.Scoped;
