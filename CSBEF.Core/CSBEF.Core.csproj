@@ -1,0 +1,42 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <Authors>Mesut Kurak</Authors>
+    <Company>Code Scientific</Company>
+    <Description>Modüler Dotnet Core API uygulaması oluşturmaya yarayan bir framework.</Description>
+    <Copyright>2019 - 2020 Code Scientific - Mesut Kurak</Copyright>
+    <PackageLicenseFile>\LICENSE.txt</PackageLicenseFile>
+    <PackageProjectUrl>https://github.com/mkurak/CSBEF</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/mkurak/CSBEF</RepositoryUrl>
+    <RepositoryType>Git</RepositoryType>
+    <PackageTags>Modular API Builder</PackageTags>
+    <Version>4.0</Version>
+    <AssemblyVersion>4.0</AssemblyVersion>
+    <FileVersion>4.0</FileVersion>
+    <PackageReleaseNotes>Yeni özellikler ve yapı değişikliği için yeni branch oluşturuldu</PackageReleaseNotes>
+  </PropertyGroup>
+  <ItemGroup>
+    
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="../LICENSE.txt">
+      <Pack>True</Pack>
+      <PackagePath/>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App"/>
+    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="3.3.0">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.7"/>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="3.1.7"/>
+    <PackageReference Include="MySql.Data.EntityFrameworkCore" Version="8.0.21"/>
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="3.1.4"/>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.7"/>
+  </ItemGroup>
+</Project>
