@@ -14,6 +14,6 @@ namespace CSBEF.Models.Interfaces
         /// Map'leme işlemi için CSBEF tarafından otomatik olarak tetiklenen metottur.
         /// </summary>
         /// <param name="args">İlgili DbContext içerisindeki ModelBuilder injection'ı.</param>
-        void Mapper(ModelBuilder args);
+        void Mapper(ModelBuilder modelBuilder);
     }
 }

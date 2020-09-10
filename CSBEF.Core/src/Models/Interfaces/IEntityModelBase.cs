@@ -1,6 +1,6 @@
 using System;
 
-namespace CSBEF.src.Models.Interfaces
+namespace CSBEF.Models.Interfaces
 {
     /// <summary>
     /// TODO: To be translated into English

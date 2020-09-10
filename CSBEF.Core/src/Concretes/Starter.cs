@@ -140,16 +140,16 @@ namespace CSBEF.Concretes
 
             #endregion
 
-            // #region Adding DbContext for Entity Framework 
+            #region Adding DbContext for Entity Framework 
 
-            // integrationEventReturn = await IntegrationEventBus.TriggerEvent("AddEfDbContextBefore", integrationEventArgs).ConfigureAwait(false);
-            // if (integrationEventReturn.Result && this.options.AddEfDbContext)
-            // {
-            //     AddEfDbContext();
-            // }
-            // await IntegrationEventBus.TriggerEvent("AddEfDbContextAfter", integrationEventArgs).ConfigureAwait(false);
+            integrationEventReturn = await IntegrationEventBus.TriggerEvent("AddEfDbContextBefore", integrationEventArgs).ConfigureAwait(false);
+            if (integrationEventReturn.Result && this.options.AddEfDbContext)
+            {
+                AddEfDbContext();
+            }
+            await IntegrationEventBus.TriggerEvent("AddEfDbContextAfter", integrationEventArgs).ConfigureAwait(false);
 
-            // #endregion
+            #endregion
 
             return new ReturnModel<bool>().SendResult(true);
         }
@@ -210,31 +210,38 @@ namespace CSBEF.Concretes
         }
 
         /// <summary>
+        /// TODO: To be translated into English
         /// API uygulamasına modüler Entity Framework DbContext eklenmesini sağlayan ve bu DbContext'in modüler olarak bir araya gelmesini sağlayan metottur.
         /// </summary>
         private void AddEfDbContext()
         {
             var provider = configuration["AppSettings:DBSettings:Provider"];
+            var connectionString = configuration["AppSettings:DBSettings:ConnectionString"];
 
             if (string.IsNullOrWhiteSpace(provider))
             {
                 throw new Exception("\"AppSettings:DBSettings:Provider\" information not found");
             }
 
+            if (string.IsNullOrWhiteSpace(connectionString))
+            {
+                throw new Exception("\"AppSettings:DBSettings:ConnectionString\" information not found");
+            }
+
             services.AddDbContext<ModularDbContext>(opt =>
             {
-                switch (configuration["AppSettings:DBSettings:Provider"])
+                switch (provider)
                 {
                     case "mssql":
-                        opt.UseSqlServer(configuration["AppSettings:DBSettings:ConnectionString"]);
+                        opt.UseSqlServer(connectionString);
                         break;
 
                     case "mysql":
-                        opt.UseMySQL(configuration["AppSettings:DBSettings:ConnectionString"]);
+                        opt.UseMySQL(connectionString);
                         break;
 
                     case "postgresql":
-                        opt.UseNpgsql(configuration["AppSettings:DBSettings:ConnectionString"]);
+                        opt.UseNpgsql(connectionString);
                         break;
                 }
 

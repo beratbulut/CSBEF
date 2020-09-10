@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using System.Runtime.CompilerServices;
+using CSBEF.Core.Models;
 using CSBEF.Helpers;
 using CSBEF.Models.Interfaces;
-using CSBEF.src.Models.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace CSBEF.Concretes
@@ -50,11 +52,7 @@ namespace CSBEF.Concretes
             {
                 foreach (var module in GlobalConfiguration.Modules)
                 {
-                    var getTypes = module.Assembly.DefinedTypes.Select(s => s.AsType());
-                    if (getTypes.Any())
-                    {
-                        typeToRegisters.AddRange(module.Assembly.DefinedTypes.Where(w => typeof(IEntityModelBase).IsAssignableFrom(w)).Select(s => s.AsType()));
-                    }
+                    typeToRegisters.AddRange(module.Assembly.DefinedTypes.Select(t => t.AsType()));
                 }
             }
 
@@ -91,7 +89,7 @@ namespace CSBEF.Concretes
 
             // TODO: To be translated into English
             // Gelen "typeToRegisters" içerisindeki "IEntityModelBase" kalıtım almış modeller "entityTypes" listesine ekleniyor.
-            entityTypes = typeToRegisters.Where(x => typeof(IEntityModelBase).IsAssignableFrom(x));
+            entityTypes = typeToRegisters.Where(x => x.GetTypeInfo().IsSubclassOf(typeof(EntityModelBase)) && !x.GetTypeInfo().IsAbstract);
             if (entityTypes.Any())
             {
                 foreach (var type in entityTypes)
