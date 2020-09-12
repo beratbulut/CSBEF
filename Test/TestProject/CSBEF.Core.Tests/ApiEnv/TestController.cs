@@ -6,6 +6,11 @@ using Microsoft.AspNetCore.Mvc.Infrastructure;
 
 namespace CSBEF.Core.Tests.ApiEnv
 {
+    /// <summary>
+    /// TODO: To be translated into English
+    /// Tüm entegrasyon testleri bu controller içerisinde yer alıyor.
+    /// Yeni testler ekleneceği zaman yine bu controller içerisine eklenmesi tavsiye ediliyor.
+    /// </summary>
     [ApiController]
     public class TestController : ControllerBase
     {
@@ -21,6 +26,10 @@ namespace CSBEF.Core.Tests.ApiEnv
             this.dbContext = dbContext;
         }
 
+        /// <summary>
+        /// TODO: To be translated into English
+        /// ServiceProvider içerisine "HttpContextAccessor" instance'ının entegrasyonunu test etmek için kullanılan action.
+        /// </summary>
         [HttpGet("test/CheckHttpContextAccessorInjection")]
         public IActionResult CheckHttpContextAccessorInjection()
         {
@@ -34,6 +43,10 @@ namespace CSBEF.Core.Tests.ApiEnv
             }
         }
 
+        /// <summary>
+        /// TODO: To be translated into English
+        /// Modül kütüphanelerinin reflection ile içeri aktarılmasını test eden action.
+        /// </summary>
         [HttpGet("test/CountLoadedModule")]
         public IActionResult CountLoadedModule()
         {
@@ -47,6 +60,10 @@ namespace CSBEF.Core.Tests.ApiEnv
             }
         }
 
+        /// <summary>
+        /// TODO: To be translated into English
+        /// DbContext instance'ının oluşturulmasını test eden action.
+        /// </summary>
         [HttpGet("test/GetDbContextContextId")]
         public IActionResult GetDbContextContextId()
         {
@@ -60,6 +77,10 @@ namespace CSBEF.Core.Tests.ApiEnv
             }
         }
 
+        /// <summary>
+        /// TODO: To be translated into English
+        /// Test amaçlı yer alan sahte modül 1'in içerisinde yer alan "TestOne" entity modelinin DbContext içerisine entegre edilmesini test eden action.
+        /// </summary>
         [HttpGet("test/GetTestOneEntityInstanceForFakeModuleOne")]
         public IActionResult GetTestOneEntityInstanceForFakeModuleOne()
         {
@@ -81,6 +102,10 @@ namespace CSBEF.Core.Tests.ApiEnv
             }
         }
 
+        /// <summary>
+        /// TODO: To be translated into English
+        /// Test amaçlı yer alan sahte modül 1'in içerisinde yer alan "TestTwo" entity modelinin DbContext içerisine entegre edilmesini test eden action.
+        /// </summary>
         [HttpGet("test/GetTestTwoEntityInstanceForFakeModuleOne")]
         public IActionResult GetTestOneEntityInstanceForFakeModuleTwo()
         {
@@ -102,6 +127,10 @@ namespace CSBEF.Core.Tests.ApiEnv
             }
         }
 
+        /// <summary>
+        /// TODO: To be translated into English
+        /// Test amaçlı yer alan sahte modül 2'in içerisinde yer alan "TestOne" entity modelinin DbContext içerisine entegre edilmesini test eden action.
+        /// </summary>
         [HttpGet("test/GetTestOneEntityInstanceForFakeModuleTwo")]
         public IActionResult GetTestTwoEntityInstanceForFakeModuleOne()
         {
@@ -123,6 +152,10 @@ namespace CSBEF.Core.Tests.ApiEnv
             }
         }
 
+        /// <summary>
+        /// TODO: To be translated into English
+        /// Test amaçlı yer alan sahte modül 2'in içerisinde yer alan "TestTwo" entity modelinin DbContext içerisine entegre edilmesini test eden action.
+        /// </summary>
         [HttpGet("test/GetTestTwoEntityInstanceForFakeModuleTwo")]
         public IActionResult GetTestTwoEntityInstanceForFakeModuleTwo()
         {

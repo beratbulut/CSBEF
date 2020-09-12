@@ -13,6 +13,13 @@ namespace CSBEF.Core.Helpers
     /// </summary>
     public static class ModelBuilderSetupDefaultProperties
     {
+        /// <summary>
+        /// TODO: To be translated into English
+        /// Belirtilen "EntityTypeBuilder" nesnesine "EntityModelBase" içerisindeki kolonların bilgisini otomatik olarak işleyen ve
+        /// map'leme kısmında bu kolonların da dikkate alınmasını sağlayan metottur.
+        /// </summary>
+        /// <param name="entity">Kolonların ekleneceği EntityTypeBuilder nesnesi</param>
+        /// <typeparam name="T">EntityTypeBuilder için belirtilecek entity model</typeparam>
         public static void InjectDefaultProperties<T>(this EntityTypeBuilder<T> entity)
             where T : EntityModelBase
         {

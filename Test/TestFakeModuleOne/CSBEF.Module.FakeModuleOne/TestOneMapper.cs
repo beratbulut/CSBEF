@@ -5,6 +5,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CSBEF.Module.FakeModuleOne
 {
+    /// <summary>
+    /// TODO: To be translated into English
+    /// CSBEF unit test için kullanılan test modülünün, 2 test tablosunun 1. tablosuna ait mapper nesnesidir.
+    /// </summary>
     public class TestOneMapper : IEntityMapper
     {
         public void Mapper(ModelBuilder modelBuilder)

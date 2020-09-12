@@ -9,6 +9,12 @@ using Microsoft.Extensions.Hosting;
 
 namespace CSBEF.Core.Tests.ApiEnv
 {
+    /// <summary>
+    /// TODO: To be translated into English
+    /// Unit test içerisinde, test amaçlı bir API uygulaması ayağa kaldırılıyor.
+    /// Bu sayede entegrasyon testleri de gerçek bir API uygulaması üzerinden yapılmış oluyor.
+    /// Bu Startup, bu API uygulamasını ayağa kaldırmak için kullanılıyor.
+    /// </summary>
     public class TestApiStartup
     {
         private readonly IConfiguration configuration;
@@ -22,6 +28,10 @@ namespace CSBEF.Core.Tests.ApiEnv
 
         public void ConfigureServices(IServiceCollection services)
         {
+            // TODO: To be translated into English
+            // Bu kısımda CSBEF entegrasyonu gerçekleştiriliyor.
+            // Eğer gerek olursa, API uygulamasına özel diğer tanımlar yapılabilir ancak bunların CSBEF entegrasyon kodlarından sonra yapılması gerekiyor.
+            // Çünkü CSBEF gerek DbContext gerekse de diğer entegrasyon işlemleri eklenecek diğer şeylere etkide bulunabilir.
             var CsbefStarterOptions = new ApiStartOptionsModel
             {
 
@@ -38,6 +48,9 @@ namespace CSBEF.Core.Tests.ApiEnv
                 app.UseDeveloperExceptionPage();
             }
 
+            // TODO: To be translated into English
+            // API test için oluşturulan test API'si olduğundan, her seferinde veri tabanı içeriği silinerek yeniden oluşturuluyor.
+            // Bu oluşturma işleminde de map'ler kullanılıyor.
             using (var scope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope())
             {
                 var dbContext = scope.ServiceProvider.GetService<ModularDbContext>();

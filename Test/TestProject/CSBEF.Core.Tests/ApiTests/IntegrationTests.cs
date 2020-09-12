@@ -6,14 +6,28 @@ using System.Net;
 
 namespace CSBEF.Core.Tests.ApiTests
 {
+    /// <summary>
+    /// TODO: To be translated into English
+    /// CSBEF entegrasyonu ile ilgili süreçleri test etmek için kullanılan entegrasyon test sınıfıdır.
+    /// Bu sınıf içerisinde, CSBEF'in ilgili API uygulamasına startup.cs içerisinden entegre edilmesiyle ilgili tüm süreçlerin testleri yer almaktadır ve
+    /// bunun dışında başka testlerin bu sınıf içerisinde yer almaması önerilir.
+    /// </summary>
     public class IntegrationTests
     {
+        /// <summary>
+        /// TODO: To be translated into English
+        /// API uygulamasının başarılı bir şekilde ayağa kaldırılmasını test eden birim testi.
+        /// </summary>
         [Fact]
         public void ToIntegration_ShouldRunning()
         {
             Assert.True(true);
         }
 
+        /// <summary>
+        /// TODO: To be translated into English
+        /// "HttpContextAccessor" instance'ının ServiceProvider içerisine başarılı bir şekilde eklenmesini test eden birim testi.
+        /// </summary>
         [Fact]
         public async Task ToIntegration_ShouldInjectedContextAccessor()
         {
@@ -42,6 +56,10 @@ namespace CSBEF.Core.Tests.ApiTests
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         }
 
+        /// <summary>
+        /// TODO: To be translated into English
+        /// Modül kütüphanelerinin reflection ile yüklenmesini test eden birim testi.
+        /// </summary>
         [Fact]
         public async Task ToIntegration_ShouldCountLoadedModuleHigherThanZero()
         {
@@ -57,6 +75,10 @@ namespace CSBEF.Core.Tests.ApiTests
             Assert.Equal("2", responseText);
         }
 
+        /// <summary>
+        /// TODO: To be translated into English
+        /// DbContext instance'ının başarılı bir şekilde oluşmasını test eden birim testi.
+        /// </summary>
         [Fact]
         public async Task ToIntegration_ShouldGetDbContextIdStatus200()
         {
@@ -72,6 +94,10 @@ namespace CSBEF.Core.Tests.ApiTests
             Assert.True(!string.IsNullOrWhiteSpace(responseText));
         }
 
+        /// <summary>
+        /// TODO: To be translated into English
+        /// Test için oluşturulan birinci modülün birinci entity'sinin DbContext içerisine başarılı bir şekilde eklenmesini test eden birim testi.
+        /// </summary>
         [Fact]
         public async Task ToIntegration_ShouldGetTestOneEntityInstanceForFakeModuleOne()
         {
@@ -86,6 +112,10 @@ namespace CSBEF.Core.Tests.ApiTests
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         }
 
+        /// <summary>
+        /// TODO: To be translated into English
+        /// Test için oluşturulan birinci modülün ikinci entity'sinin DbContext içerisine başarılı bir şekilde eklenmesini test eden birim testi.
+        /// </summary>
         [Fact]
         public async Task ToIntegration_ShouldGetTestTwoEntityInstanceForFakeModuleOne()
         {
@@ -100,6 +130,10 @@ namespace CSBEF.Core.Tests.ApiTests
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         }
 
+        /// <summary>
+        /// TODO: To be translated into English
+        /// Test için oluşturulan ikinci modülün birinci entity'sinin DbContext içerisine başarılı bir şekilde eklenmesini test eden birim testi.
+        /// </summary>
         [Fact]
         public async Task ToIntegration_ShouldGetTestOneEntityInstanceForFakeModuleTwo()
         {
@@ -114,6 +148,10 @@ namespace CSBEF.Core.Tests.ApiTests
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         }
 
+        /// <summary>
+        /// TODO: To be translated into English
+        /// Test için oluşturulan ikinci modülün ikinci entity'sinin DbContext içerisine başarılı bir şekilde eklenmesini test eden birim testi.
+        /// </summary>
         [Fact]
         public async Task ToIntegration_ShouldGetTestTwoEntityInstanceForFakeModuleTwo()
         {
