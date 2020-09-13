@@ -70,12 +70,12 @@ namespace CSBEF.Concretes
             return await GetAll(asNoTracking).Where(predicate).CountAsync(cancellationToken).ConfigureAwait(false);
         }
 
-        public virtual TEntity GetById(int id, bool asNoTracking = true)
+        public virtual TEntity GetById(Guid id, bool asNoTracking = true)
         {
             return GetAll(asNoTracking).Where(i => i.Id == id).FirstOrDefault();
         }
 
-        public virtual async Task<TEntity> GetByIdAsync(int id, bool asNoTracking = true, CancellationToken cancellationToken = default)
+        public virtual async Task<TEntity> GetByIdAsync(Guid id, bool asNoTracking = true, CancellationToken cancellationToken = default)
         {
             return await GetAll(asNoTracking).Where(i => i.Id == id).FirstOrDefaultAsync(cancellationToken).ConfigureAwait(false);
         }

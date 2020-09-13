@@ -19,8 +19,8 @@ namespace CSBEF.Models.Interfaces
         int Count(Expression<Func<TEntity, bool>> predicate, bool asNoTracking = true);
         Task<int> CountAsync(bool asNoTracking = true, CancellationToken cancellationToken = default);
         Task<int> CountAsync(Expression<Func<TEntity, bool>> predicate, bool asNoTracking = true, CancellationToken cancellationToken = default);
-        TEntity GetById(int id, bool asNoTracking = true);
-        Task<TEntity> GetByIdAsync(int id, bool asNoTracking = true, CancellationToken cancellationToken = default);
+        TEntity GetById(Guid id, bool asNoTracking = true);
+        Task<TEntity> GetByIdAsync(Guid id, bool asNoTracking = true, CancellationToken cancellationToken = default);
         ICollection<TEntity> ListByStatus(bool status = true, bool asNoTracking = true);
         Task<ICollection<TEntity>> ListByStatusAsync(bool status = true, bool asNoTracking = true, CancellationToken cancellationToken = default);
     }

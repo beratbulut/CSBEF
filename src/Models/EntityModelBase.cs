@@ -7,7 +7,7 @@ namespace CSBEF.Models
     public abstract class EntityModelBase : IEntityModelBase
     {
         [Key]
-        public int Id { get; set; }
+        public Guid Id { get; set; }
 
         public bool Status { get; set; }
 

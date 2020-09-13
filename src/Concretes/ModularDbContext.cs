@@ -6,6 +6,7 @@ using CSBEF.Models;
 using CSBEF.Helpers;
 using CSBEF.Models.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using CSBEF.enums;
 
 namespace CSBEF.Concretes
 {
@@ -89,6 +90,39 @@ namespace CSBEF.Concretes
                     builder.Mapper(modelBuilder);
                 }
             }
+        }
+
+        public ContextEntityState GetEntryState<TEntity>(TEntity entity)
+            where TEntity : class, IEntityModelBase
+        {
+            var entityState = Entry(entity).State;
+
+            if (entityState == EntityState.Detached)
+            {
+                return ContextEntityState.Detached;
+            }
+
+            if (entityState == EntityState.Unchanged)
+            {
+                return ContextEntityState.Unchanged;
+            }
+
+            if (entityState == EntityState.Deleted)
+            {
+                return ContextEntityState.Deleted;
+            }
+
+            if (entityState == EntityState.Modified)
+            {
+                return ContextEntityState.Modified;
+            }
+
+            if (entityState == EntityState.Added)
+            {
+                return ContextEntityState.Added;
+            }
+
+            return ContextEntityState.Unknown;
         }
     }
 }

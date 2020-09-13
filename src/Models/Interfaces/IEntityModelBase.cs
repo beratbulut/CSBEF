@@ -4,7 +4,7 @@ namespace CSBEF.Models.Interfaces
 {
     public interface IEntityModelBase
     {
-        int Id { get; set; }
+        Guid Id { get; set; }
 
         bool Status { get; set; }
 
