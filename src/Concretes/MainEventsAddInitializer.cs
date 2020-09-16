@@ -11,8 +11,8 @@ namespace CSBEF.Concretes
         {
             eventService.ThrowIfNull();
 
-            eventService.AddEvent("InComingToken", "Main", "Main", "InComingToken", EventTypeEnum.Before);
-            eventService.AddEvent("InComingHubClientData", "Main", "Main", "InComingHubClientData", EventTypeEnum.Before);
+            eventService.AddEvent("InComingToken", "Main", "Main", "InComingToken", EventTypes.Before);
+            eventService.AddEvent("InComingHubClientData", "Main", "Main", "InComingHubClientData", EventTypes.Before);
 
             return Task.CompletedTask;
         }

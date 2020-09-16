@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -68,7 +67,7 @@ namespace CSBEF.Concretes
         public virtual int Update(T entity, bool useSave = true)
         {
             var state = dbContext.GetEntryState(entity);
-            if (state != ContextEntityState.Added)
+            if (state != ContextEntityStates.Added)
             {
                 dbContext.Update(entity);
             }

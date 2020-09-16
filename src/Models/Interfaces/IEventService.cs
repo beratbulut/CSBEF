@@ -1,14 +1,15 @@
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using CSBEF.enums;
 
 namespace CSBEF.Models.Interfaces
 {
     public interface IEventService
     {
-        IEventModel GetEvent(string moduleName, string eventName);
+        Task<IEventModel> GetEvent(string moduleName, string eventName);
 
-        void AddEvent(string eventName, string moduleName, string serviceName, string actionName, EventTypeEnum eventType);
+        Task AddEvent(string eventName, string moduleName, string serviceName, string actionName, EventTypes eventType);
 
-        List<IEventModel> GetAllEvents();
+        Task<List<IEventModel>> GetAllEvents();
     }
 }

@@ -18,6 +18,6 @@ namespace CSBEF.Models
 
         public List<string> AccessHubs { get; } = new List<string>();
 
-        public EventTypeEnum EventType { get; set; }
+        public EventTypes EventType { get; set; }
     }
 }

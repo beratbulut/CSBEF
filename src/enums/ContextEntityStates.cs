@@ -1,6 +1,9 @@
+using System;
+
 namespace CSBEF.enums
 {
-    public enum ContextEntityState
+    [Flags]
+    public enum ContextEntityStates
     {
         Unknown = -1,
         Detached = 0,

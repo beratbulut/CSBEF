@@ -4,12 +4,14 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
+using CSBEF.Concretes;
 
 namespace CSBEF.Models.Interfaces
 {
     public interface IRepositoryBase<TEntity> : IDisposable
         where TEntity : class, IEntityModelBase
     {
+        void ChangeDbContext(ModularDbContext dbContext);
         IQueryable<TEntity> GetAll(bool asNoTracking = true);
         TEntity Find(Expression<Func<TEntity, bool>> match, bool asNoTracking = true);
         Task<TEntity> FindAsync(Expression<Func<TEntity, bool>> match, bool asNoTracking = true, CancellationToken cancellationToken = default);

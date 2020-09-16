@@ -1,6 +1,9 @@
+using System;
+
 namespace CSBEF.enums
 {
-    public enum EventTypeEnum
+    [Flags]
+    public enum EventTypes
     {
         Before,
         After

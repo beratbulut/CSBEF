@@ -12,6 +12,6 @@ namespace CSBEF.Models.Interfaces
 
         string ActionName { get; set; }
 
-        EventTypeEnum EventType { get; set; }
+        EventTypes EventType { get; set; }
     }
 }

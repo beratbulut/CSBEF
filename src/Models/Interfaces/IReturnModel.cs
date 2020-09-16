@@ -9,21 +9,15 @@ namespace CSBEF.Models.Interfaces
 
         IReturnModel<TResult> SendError<T>(T errorInfo, bool stopAction = false) where T : struct, IConvertible;
 
-        IReturnModel<TResult> SendError<T>(T errorInfo, Exception ex, bool stopAction = false) where T : struct, IConvertible;
-
-        IReturnModel<TResult> SendError<T>(T errorInfo, Exception ex, TResult result, bool stopAction = false) where T : struct, IConvertible;
+        IReturnModel<TResult> SendError<T>(T errorInfo, TResult result, bool stopAction = false) where T : struct, IConvertible;
 
         IReturnModel<TResult> SendError(string message, bool stopAction = false);
 
-        IReturnModel<TResult> SendError(string message, Exception ex, bool stopAction = false);
-
-        IReturnModel<TResult> SendError(string message, Exception ex, TResult result, bool stopAction = false);
+        IReturnModel<TResult> SendError(string message, TResult result, bool stopAction = false);
 
         IReturnModel<TResult> SendError(string message, string code, bool stopAction = false);
 
-        IReturnModel<TResult> SendError(string message, string code, Exception ex, bool stopAction = false);
-
-        IReturnModel<TResult> SendError(string message, string code, Exception ex, TResult result, bool stopAction = false);
+        IReturnModel<TResult> SendError(string message, string code, TResult result, bool stopAction = false);
 
         IReturnModel<TResult> SendResult(TResult result);
     }

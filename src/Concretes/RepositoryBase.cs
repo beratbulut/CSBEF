@@ -12,7 +12,7 @@ namespace CSBEF.Concretes
     public class RepositoryBase<TEntity> : IRepositoryBase<TEntity>
         where TEntity : class, IEntityModelBase
     {
-        private readonly ModularDbContext dbContext;
+        private ModularDbContext dbContext;
 
         private bool disposed;
 
@@ -20,6 +20,12 @@ namespace CSBEF.Concretes
         {
             this.dbContext = dbContext;
         }
+
+        public void ChangeDbContext(ModularDbContext dbContext)
+        {
+            this.dbContext = dbContext;
+        }
+
 
         public virtual IQueryable<TEntity> GetAll(bool asNoTracking = true)
         {

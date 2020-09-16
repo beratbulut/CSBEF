@@ -63,18 +63,16 @@ namespace CSBEF.Models
             };
             x.Events = new JwtBearerEvents()
             {
-                OnTokenValidated = (context) =>
+                OnTokenValidated = async (context) =>
                 {
                     var currentToken = ((JwtSecurityToken)context.SecurityToken).RawData;
                     var eventServiceInstance = context.HttpContext.RequestServices.GetService<IEventService>();
-                    var checkTokenStatus = eventServiceInstance.GetEvent("Main", "InComingToken").EventHandler<bool, string>(currentToken);
+                    var checkTokenStatus = await (await eventServiceInstance.GetEvent("Main", "InComingToken").ConfigureAwait(false)).EventHandler<bool, string>(currentToken).ConfigureAwait(false);
 
                     if (checkTokenStatus.ErrorInfo.Status)
                     {
                         context.Fail("TokenExpiredOrPassive");
                     }
-
-                    return Task.CompletedTask;
                 },
                 OnMessageReceived = context =>
                 {

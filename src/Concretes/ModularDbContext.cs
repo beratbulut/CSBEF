@@ -92,37 +92,37 @@ namespace CSBEF.Concretes
             }
         }
 
-        public ContextEntityState GetEntryState<TEntity>(TEntity entity)
+        public ContextEntityStates GetEntryState<TEntity>(TEntity entity)
             where TEntity : class, IEntityModelBase
         {
             var entityState = Entry(entity).State;
 
             if (entityState == EntityState.Detached)
             {
-                return ContextEntityState.Detached;
+                return ContextEntityStates.Detached;
             }
 
             if (entityState == EntityState.Unchanged)
             {
-                return ContextEntityState.Unchanged;
+                return ContextEntityStates.Unchanged;
             }
 
             if (entityState == EntityState.Deleted)
             {
-                return ContextEntityState.Deleted;
+                return ContextEntityStates.Deleted;
             }
 
             if (entityState == EntityState.Modified)
             {
-                return ContextEntityState.Modified;
+                return ContextEntityStates.Modified;
             }
 
             if (entityState == EntityState.Added)
             {
-                return ContextEntityState.Added;
+                return ContextEntityStates.Added;
             }
 
-            return ContextEntityState.Unknown;
+            return ContextEntityStates.Unknown;
         }
     }
 }

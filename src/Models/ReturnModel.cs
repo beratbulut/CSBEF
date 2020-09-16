@@ -18,7 +18,7 @@ namespace CSBEF.Models
             where T : struct, IConvertible
         {
             if (!typeof(T).IsEnum)
-                return SendError(GlobalError.TechnicalError);
+                return SendError(GlobalErrors.TechnicalError);
 
             ErrorInfo.Code = error.ToString();
             ErrorInfo.Message = Enum.GetName(typeof(T), error);
@@ -33,30 +33,11 @@ namespace CSBEF.Models
             return this;
         }
 
-        public IReturnModel<TResult> SendError<T>(T error, Exception ex, bool stopAction = false)
+        public IReturnModel<TResult> SendError<T>(T error, TResult result, bool stopAction = false)
             where T : struct, IConvertible
         {
             if (!typeof(T).IsEnum)
-                return SendError(GlobalError.TechnicalError);
-
-            ErrorInfo.Code = error.ToString();
-            ErrorInfo.Message = Enum.GetName(typeof(T), error);
-            ErrorInfo.Status = true;
-            ErrorInfo.StopAction = stopAction;
-
-            if (stopAction)
-            {
-                throw new Exception(ErrorInfo.Message + " (" + ErrorInfo.Code + ")");
-            }
-
-            return this;
-        }
-
-        public IReturnModel<TResult> SendError<T>(T error, Exception ex, TResult result, bool stopAction = false)
-            where T : struct, IConvertible
-        {
-            if (!typeof(T).IsEnum)
-                return SendError(GlobalError.TechnicalError);
+                return SendError(GlobalErrors.TechnicalError);
 
             ErrorInfo.Code = error.ToString();
             ErrorInfo.Message = Enum.GetName(typeof(T), error);
@@ -87,22 +68,7 @@ namespace CSBEF.Models
             return this;
         }
 
-        public IReturnModel<TResult> SendError(string message, Exception ex, bool stopAction = false)
-        {
-            ErrorInfo.Code = "";
-            ErrorInfo.Message = message;
-            ErrorInfo.Status = true;
-            ErrorInfo.StopAction = stopAction;
-
-            if (stopAction)
-            {
-                throw new Exception(ErrorInfo.Message + " (" + ErrorInfo.Code + ")");
-            }
-
-            return this;
-        }
-
-        public IReturnModel<TResult> SendError(string message, Exception ex, TResult result, bool stopAction = false)
+        public IReturnModel<TResult> SendError(string message, TResult result, bool stopAction = false)
         {
             ErrorInfo.Code = "";
             ErrorInfo.Message = message;
@@ -133,22 +99,7 @@ namespace CSBEF.Models
             return this;
         }
 
-        public IReturnModel<TResult> SendError(string message, string code, Exception ex, bool stopAction = false)
-        {
-            ErrorInfo.Code = code;
-            ErrorInfo.Message = message;
-            ErrorInfo.Status = true;
-            ErrorInfo.StopAction = stopAction;
-
-            if (stopAction)
-            {
-                throw new Exception(ErrorInfo.Message + " (" + ErrorInfo.Code + ")");
-            }
-
-            return this;
-        }
-
-        public IReturnModel<TResult> SendError(string message, string code, Exception ex, TResult result, bool stopAction = false)
+        public IReturnModel<TResult> SendError(string message, string code, TResult result, bool stopAction = false)
         {
             ErrorInfo.Code = code;
             ErrorInfo.Message = message;

@@ -27,6 +27,18 @@ namespace CSBEF.Concretes
             this.transactionHelper.ChangeDbContext(this.dbContext);
         }
 
+        public IRepositoryBase<T> GenerateRepository<T>()
+            where T : class, IEntityModelBase
+        {
+            return new RepositoryBase<T>(dbContext);
+        }
+
+        public IRepositoryBaseWithCud<T> GenerateRepositoryWithCud<T>()
+            where T : class, IEntityModelBase
+        {
+            return new RepositoryBaseWithCud<T>(dbContext);
+        }
+
         public async Task<int> SaveChangesAsync(bool useTransaction = false, CancellationToken cancellationToken = default)
         {
             int result;

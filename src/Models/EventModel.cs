@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using CSBEF.Models.Interfaces;
 
 namespace CSBEF.Models
@@ -13,11 +14,11 @@ namespace CSBEF.Models
             EventInfo = new EventInfo();
         }
 
-        public IReturnModel<TResult> EventHandler<TResult, TParam>(TParam data)
+        public async Task<IReturnModel<TResult>> EventHandler<TResult, TParam>(TParam data)
         {
             if (TheEvent != null)
             {
-                return (IReturnModel<TResult>)TheEvent.Invoke(data, EventInfo);
+                return await TheEvent.Invoke(data, EventInfo).ConfigureAwait(false);
             }
             else
             {

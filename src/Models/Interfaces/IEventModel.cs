@@ -1,6 +1,8 @@
+using System.Threading.Tasks;
+
 namespace CSBEF.Models.Interfaces
 {
-    public delegate dynamic EventDelegate(dynamic data, IEventInfo eventInfo);
+    public delegate Task<dynamic> EventDelegate(dynamic data, IEventInfo eventInfo);
 
     public interface IEventModel
     {
@@ -8,6 +10,6 @@ namespace CSBEF.Models.Interfaces
 
         event EventDelegate TheEvent;
 
-        IReturnModel<TResult> EventHandler<TResult, TParam>(TParam data);
+        Task<IReturnModel<TResult>> EventHandler<TResult, TParam>(TParam data);
     }
 }

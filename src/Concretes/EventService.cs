@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using CSBEF.enums;
 using CSBEF.Models;
 using CSBEF.Models.Interfaces;
@@ -34,36 +35,45 @@ namespace CSBEF.Concretes
             }
         }
 
-        public IEventModel GetEvent(string moduleName, string eventName)
+        public async Task<IEventModel> GetEvent(string moduleName, string eventName)
         {
-            var findEvent = events.FirstOrDefault(i => i.EventInfo.ModuleName == moduleName && i.EventInfo.EventName == eventName); ;
+            return await Task.Run(() =>
+            {
+                var findEvent = events.FirstOrDefault(i => i.EventInfo.ModuleName == moduleName && i.EventInfo.EventName == eventName); ;
 
-            return findEvent ?? new EventModel();
+                return findEvent ?? new EventModel();
+            }).ConfigureAwait(false);
         }
 
-        public void AddEvent(string eventName, string moduleName, string serviceName, string actionName, EventTypeEnum eventType)
+        public async Task AddEvent(string eventName, string moduleName, string serviceName, string actionName, EventTypes eventType)
         {
-            if (events.Any(i => i.EventInfo.ModuleName == moduleName && i.EventInfo.EventName == eventName))
+            await Task.Run(() =>
             {
-                return;
-            }
-
-            events.Add(new EventModel()
-            {
-                EventInfo = new EventInfo
+                if (events.Any(i => i.EventInfo.ModuleName == moduleName && i.EventInfo.EventName == eventName))
                 {
-                    EventName = eventName,
-                    ModuleName = moduleName,
-                    ServiceName = serviceName,
-                    ActionName = actionName,
-                    EventType = eventType
+                    return;
                 }
-            });
+
+                events.Add(new EventModel()
+                {
+                    EventInfo = new EventInfo
+                    {
+                        EventName = eventName,
+                        ModuleName = moduleName,
+                        ServiceName = serviceName,
+                        ActionName = actionName,
+                        EventType = eventType
+                    }
+                });
+            }).ConfigureAwait(false);
         }
 
-        public List<IEventModel> GetAllEvents()
+        public async Task<List<IEventModel>> GetAllEvents()
         {
-            return events;
+            return await Task.Run(() =>
+            {
+                return events;
+            }).ConfigureAwait(false);
         }
     }
 }
