@@ -2,12 +2,12 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using CSBEF.enums;
-using CSBEF.Helpers;
 using CSBEF.Interfaces;
+using CSBEF.Models;
 using CSBEF.src.Helpers.Exceptions;
 using Microsoft.Extensions.Logging;
 
-namespace CSBEF.Models
+namespace CSBEF.Helpers
 {
     public class DynamicServiceAction : IDynamicServiceAction
     {
