@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 
 namespace CSBEF.Helpers
 {
+#pragma warning disable CA1305
     public static class Tools
     {
         public static IList<ValidationResult> ModelValidation<T>(this T model)
@@ -48,7 +49,7 @@ namespace CSBEF.Helpers
             {
                 return int.Parse(value.ToString());
             }
-            catch (Exception)
+            catch (FormatException)
             {
                 return -1;
             }
@@ -63,7 +64,7 @@ namespace CSBEF.Helpers
             {
                 return int.Parse(value.ToString());
             }
-            catch (Exception)
+            catch (FormatException)
             {
                 return onErrorReturnValue;
             }
@@ -75,10 +76,11 @@ namespace CSBEF.Helpers
             {
                 return int.Parse(value);
             }
-            catch (Exception)
+            catch (FormatException)
             {
                 return -1;
             }
         }
     }
+#pragma warning restore CA1305
 }

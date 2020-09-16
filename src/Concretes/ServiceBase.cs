@@ -42,12 +42,18 @@ namespace CSBEF.Concretes
         where TDTO : class, IDtoModelBase, new()
     {
         public IRepositoryBaseWithCud<TPoco> Repository { get; set; }
-        protected readonly ILogger<IServiceBase<TPoco, TDTO>> logger;
-        protected readonly IMapper mapper;
-        protected readonly IDynamicServiceAction dynamicServiceAction;
-        public readonly UnitOfWork Worker;
         public string ModuleName { get; set; }
         public string ServiceName { get; set; }
+
+        private readonly ILogger<IServiceBase<TPoco, TDTO>> logger;
+        private readonly IMapper mapper;
+        private readonly IDynamicServiceAction dynamicServiceAction;
+        private readonly UnitOfWork worker;
+
+        protected ILogger<IServiceBase<TPoco, TDTO>> Logger => logger;
+        protected IMapper Mapper => mapper;
+        protected IDynamicServiceAction DynamicServiceAction => dynamicServiceAction;
+        public UnitOfWork Worker => worker;
 
         public ServiceBase(
             ILogger<IServiceBase<TPoco, TDTO>> logger,
@@ -63,7 +69,7 @@ namespace CSBEF.Concretes
             ModuleName = moduleName;
             ServiceName = serviceName;
             this.dynamicServiceAction = dynamicServiceAction;
-            Worker = worker;
+            this.worker = worker;
 
             Repository = Worker.GenerateRepositoryWithCud<TPoco>();
         }

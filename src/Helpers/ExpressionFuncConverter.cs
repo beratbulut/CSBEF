@@ -33,6 +33,7 @@ namespace CSBEF.Helpers
             }
         }
 
+#pragma warning disable CA1000
         public static Expression<Func<TTo, TR>> Convert<TFrom, TR>(Expression<Func<TFrom, TR>> e)
         {
             if (e == null)
@@ -44,5 +45,6 @@ namespace CSBEF.Helpers
             var newBody = converter.Visit(e.Body);
             return Expression.Lambda<Func<TTo, TR>>(newBody, newParameter);
         }
+#pragma warning restore CA1000
     }
 }
