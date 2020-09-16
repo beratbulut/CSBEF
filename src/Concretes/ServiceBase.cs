@@ -4,8 +4,6 @@ using AutoMapper;
 using CSBEF.Helpers;
 using CSBEF.Models;
 using CSBEF.Models.Interfaces;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System.Linq.Dynamic.Core;
 using System.Threading.Tasks;
@@ -43,41 +41,31 @@ namespace CSBEF.Concretes
         where TPoco : class, IEntityModelBase, new()
         where TDTO : class, IDtoModelBase, new()
     {
-        protected IConfiguration configuration;
-        protected IWebHostEnvironment hostingEnvironment;
         public IRepositoryBaseWithCud<TPoco> Repository { get; set; }
-        protected ILogger<IServiceBase<TPoco, TDTO>> logger;
-        protected IMapper mapper;
-        protected IEventService eventService;
+        protected readonly ILogger<IServiceBase<TPoco, TDTO>> logger;
+        protected readonly IMapper mapper;
+        protected readonly IDynamicServiceAction dynamicServiceAction;
+        public readonly UnitOfWork Worker;
         public string ModuleName { get; set; }
         public string ServiceName { get; set; }
-        private readonly IDynamicServiceAction dynamicServiceAction;
-
-        private readonly UnitOfWork worker;
 
         public ServiceBase(
-            IWebHostEnvironment hostingEnvironment,
-            IConfiguration configuration,
             ILogger<IServiceBase<TPoco, TDTO>> logger,
             IMapper mapper,
-            IEventService eventService,
             string moduleName,
             string serviceName,
             IDynamicServiceAction dynamicServiceAction,
             UnitOfWork worker
         )
         {
-            this.hostingEnvironment = hostingEnvironment;
-            this.configuration = configuration;
             this.logger = logger;
             this.mapper = mapper;
             ModuleName = moduleName;
             ServiceName = serviceName;
-            this.eventService = eventService;
             this.dynamicServiceAction = dynamicServiceAction;
-            this.worker = worker;
+            Worker = worker;
 
-            this.Repository = this.worker.GenerateRepositoryWithCud<TPoco>();
+            Repository = Worker.GenerateRepositoryWithCud<TPoco>();
         }
 
         public virtual async Task<IReturnModel<TDTO>> FirstAsync(GenericFilterModel<TDTO> args, CancellationToken cancellationToken = default)
@@ -488,11 +476,11 @@ namespace CSBEF.Concretes
             return rtn;
         }
 
-        public virtual async Task<IReturnModel<int>> AddAsync(ServiceParamsWithIdentifier<TDTO> args, bool useSave = true, CancellationToken cancellationToken = default)
+        public virtual async Task<IReturnModel<bool>> AddAsync(ServiceParamsWithIdentifier<TDTO> args, bool useSave = true, CancellationToken cancellationToken = default)
         {
             var actionName = "AddAsync";
 
-            async Task<IReturnModel<int>> invoker(ServiceParamsWithIdentifier<TDTO> args, IReturnModel<int> rtn)
+            async Task<IReturnModel<bool>> invoker(ServiceParamsWithIdentifier<TDTO> args, IReturnModel<bool> rtn)
             {
                 if (args == null)
                 {
@@ -507,20 +495,25 @@ namespace CSBEF.Concretes
                 convertPoco.UpdatingDate = DateTime.Now;
                 convertPoco.AddingUserId = args.UserId;
                 convertPoco.UpdatingUserId = args.UserId;
-                rtn.Result = await Repository.AddAsync(convertPoco, useSave, cancellationToken).ConfigureAwait(false);
+
+                await Repository.AddAsync(convertPoco, useSave, cancellationToken).ConfigureAwait(false);
+                if (useSave)
+                    await Worker.SaveChangesAsync(false, cancellationToken).ConfigureAwait(false);
+
+                rtn.Result = true;
 
                 return rtn;
             }
 
-            var rtn = await dynamicServiceAction.RunActionWithServiceParamsWithIdentifier<int, ServiceParamsWithIdentifier<TDTO>, TDTO>(args, actionName, ServiceName, ModuleName, invoker).ConfigureAwait(false);
+            var rtn = await dynamicServiceAction.RunActionWithServiceParamsWithIdentifier<bool, ServiceParamsWithIdentifier<TDTO>, TDTO>(args, actionName, ServiceName, ModuleName, invoker).ConfigureAwait(false);
             return rtn;
         }
 
-        public virtual async Task<IReturnModel<int>> UpdateAsync(ServiceParamsWithIdentifier<TDTO> args, bool useSave = true, CancellationToken cancellationToken = default)
+        public virtual async Task<IReturnModel<bool>> UpdateAsync(ServiceParamsWithIdentifier<TDTO> args, bool useSave = true, CancellationToken cancellationToken = default)
         {
             var actionName = "UpdateAsync";
 
-            async Task<IReturnModel<int>> invoker(ServiceParamsWithIdentifier<TDTO> args, IReturnModel<int> rtn)
+            async Task<IReturnModel<bool>> invoker(ServiceParamsWithIdentifier<TDTO> args, IReturnModel<bool> rtn)
             {
                 if (args == null)
                 {
@@ -532,12 +525,17 @@ namespace CSBEF.Concretes
                 var convertPoco = mapper.Map<TPoco>(args.Param);
                 convertPoco.UpdatingDate = DateTime.Now;
                 convertPoco.UpdatingUserId = args.UserId;
-                rtn.Result = await Repository.UpdateAsync(convertPoco, useSave, cancellationToken).ConfigureAwait(false);
+
+                await Repository.UpdateAsync(convertPoco, useSave, cancellationToken).ConfigureAwait(false);
+                if (useSave)
+                    await Worker.SaveChangesAsync(false, cancellationToken).ConfigureAwait(false);
+
+                rtn.Result = true;
 
                 return rtn;
             }
 
-            var rtn = await dynamicServiceAction.RunActionWithServiceParamsWithIdentifier<int, ServiceParamsWithIdentifier<TDTO>, TDTO>(args, actionName, ServiceName, ModuleName, invoker).ConfigureAwait(false);
+            var rtn = await dynamicServiceAction.RunActionWithServiceParamsWithIdentifier<bool, ServiceParamsWithIdentifier<TDTO>, TDTO>(args, actionName, ServiceName, ModuleName, invoker).ConfigureAwait(false);
             return rtn;
         }
 
@@ -563,13 +561,10 @@ namespace CSBEF.Concretes
                 }
 
                 getData.Status = args.Param.Status;
+
                 var effectedRows = await Repository.UpdateAsync(getData, useSave, cancellationToken).ConfigureAwait(false);
-                if (effectedRows <= 0)
-                {
-                    rtn = rtn.SendError(GlobalErrors.DbNoEffectedRows);
-                    Tools.WriteLoggerForService(ModuleName, ServiceName, actionName, GlobalErrors.DbNoEffectedRows, string.Empty, logger, LogLevel.Error, args);
-                    return rtn;
-                }
+                if (useSave)
+                    await Worker.SaveChangesAsync(false, cancellationToken).ConfigureAwait(false);
 
                 rtn.Result = true;
 
@@ -580,11 +575,11 @@ namespace CSBEF.Concretes
             return rtn;
         }
 
-        public virtual async Task<IReturnModel<int>> AddRangeAsync(ServiceParamsWithIdentifier<List<TDTO>> args, bool withTransaction = true, CancellationToken cancellationToken = default)
+        public virtual async Task<IReturnModel<bool>> AddRangeAsync(ServiceParamsWithIdentifier<List<TDTO>> args, bool withTransaction = true, CancellationToken cancellationToken = default)
         {
             var actionName = "AddRangeAsync";
 
-            async Task<IReturnModel<int>> invoker(ServiceParamsWithIdentifier<List<TDTO>> args, IReturnModel<int> rtn)
+            async Task<IReturnModel<bool>> invoker(ServiceParamsWithIdentifier<List<TDTO>> args, IReturnModel<bool> rtn)
             {
                 if (args == null)
                 {
@@ -593,15 +588,13 @@ namespace CSBEF.Concretes
                     return rtn;
                 }
 
-                var effectedRows = 0;
-
                 if (args.Param != null)
                 {
                     if (args.Param.Any())
                     {
                         if (withTransaction)
                         {
-                            await worker.TransactionHelper.CreateTransactionAsync(cancellationToken).ConfigureAwait(false);
+                            await Worker.TransactionHelper.CreateTransactionAsync(cancellationToken).ConfigureAwait(false);
                         }
 
                         foreach (var item in args.Param)
@@ -612,37 +605,37 @@ namespace CSBEF.Concretes
                             {
                                 if (withTransaction)
                                 {
-                                    await worker.TransactionHelper.RollbackAsync(cancellationToken).ConfigureAwait(false);
+                                    await Worker.TransactionHelper.RollbackAsync(cancellationToken).ConfigureAwait(false);
                                 }
                                 rtn.ErrorInfo = exec.ErrorInfo;
                                 Tools.WriteLoggerForService(ModuleName, ServiceName, actionName, rtn.ErrorInfo.Code, rtn.ErrorInfo.Message, logger, LogLevel.Error, args);
                                 return rtn;
                             }
-
-                            effectedRows += exec.Result;
                         }
 
                         await Repository.SaveAsync(cancellationToken).ConfigureAwait(false);
 
                         if (withTransaction)
                         {
-                            await worker.TransactionHelper.CommitAsync(cancellationToken).ConfigureAwait(false);
+                            await Worker.TransactionHelper.CommitAsync(cancellationToken).ConfigureAwait(false);
                         }
                     }
                 }
 
+                rtn.Result = true;
+
                 return rtn;
             }
 
-            var rtn = await dynamicServiceAction.RunAction<int, ServiceParamsWithIdentifier<List<TDTO>>>(args, actionName, ServiceName, ModuleName, invoker).ConfigureAwait(false);
+            var rtn = await dynamicServiceAction.RunAction<bool, ServiceParamsWithIdentifier<List<TDTO>>>(args, actionName, ServiceName, ModuleName, invoker).ConfigureAwait(false);
             return rtn;
         }
 
-        public virtual async Task<IReturnModel<int>> UpdateRangeAsync(ServiceParamsWithIdentifier<List<TDTO>> args, bool withTransaction = true, CancellationToken cancellationToken = default)
+        public virtual async Task<IReturnModel<bool>> UpdateRangeAsync(ServiceParamsWithIdentifier<List<TDTO>> args, bool withTransaction = true, CancellationToken cancellationToken = default)
         {
             var actionName = "UpdateRangeAsync";
 
-            async Task<IReturnModel<int>> invoker(ServiceParamsWithIdentifier<List<TDTO>> args, IReturnModel<int> rtn)
+            async Task<IReturnModel<bool>> invoker(ServiceParamsWithIdentifier<List<TDTO>> args, IReturnModel<bool> rtn)
             {
                 if (args == null)
                 {
@@ -651,15 +644,13 @@ namespace CSBEF.Concretes
                     return rtn;
                 }
 
-                var effectedRows = 0;
-
                 if (args.Param != null)
                 {
                     if (args.Param.Any())
                     {
                         if (withTransaction)
                         {
-                            await worker.TransactionHelper.CreateTransactionAsync(cancellationToken).ConfigureAwait(false);
+                            await Worker.TransactionHelper.CreateTransactionAsync(cancellationToken).ConfigureAwait(false);
                         }
 
                         foreach (var item in args.Param)
@@ -670,37 +661,37 @@ namespace CSBEF.Concretes
                             {
                                 if (withTransaction)
                                 {
-                                    await worker.TransactionHelper.RollbackAsync(cancellationToken).ConfigureAwait(false);
+                                    await Worker.TransactionHelper.RollbackAsync(cancellationToken).ConfigureAwait(false);
                                 }
                                 rtn.ErrorInfo = exec.ErrorInfo;
                                 Tools.WriteLoggerForService(ModuleName, ServiceName, actionName, rtn.ErrorInfo.Code, rtn.ErrorInfo.Message, logger, LogLevel.Error, args);
                                 return rtn;
                             }
-
-                            effectedRows += exec.Result;
                         }
 
                         await Repository.SaveAsync(cancellationToken).ConfigureAwait(false);
 
                         if (withTransaction)
                         {
-                            await worker.TransactionHelper.CommitAsync(cancellationToken).ConfigureAwait(false);
+                            await Worker.TransactionHelper.CommitAsync(cancellationToken).ConfigureAwait(false);
                         }
                     }
                 }
 
+                rtn.Result = true;
+
                 return rtn;
             }
 
-            var rtn = await dynamicServiceAction.RunAction<int, ServiceParamsWithIdentifier<List<TDTO>>>(args, actionName, ServiceName, ModuleName, invoker).ConfigureAwait(false);
+            var rtn = await dynamicServiceAction.RunAction<bool, ServiceParamsWithIdentifier<List<TDTO>>>(args, actionName, ServiceName, ModuleName, invoker).ConfigureAwait(false);
             return rtn;
         }
 
-        public virtual async Task<IReturnModel<int>> ChangeStatusRangeAsync(ServiceParamsWithIdentifier<List<ChangeStatusModel>> args, bool withTransaction = true, CancellationToken cancellationToken = default)
+        public virtual async Task<IReturnModel<bool>> ChangeStatusRangeAsync(ServiceParamsWithIdentifier<List<ChangeStatusModel>> args, bool withTransaction = true, CancellationToken cancellationToken = default)
         {
             var actionName = "ChangeStatusRangeAsync";
 
-            async Task<IReturnModel<int>> invoker(ServiceParamsWithIdentifier<List<ChangeStatusModel>> args, IReturnModel<int> rtn)
+            async Task<IReturnModel<bool>> invoker(ServiceParamsWithIdentifier<List<ChangeStatusModel>> args, IReturnModel<bool> rtn)
             {
                 if (args == null)
                 {
@@ -709,15 +700,13 @@ namespace CSBEF.Concretes
                     return rtn;
                 }
 
-                var effectedRows = 0;
-
                 if (args.Param != null)
                 {
                     if (args.Param.Any())
                     {
                         if (withTransaction)
                         {
-                            await worker.TransactionHelper.CreateTransactionAsync(cancellationToken).ConfigureAwait(false);
+                            await Worker.TransactionHelper.CreateTransactionAsync(cancellationToken).ConfigureAwait(false);
                         }
 
                         foreach (var item in args.Param)
@@ -728,32 +717,31 @@ namespace CSBEF.Concretes
                             {
                                 if (withTransaction)
                                 {
-                                    await worker.TransactionHelper.RollbackAsync(cancellationToken).ConfigureAwait(false);
+                                    await Worker.TransactionHelper.RollbackAsync(cancellationToken).ConfigureAwait(false);
                                 }
                                 rtn.ErrorInfo = exec.ErrorInfo;
                                 Tools.WriteLoggerForService(ModuleName, ServiceName, actionName, rtn.ErrorInfo.Code, rtn.ErrorInfo.Message, logger, LogLevel.Error, args);
                                 return rtn;
                             }
-
-                            effectedRows++;
                         }
 
                         await Repository.SaveAsync(cancellationToken).ConfigureAwait(false);
 
                         if (withTransaction)
                         {
-                            await worker.TransactionHelper.CommitAsync(cancellationToken).ConfigureAwait(false);
+                            await Worker.TransactionHelper.CommitAsync(cancellationToken).ConfigureAwait(false);
                         }
                     }
                 }
 
+                rtn.Result = true;
+
                 return rtn;
             }
 
-            var rtn = await dynamicServiceAction.RunAction<int, ServiceParamsWithIdentifier<List<ChangeStatusModel>>>(args, actionName, ServiceName, ModuleName, invoker).ConfigureAwait(false);
+            var rtn = await dynamicServiceAction.RunAction<bool, ServiceParamsWithIdentifier<List<ChangeStatusModel>>>(args, actionName, ServiceName, ModuleName, invoker).ConfigureAwait(false);
             return rtn;
         }
-
 
         private bool disposed;
 
@@ -763,7 +751,7 @@ namespace CSBEF.Concretes
             {
                 if (disposing)
                 {
-                    Repository.Dispose();
+                    Worker.Dispose();
                 }
                 disposed = true;
             }
