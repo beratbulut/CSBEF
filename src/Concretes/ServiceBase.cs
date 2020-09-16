@@ -3,7 +3,7 @@ using System.Linq;
 using AutoMapper;
 using CSBEF.Helpers;
 using CSBEF.Models;
-using CSBEF.Models.Interfaces;
+using CSBEF.Interfaces;
 using Microsoft.Extensions.Logging;
 using System.Linq.Dynamic.Core;
 using System.Threading.Tasks;

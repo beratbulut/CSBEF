@@ -1,6 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 
-namespace CSBEF.Models.Interfaces
+namespace CSBEF.Interfaces
 {
     public interface IModuleInitializer
     {

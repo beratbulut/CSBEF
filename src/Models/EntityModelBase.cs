@@ -1,6 +1,6 @@
 using System;
 using System.ComponentModel.DataAnnotations;
-using CSBEF.Models.Interfaces;
+using CSBEF.Interfaces;
 
 namespace CSBEF.Models
 {

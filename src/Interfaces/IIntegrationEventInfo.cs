@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
+using CSBEF.Models;
 
-namespace CSBEF.Models.Interfaces
+namespace CSBEF.Interfaces
 {
     public delegate Task<IReturnModel<bool>> IntegrationEventDelegate(IntegrationEventArgs args);
 

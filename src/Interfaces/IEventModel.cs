@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 
-namespace CSBEF.Models.Interfaces
+namespace CSBEF.Interfaces
 {
     public delegate Task<dynamic> EventDelegate(dynamic data, IEventInfo eventInfo);
 

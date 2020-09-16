@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using CSBEF.Models.Interfaces;
+using CSBEF.Interfaces;
 using CSBEF.enums;
 
 namespace CSBEF.Models

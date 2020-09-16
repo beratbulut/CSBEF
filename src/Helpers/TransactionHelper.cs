@@ -1,9 +1,10 @@
 using System.Threading;
 using System.Threading.Tasks;
-using CSBEF.Models.Interfaces;
+using CSBEF.Concretes;
+using CSBEF.Interfaces;
 using Microsoft.EntityFrameworkCore.Storage;
 
-namespace CSBEF.Concretes
+namespace CSBEF.Helpers
 {
     public class TransactionHelper : ITransactionHelper
     {

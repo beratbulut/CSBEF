@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using CSBEF.Models.Interfaces;
+using CSBEF.Interfaces;
 
 namespace CSBEF.Models
 {

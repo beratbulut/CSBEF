@@ -1,6 +1,6 @@
 using System;
 
-namespace CSBEF.Models.Interfaces
+namespace CSBEF.Interfaces
 {
     public interface IReturnModel<TResult>
     {

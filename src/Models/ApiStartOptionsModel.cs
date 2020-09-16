@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using AutoMapper.Configuration;
 using CSBEF.Concretes;
-using CSBEF.Models.Interfaces;
+using CSBEF.Interfaces;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;

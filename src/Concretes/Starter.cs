@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
-using CSBEF.Models.Interfaces;
+using CSBEF.Interfaces;
 using CSBEF.Models;
 using System.Threading.Tasks;
 using CSBEF.Helpers;

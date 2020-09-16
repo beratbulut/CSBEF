@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using CSBEF.enums;
 
-namespace CSBEF.Models.Interfaces
+namespace CSBEF.Interfaces
 {
     public interface IEventService
     {

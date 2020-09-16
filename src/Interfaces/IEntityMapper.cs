@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 
-namespace CSBEF.Models.Interfaces
+namespace CSBEF.Interfaces
 {
     public interface IEntityMapper
     {

@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using CSBEF.Models.Interfaces;
+using CSBEF.Interfaces;
 
 namespace CSBEF.Helpers
 {

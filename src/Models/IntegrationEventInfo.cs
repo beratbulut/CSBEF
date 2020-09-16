@@ -1,5 +1,5 @@
 using System.Threading.Tasks;
-using CSBEF.Models.Interfaces;
+using CSBEF.Interfaces;
 
 namespace CSBEF.Models
 {

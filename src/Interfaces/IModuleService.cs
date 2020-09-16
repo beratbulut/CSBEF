@@ -1,4 +1,4 @@
-namespace CSBEF.Models.Interfaces
+namespace CSBEF.Interfaces
 {
 #pragma warning disable CA1040
     public interface IModuleService

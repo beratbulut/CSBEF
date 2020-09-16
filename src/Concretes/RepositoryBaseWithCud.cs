@@ -4,7 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using CSBEF.enums;
 using CSBEF.Helpers;
-using CSBEF.Models.Interfaces;
+using CSBEF.Interfaces;
 
 namespace CSBEF.Concretes
 {

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Reflection;
 using CSBEF.Models;
 using CSBEF.Helpers;
-using CSBEF.Models.Interfaces;
+using CSBEF.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using CSBEF.enums;
 

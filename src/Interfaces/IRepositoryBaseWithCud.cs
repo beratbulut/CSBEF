@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace CSBEF.Models.Interfaces
+namespace CSBEF.Interfaces
 {
     public interface IRepositoryBaseWithCud<T> : IRepositoryBase<T>
         where T : class, IEntityModelBase

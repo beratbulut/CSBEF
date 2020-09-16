@@ -1,4 +1,4 @@
-namespace CSBEF.Models.Interfaces
+namespace CSBEF.Interfaces
 {
     public interface IAfterEventParameterModel<TDataToBeSent, TActionParameter>
     {

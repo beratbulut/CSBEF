@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 using CSBEF.enums;
-using CSBEF.Models.Interfaces;
+using CSBEF.Interfaces;
 using CSBEF.Helpers;
 
 namespace CSBEF.Concretes

@@ -1,9 +1,9 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using CSBEF.Concretes;
+using CSBEF.Helpers;
 
-namespace CSBEF.Models.Interfaces
+namespace CSBEF.Interfaces
 {
     public interface IUnitOfWork : IDisposable
     {

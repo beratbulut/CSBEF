@@ -1,5 +1,5 @@
 using System;
-using CSBEF.Models.Interfaces;
+using CSBEF.Interfaces;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;

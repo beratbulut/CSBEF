@@ -2,8 +2,9 @@ using System;
 using System.Threading.Tasks;
 using System.Threading;
 using System.Collections.Generic;
+using CSBEF.Models;
 
-namespace CSBEF.Models.Interfaces
+namespace CSBEF.Interfaces
 {
     public interface IServiceBase : IDisposable
     {

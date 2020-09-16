@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using CSBEF.Models;
-using CSBEF.Models.Interfaces;
+using CSBEF.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace CSBEF.Concretes

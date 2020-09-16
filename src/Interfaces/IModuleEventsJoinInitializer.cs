@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 
-namespace CSBEF.Models.Interfaces
+namespace CSBEF.Interfaces
 {
     public interface IModuleEventsJoinInitializer
     {

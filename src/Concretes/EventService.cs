@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CSBEF.enums;
 using CSBEF.Models;
-using CSBEF.Models.Interfaces;
+using CSBEF.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace CSBEF.Concretes

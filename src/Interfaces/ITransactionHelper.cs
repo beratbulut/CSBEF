@@ -2,7 +2,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using CSBEF.Concretes;
 
-namespace CSBEF.Models.Interfaces
+namespace CSBEF.Interfaces
 {
     public interface ITransactionHelper
     {

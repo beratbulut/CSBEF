@@ -1,6 +1,6 @@
 using CSBEF.enums;
 
-namespace CSBEF.Models.Interfaces
+namespace CSBEF.Interfaces
 {
     public interface IEventInfo
     {

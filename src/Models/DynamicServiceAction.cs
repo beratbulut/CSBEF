@@ -3,7 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CSBEF.enums;
 using CSBEF.Helpers;
-using CSBEF.Models.Interfaces;
+using CSBEF.Interfaces;
 using CSBEF.src.Helpers.Exceptions;
 using Microsoft.Extensions.Logging;
 

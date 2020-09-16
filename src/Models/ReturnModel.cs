@@ -1,6 +1,6 @@
 using System;
 using CSBEF.enums;
-using CSBEF.Models.Interfaces;
+using CSBEF.Interfaces;
 
 namespace CSBEF.Models
 {
